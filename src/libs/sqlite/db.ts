@@ -1,12 +1,15 @@
 import * as SQLite from "expo-sqlite";
 
-export const sqlite = SQLite.openDatabaseSync(
-  "zoe-kingdom.db"
-);
-
+export const sqlite = SQLite.openDatabaseSync("zoe-kingdom.db");
 
 export const initDB = async () => {
   try {
+//     await sqlite.execAsync(`
+//   DROP TABLE IF EXISTS habits;
+//   DROP TABLE IF EXISTS habit_logs;
+//   DROP TABLE IF EXISTS spirit_state;
+// `);
+
     await sqlite.execAsync(`
     
     CREATE TABLE IF NOT EXISTS spirit_state (
