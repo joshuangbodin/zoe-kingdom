@@ -1,51 +1,47 @@
-import { useRouter } from "expo-router";
-import { Pressable, Text, View } from "react-native";
+import { auth } from "@/libs/firebase";
+import { router } from "expo-router";
+import { onAuthStateChanged } from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import { Text, View } from "react-native";
 
-const man = require("@/assets/images/animoji/animoji-12.png");
-const woman = require("@/assets/images/animoji/animoji-94.png");
+const index = () => {
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState(null);
 
-export default function Index() {
-  const router = useRouter();
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser as any);
+        router.push("/(tabs)/home");
+        if (initializing) {
+          setInitializing(false);
+        }
+        return;
+      }
 
+      router.push("/(auth)/signin");
+
+      if (initializing) {
+        setInitializing(false);
+      }
+    });
+
+    return unsub;
+  }, []);
+
+  
   return (
-    <View className="flex-1 bg-black px-6 justify-center">
-      {/* BRAND SECTION */}
-      <View className="items-center mb-12">
-        <Text className="text-4xl  font-bold text-white tracking-wide">
-          Zoe Kingdom
-        </Text>
-
-        <Text className="text-2xl mt-1">👑</Text>
-
-        <Text className="text-gray-400 text-center mt-4 leading-5">
-          Grow your spirit man.{"\n"}
-          Build holy habits.{"\n"}
-          Walk in consistency.
-        </Text>
-      </View>
-
-      {/* PRIMARY ACTION */}
-      <Pressable
-        onPress={() => router.push("/(auth)/signin")}
-        className="bg-white py-4 rounded-2xl items-center"
-      >
-        <Text className="text-black font-semibold text-base">
-          Enter Kingdom
-        </Text>
-      </Pressable>
-
-      {/* SECONDARY ACTION */}
-      <Pressable
-        onPress={() => router.push("/(auth)/signup")}
-        className="mt-5 items-center"
-      >
-        <Text className="text-gray-400">New here? Start your journey →</Text>
-      </Pressable>
-
-      {/* FOOTNOTE */}
-      <Text className="text-gray-600 text-xs text-center mt-10">
-        A discipline-based spiritual growth system
+    <View className="relative justify-center items-center  bg-black flex-1 ">
+      <Text className="text-white text-3xl font-sora-bold">
+        My<Text className="text-muted">Zoe</Text>Life
       </Text>
+
+      <View className="items-center absolute bottom-safe-offset-8">
+        <Text className="text-muted text-xs font-sora">Powered By </Text>
+        <Text className="text-white font-sora-bold text-lg">Christ.</Text>
+      </View>
     </View>
   );
-}
+};
+
+export default index;

@@ -102,7 +102,7 @@ export default function Feed() {
             value={content}
             onChangeText={setContent}
             multiline
-            className="text-base text-gray-900 min-h-[80px]"
+            className="text-base text-gray-900 min-h-20"
           />
 
           <Pressable
