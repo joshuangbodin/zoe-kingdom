@@ -36,6 +36,7 @@ export default function Home() {
 
   return (
     <ScrollView
+      showsVerticalScrollIndicator={false}
       style={{
         paddingTop: top + 10,
       }}
