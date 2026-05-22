@@ -32,7 +32,7 @@ export default function Onboarding() {
           </Text>
         </View>
 
-        <Text className="text-muted  mt-8 text-base font-sora leading-[30px] ">
+        <Text className="text-muted  mt-8 text-base font-sora leading-7.5 ">
           Grow your Spirit Man.{"\n"}
           Join the community & Share thought.{"\n"}
           Build Holy Habits.
