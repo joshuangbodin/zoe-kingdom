@@ -13,5 +13,5 @@ export const getGreeting = () => {
     return "Good evening";
   }
 
-  return "Stay strong tonight";
+  return "Good night";
 };
