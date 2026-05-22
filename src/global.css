@@ -1,14 +1,14 @@
-@import 'tailwindcss';
-@import 'uniwind';
+@import "tailwindcss";
+@import "uniwind";
 
 @theme {
-  /* Sans */
-  --font-sans: 'Sora-Regular';
-  --font-sans-medium: 'Sora-Medium';
-  --font-sans-semibold: 'Sora-SemiBold';
-  --font-sans-bold: 'Sora-Bold';
+  /* Sora */
+  --font-sora: "Sora-Regular";
+  --font-sora-medium: "Sora-Medium";
+  --font-sora-semibold: "Sora-SemiBold";
+  --font-sora-bold: "Sora-Bold";
 
   /* Serif */
-  --font-serif: 'NotoSerif-Regular';
-  --font-serif-italic: 'NotoSerif-Italic';
+  --font-serif: "NotoSerif-Regular";
+  --font-serif-italic: "NotoSerif-Italic";
 }

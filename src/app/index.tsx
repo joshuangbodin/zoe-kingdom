@@ -11,7 +11,7 @@ export default function Index() {
     <View className="flex-1 bg-black px-6 justify-center">
       {/* BRAND SECTION */}
       <View className="items-center mb-12">
-        <Text className="text-4xl font-bold text-white tracking-wide">
+        <Text className="text-4xl  font-bold text-white tracking-wide">
           Zoe Kingdom
         </Text>
 
