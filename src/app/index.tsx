@@ -10,9 +10,13 @@ const index = () => {
   const { user, setUser } = useApp();
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (currentUser) => {
+    const unsub = onAuthStateChanged(auth, (currentUser: any) => {
       if (currentUser) {
-        setUser(currentUser as any);
+        setUser({
+          email: currentUser.email,
+          // uid: currentUser.uid,
+          // emailVerified: currentUser.emailVerified,
+        });
         router.push("/(tabs)/home");
         if (initializing) {
           setInitializing(false);

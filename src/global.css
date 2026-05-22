@@ -12,5 +12,6 @@
   --font-serif: "NotoSerif-Regular";
   --font-serif-italic: "NotoSerif-Italic";
 
-  --color-muted:#C7C7C7
+  --color-muted:#C7C7C7;
+  --color-bg: #141414
 }

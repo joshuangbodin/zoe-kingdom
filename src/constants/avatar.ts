@@ -114,7 +114,7 @@ export const Avatars = [
   require("@/assets/images/animoji/animoji-113.png"),
   require("@/assets/images/animoji/animoji-114.png"),
   require("@/assets/images/animoji/animoji-115.png"),
-  require("@/assets/images/animoji/animoji-116.png"),
+  
 ];
 
 export const getAnimoji = (index: number) => Avatars[index];
