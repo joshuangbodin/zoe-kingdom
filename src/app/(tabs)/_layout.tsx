@@ -10,7 +10,7 @@ export default function TabLayout() {
         headerShown: false,
 
         tabBarStyle: {
-          backgroundColor: "#ffffff",
+          backgroundColor: "#181818",
           borderTopWidth: 1,
           borderTopColor: "#e5e7eb",
           height: insets.bottom + 60,
@@ -18,11 +18,13 @@ export default function TabLayout() {
           paddingBottom: insets.bottom + 10,
         },
 
-      
+        tabBarInactiveTintColor: "#c7c7c7",
+        tabBarActiveTintColor: "#fff",
 
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: "600",
+          marginTop: 4,
+          fontFamily: "Sora-Bold",
         },
       }}
     >
@@ -30,7 +32,7 @@ export default function TabLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
+          tabBarIcon: ({ size, color }) => <Home size={24} color={color} />,
         }}
       />
 
@@ -39,7 +41,7 @@ export default function TabLayout() {
         options={{
           title: "Habits",
           tabBarIcon: ({ size, color }) => (
-            <CheckSquare size={size} color={color} />
+            <CheckSquare size={24} color={color} />
           ),
         }}
       />
@@ -49,7 +51,7 @@ export default function TabLayout() {
         options={{
           title: "Feed",
           tabBarIcon: ({ size, color }) => (
-            <Newspaper size={size} color={color} />
+            <Newspaper size={24} color={color} />
           ),
         }}
       />
@@ -58,7 +60,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ size, color }) => <User size={size} color={color} />,
+          tabBarIcon: ({ size, color }) => <User size={24} color={color} />,
         }}
       />
     </Tabs>
