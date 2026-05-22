@@ -35,6 +35,19 @@
           }
         }
       ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/font/Sora/Sora-Regular.ttf",
+            "./assets/font/Sora/Sora-Medium.ttf",
+            "./assets/font/Sora/Sora-SemiBold.ttf",
+            "./assets/font/Sora/Sora-Bold.ttf",
+            "./assets/font/Serif/NotoSerif-Regular.ttf",
+            "./assets/font/Serif/NotoSerif-Italic.ttf"
+          ]
+        }
+      ],
       "expo-sqlite"
     ],
     "experiments": {
