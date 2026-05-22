@@ -1,3 +1,4 @@
+import { useApp } from "@/context/app-context";
 import { auth } from "@/libs/firebase";
 import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
@@ -6,7 +7,7 @@ import { Text, View } from "react-native";
 
 const index = () => {
   const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState(null);
+  const { user, setUser } = useApp();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {
@@ -29,7 +30,6 @@ const index = () => {
     return unsub;
   }, []);
 
-  
   return (
     <View className="relative justify-center items-center  bg-black flex-1 ">
       <Text className="text-white text-3xl font-sora-bold">

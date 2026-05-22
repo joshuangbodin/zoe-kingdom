@@ -9,6 +9,7 @@ import React, { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import "../global.css";
 
+import AppProvider from "@/context/app-context";
 import { initDB } from "@/libs/sqlite/db";
 import { Stack } from "expo-router";
 
@@ -19,7 +20,6 @@ export default function TabLayout() {
   useEffect(() => {
     initDB();
   }, []);
-
 
   // load fonts
   const [loaded, error] = useFonts({
@@ -44,8 +44,10 @@ export default function TabLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }} />
-    </ThemeProvider>
+    <AppProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack screenOptions={{ headerShown: false }} />
+      </ThemeProvider>
+    </AppProvider>
   );
 }
