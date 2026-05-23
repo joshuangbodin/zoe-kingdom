@@ -8,6 +8,7 @@ import { getGreeting } from "@/constants/time";
 import { useApp } from "@/context/app-context";
 import { getHabits } from "@/libs/sqlite/habits";
 import { getSpiritState } from "@/libs/sqlite/spirit";
+import { getDailyStreak } from "@/libs/sqlite/streak";
 import { router } from "expo-router";
 import { Flame } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,6 +16,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function Home() {
   const [spirit, setSpirit] = useState<any>(null);
   const [habits, setHabits] = useState<any[]>([]);
+  const [streak, setStreak] = useState<any>(0);
+
   const { top } = useSafeAreaInsets();
 
   const { user } = useApp();
@@ -26,12 +29,14 @@ export default function Home() {
   const loadData = async () => {
     const s = await getSpiritState();
     const h = await getHabits();
-
+    const currentStreak = await getDailyStreak();
+    console.log(currentStreak);
     setSpirit(s);
     setHabits(h);
+    setStreak(currentStreak);
   };
 
-  const level = spirit?.level || 1;
+  const level = streak || 1;
   const xp = spirit?.totalXP || 0;
 
   return (
@@ -58,7 +63,7 @@ export default function Home() {
 
       {/* Growth Stats */}
 
-      <GrowthStat level={level} xp={xp} />
+      <GrowthStat level={streak} xp={spirit?.totalXp || 1} />
 
       {/* CTA */}
       <Pressable

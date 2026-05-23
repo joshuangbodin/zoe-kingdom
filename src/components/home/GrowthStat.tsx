@@ -54,7 +54,8 @@ export default function GrowthStat({
           <View className="p-5 flex-[.6] justify-between rounded-3xl bg-card-1 ">
             <Text className="font-sora text-muted">Current Streak</Text>
             <Text className="font-sora-semibold text-xl text-white">
-              0<Text className="text-xs text-muted">/DAYS</Text>
+              {level}
+              <Text className="text-xs text-muted">/DAYS</Text>
             </Text>
           </View>
         </View>
