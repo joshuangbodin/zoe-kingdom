@@ -4,11 +4,11 @@ export const sqlite = SQLite.openDatabaseSync("zoe-kingdom.db");
 
 export const initDB = async () => {
   try {
-//     await sqlite.execAsync(`
-//   DROP TABLE IF EXISTS habits;
-//   DROP TABLE IF EXISTS habit_logs;
-//   DROP TABLE IF EXISTS spirit_state;
-// `);
+    // await sqlite.execAsync(`
+    //   DROP TABLE IF EXISTS habits;
+    //   DROP TABLE IF EXISTS habit_logs;
+    //   DROP TABLE IF EXISTS spirit_state;
+    // `);
 
     await sqlite.execAsync(`
     
@@ -21,26 +21,42 @@ export const initDB = async () => {
       spiritStage TEXT DEFAULT 'seed'
     );
 
-    CREATE TABLE IF NOT EXISTS habits (
-      id TEXT PRIMARY KEY NOT NULL,
 
-      title TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS habits (
+  id TEXT PRIMARY KEY NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT DEFAULT 'discipline',
 
-      streak INTEGER DEFAULT 0,
-      xpReward INTEGER DEFAULT 10,
+  frequency TEXT DEFAULT 'morning',
 
-      createdAt TEXT
-    );
+  slot TEXT,
+
+  icon TEXT DEFAULT '✨',
+  color TEXT DEFAULT '#FFD166',
+
+  xpReward INTEGER DEFAULT 10,
+  duration INTEGER DEFAULT 10,
+
+  archived INTEGER DEFAULT 0,
+  createdAt TEXT NOT NULL
+);
 
     CREATE TABLE IF NOT EXISTS habit_logs (
-      id TEXT PRIMARY KEY NOT NULL,
+    id TEXT PRIMARY KEY NOT NULL,
 
-      habitId TEXT NOT NULL,
+    habitId TEXT NOT NULL,
 
-      completedAt TEXT NOT NULL,
+    completedAt TEXT NOT NULL,
 
-      synced INTEGER DEFAULT 0
-    );
+    xpEarned INTEGER DEFAULT 10,
+
+    synced INTEGER DEFAULT 0,
+
+    slot TEXT,
+
+    FOREIGN KEY (habitId)
+    REFERENCES habits(id)
+);
 
   `);
   } catch (err) {
