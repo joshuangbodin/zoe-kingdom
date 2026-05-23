@@ -1,3 +1,9 @@
+import {
+  getFireStatus,
+  getLevelFromXP,
+  getProgressPercentage,
+  getXPForNextLevel,
+} from "@/constants/levels";
 import LottieView from "lottie-react-native";
 import { Share2 } from "lucide-react-native";
 import React from "react";
@@ -10,20 +16,19 @@ const sparkle = require("@/assets/lottie/Twinkle.json");
 const oil = require("@/assets/lottie/Oil.json");
 
 export default function GrowthStat({
-  level,
+  streak,
   xp,
 }: {
-  level: number;
+  streak: number;
   xp: number;
 }) {
-  const status =
-    level < 5
-      ? "Seed Stage"
-      : level < 10
-        ? "Growing Spirit"
-        : level < 20
-          ? "Burning Faith"
-          : "Kingdom Mature";
+  const levelNumber = getLevelFromXP(xp);
+
+  const fire = getFireStatus(levelNumber);
+
+  const progress = getProgressPercentage(xp);
+
+  const nextLevelXP = getXPForNextLevel(levelNumber);
   return (
     <View className="gap-2 mt-10">
       {/* top part */}
@@ -31,7 +36,15 @@ export default function GrowthStat({
         {/* animation */}
         <View className="flex-[.6] relative h-50">
           <LottieView
-            source={oil}
+            source={
+              fire.animation === "spark"
+                ? sparkle
+                : fire.animation === "oil"
+                  ? oil
+                  : fire.animation === "fire"
+                    ? spark
+                    : crown
+            }
             autoPlay
             loop
             style={{
@@ -48,13 +61,17 @@ export default function GrowthStat({
         {/* side stats (fire status and current Streak) */}
         <View className="flex-[.4] h-full gap-2">
           <View className="p-5 flex-[.4] justify-between rounded-3xl bg-card-1 ">
-            <Text className="font-sora text-muted">Altar Fire Status</Text>
-            <Text className="font-sora-semibold text-white">{status}</Text>
+            <Text className="font-sora text-xs text-muted">
+              Altar Fire Status
+            </Text>
+            <Text className="font-sora-semibold text-sm text-white">
+              {fire.title}
+            </Text>
           </View>
           <View className="p-5 flex-[.6] justify-between rounded-3xl bg-card-1 ">
-            <Text className="font-sora text-muted">Current Streak</Text>
+            <Text className="font-sora text-xs text-muted">Current Streak</Text>
             <Text className="font-sora-semibold text-xl text-white">
-              {level}
+              {streak}
               <Text className="text-xs text-muted">/DAYS</Text>
             </Text>
           </View>
@@ -64,16 +81,24 @@ export default function GrowthStat({
       {/* XP */}
       <View className="p-6 rounded-3xl bg-card-2 ">
         <View className="flex-row items-center justify-between">
-          <Text className="font-sora text-muted">Experience Points(XP)</Text>
-          <Text className="font-sora-semibold text-white">{xp}xp</Text>
+          <Text className="font-sora text-xs text-muted">
+            Experience Points(XP)
+          </Text>
+          <Text className="font-sora-semibold text-sm text-white">
+            {xp}xp / {nextLevelXP}xp
+          </Text>
         </View>
 
         <View className="relative h-2.5 mt-4 bg-white overflow-hidden rounded-full">
           <View
-            style={{ width: `${xp || 3}%` }}
+            style={{ width: `${progress}%` }}
             className="absolute bg-gray-500 rounded-full h-full left-0"
           ></View>
         </View>
+
+        <Text className="mt-2 text-white font-sora-semibold">
+          LEVEL {levelNumber}
+        </Text>
       </View>
     </View>
   );

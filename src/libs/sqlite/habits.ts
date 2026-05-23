@@ -75,12 +75,7 @@ export const completeHabit = async (habitId: string) => {
       (id, habitId, completedAt, synced)
       VALUES (?, ?, ?, ?)
     `,
-    [
-      `hblog-${Date.now()}`,
-      habitId,
-      new Date().toISOString(),
-      0,
-    ],
+    [`hblog-${Date.now()}`, habitId, new Date().toISOString(), 0],
   );
 
   // 4. update streak (still simple for now)
@@ -96,7 +91,7 @@ export const completeHabit = async (habitId: string) => {
   );
 
   // 5. XP reward
-  await addXP(habit.xpReward);
+  await addXP(10);
 
   return true;
 };

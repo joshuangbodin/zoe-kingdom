@@ -7,7 +7,7 @@ import GrowthStat from "@/components/home/GrowthStat";
 import { getGreeting } from "@/constants/time";
 import { useApp } from "@/context/app-context";
 import { getHabits } from "@/libs/sqlite/habits";
-import { getSpiritState } from "@/libs/sqlite/spirit";
+import { getSpiritState, initializeSpirit } from "@/libs/sqlite/spirit";
 import { getDailyStreak } from "@/libs/sqlite/streak";
 import { router } from "expo-router";
 import { Flame } from "lucide-react-native";
@@ -27,17 +27,15 @@ export default function Home() {
   }, []);
 
   const loadData = async () => {
+    await initializeSpirit();
     const s = await getSpiritState();
     const h = await getHabits();
     const currentStreak = await getDailyStreak();
-    console.log(currentStreak);
+    console.log(s);
     setSpirit(s);
     setHabits(h);
     setStreak(currentStreak);
   };
-
-  const level = streak || 1;
-  const xp = spirit?.totalXP || 0;
 
   return (
     <ScrollView
@@ -57,13 +55,15 @@ export default function Home() {
         {/* Streak */}
         <View className="flex-row items-center">
           <Flame color={"#fff"} />
-          <Text className="text-white font-sora-semibold text-base">0</Text>
+          <Text className="text-white font-sora-semibold text-base">
+            {streak || 0}
+          </Text>
         </View>
       </View>
 
       {/* Growth Stats */}
 
-      <GrowthStat level={streak} xp={spirit?.totalXp || 1} />
+      <GrowthStat streak={streak} xp={spirit?.totalXP || 0} />
 
       {/* CTA */}
       <Pressable
