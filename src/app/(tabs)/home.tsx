@@ -31,7 +31,7 @@ export default function Home() {
     const s = await getSpiritState();
     const h = await getHabits();
     const currentStreak = await getDailyStreak();
-    console.log(s);
+  
     setSpirit(s);
     setHabits(h);
     setStreak(currentStreak);
