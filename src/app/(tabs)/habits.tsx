@@ -1,66 +1,87 @@
-import { useFocusEffect } from "expo-router";
-import React, { useCallback, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   Modal,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
 
+import { Plus, ChevronRight } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { PressableScale } from "react-native-pressable-scale";
+
 import {
-  completeHabit,
   createHabit,
   getHabits,
   Habit,
-  isHabitCompleted,
 } from "@/libs/sqlite/habits";
 
-const CATEGORIES = [
-  { id: "prayer", label: "Prayer", icon: "🙏", color: "#7C3AED" },
-  { id: "bible", label: "Bible", icon: "📖", color: "#2563EB" },
-  { id: "worship", label: "Worship", icon: "🎵", color: "#EC4899" },
-  { id: "fasting", label: "Fasting", icon: "🔥", color: "#EA580C" },
-  { id: "discipline", label: "Discipline", icon: "⚔️", color: "#10B981" },
-];
+import {
+  CATEGORIES,
+  frequencyData,
+  getCategoryIcon,
+} from "@/constants/habit-data";
 
 export default function Habits() {
-  const [title, setTitle] = useState("");
-  const [frequency, setFrequency] = useState<
-    "morning" | "evening" | "twice_daily" | "weekly" | "throughout_day"
-  >("morning");
-  const [habits, setHabits] = useState<(Habit & { completed?: boolean })[]>([]);
+  const router = useRouter();
+  const { top } = useSafeAreaInsets();
+
+  const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(false);
-  const [duration, setDuration] = useState(10);
-  const [initialLoading, setInitialLoading] = useState(true);
+
   const [open, setOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0]);
 
-  // LOAD HABITS
+  const [title, setTitle] = useState("");
+
+  const [duration, setDuration] = useState(10);
+
+  const [selectedCategory, setSelectedCategory] =
+    useState(CATEGORIES[0]);
+
+  const [frequency, setFrequency] = useState<
+    "morning" |
+    "evening" |
+    "twice_daily" |
+    "weekly" |
+    "throughout_day"
+  >("throughout_day");
+
+  const [filterFrequency, setFilterFrequency] =
+    useState("All");
+
+  // LOAD
   const loadHabits = async () => {
-    setInitialLoading(true);
-
     const data = await getHabits();
-
-    const enhanced = await Promise.all(
-      data.map(async (habit) => ({
-        ...habit,
-        completed: await isHabitCompleted(habit),
-      })),
-    );
-
-    setHabits(enhanced);
-    setInitialLoading(false);
+    setHabits(data);
   };
 
   useFocusEffect(
     useCallback(() => {
       loadHabits();
-    }, []),
+    }, [])
   );
 
-  // CREATE HABIT
+  // FILTER
+  const filteredHabits = useMemo(() => {
+    if (
+      filterFrequency.toLowerCase() === "all"
+    ) {
+      return habits;
+    }
+
+    return habits.filter(
+      (h: any) =>
+        h.frequency?.toLowerCase() ===
+        filterFrequency.toLowerCase()
+    );
+  }, [habits, filterFrequency]);
+
+  // CREATE
   const handleCreateHabit = async () => {
     if (!title.trim()) return;
 
@@ -70,9 +91,9 @@ export default function Habits() {
       await createHabit({
         title,
         category: selectedCategory.id,
-        frequency,
         icon: selectedCategory.icon,
         color: selectedCategory.color,
+        frequency,
         duration,
       });
 
@@ -87,253 +108,292 @@ export default function Habits() {
     }
   };
 
-  // COMPLETE HABIT (instant UI update)
-  const handleCompleteHabit = async (habit: any) => {
-    try {
-      const result = await completeHabit(habit);
-
-      if (!result?.success) return;
-
-      setHabits((prev) =>
-        prev.map((h) => (h.id === habit.id ? { ...h, completed: true } : h)),
-      );
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const completedCount = habits.filter((h) => h.completed).length;
-
-  const totalXP = habits.reduce((acc, cur) => acc + cur.xpReward, 0);
-
-  // LOADING SCREEN
-  if (initialLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-bg">
-        <Text className="text-white">Loading habits...</Text>
-      </View>
-    );
-  }
-
   return (
-    <View className="flex-1 bg-bg px-5 pt-16">
+    <View
+      style={{
+        paddingTop: top + 10,
+      }}
+      className="flex-1 bg-bg"
+    >
       {/* HEADER */}
-      <View className="flex-row items-center justify-between">
-        <View>
-          <Text className="text-3xl text-white font-sora-bold">
-            Holy Habits
-          </Text>
-          <Text className="text-muted mt-1">Build consistency daily</Text>
-        </View>
-
-        <View className="bg-card px-4 py-2 rounded-2xl">
-          <Text className="text-white font-sora-semibold">
-            {habits.length} Habits
-          </Text>
-        </View>
-      </View>
-
-      {/* STATS */}
-      <View className="flex-row gap-3 mt-8">
-        <View className="flex-1 bg-card rounded-3xl p-5">
-          <Text className="text-muted text-sm">Completed Today</Text>
-          <Text className="text-white text-3xl mt-2 font-sora-bold">
-            {completedCount}
-          </Text>
-        </View>
-
-        <View className="flex-1 bg-card rounded-3xl p-5">
-          <Text className="text-muted text-sm">XP Possible</Text>
-          <Text className="text-white text-3xl mt-2 font-sora-bold">
-            {totalXP}
-          </Text>
-        </View>
-      </View>
-
-      {/* SECTION */}
-      <View className="mt-10 flex-row items-center justify-between">
-        <Text className="text-white text-xl font-sora-semibold">
-          Today's Habits
+      <View className="px-5 flex-row items-center justify-between">
+        <Text className="text-xl  text-white font-sora-bold">
+          Your Spiritual Habits
         </Text>
 
-        <Text className="text-muted">
-          {completedCount}/{habits.length}
-        </Text>
+        <PressableScale
+          activeScale={0.9}
+          onPress={() => setOpen(true)}
+          className="w-12 h-12 rounded-2xl items-center justify-center bg-[#151515]"
+        >
+          <Plus color={"white"} size={28} />
+        </PressableScale>
       </View>
 
-      {/* LIST */}
+      {/* CONTENT */}
       <FlatList
-        data={habits}
+        data={filteredHabits}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 150 }}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingTop: 24,
+          paddingBottom: 160,
+        }}
+        ListHeaderComponent={
+          <>
+            {/* SCRIPTURE */}
+            <View className="bg-card-2 rounded-3xl p-6 pb-12 overflow-hidden">
+
+              <Text className="text-muted text-xs font-sora">
+                1 Corinthians 9: 24–27
+              </Text>
+
+              <Text
+                className="text-white text-sm font-serif leading-loose mt-3"
+                
+              >
+                Run in such a way as to get the
+                prize... I discipline my body and
+                keep it under control...
+              </Text>
+
+              <Pressable className="absolute bottom-0 right-0 bg-[#F3F3F3] px-4 py-2 rounded-tl-3xl">
+                <Text className="text-black text-xs font-sora">
+                  Read full
+                </Text>
+              </Pressable>
+            </View>
+
+            {/* FILTERS */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mt-8 mb-5"
+            >
+              <View className="flex-row items-center">
+
+                {[{ label: "All" }, ...frequencyData].map(
+                  (item: any, index) => {
+                    const active =
+                      item.label.toLowerCase() ===
+                      filterFrequency.toLowerCase();
+
+                    return (
+                      <Pressable
+                        key={index}
+                        onPress={() =>
+                          setFilterFrequency(item.label)
+                        }
+                        className={`px-4 py-2.5 rounded-full  ${
+                          active
+                            ? "bg-[#2A2A2D]"
+                            : ""
+                        }`}
+                      >
+                        <Text
+                          className={`text-xs ${
+                            active
+                              ? "text-white font-sora-medium"
+                              : "text-[#A1A1AA]"
+                          } font-sora`}
+                        >
+                          {item.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  }
+                )}
+
+              </View>
+            </ScrollView>
+          </>
+        }
         ListEmptyComponent={
-          <View className="items-center mt-24">
-            <Text className="text-5xl">🔥</Text>
-            <Text className="text-white text-lg mt-4 font-sora-semibold">
+          <View className="items-center mt-32">
+            <Text className="text-white text-xl font-sora-bold">
               No Habits Yet
             </Text>
-            <Text className="text-muted text-center mt-2">
-              Create your first holy habit and start growing spiritually
+
+            <Text className="text-[#7C7C80] text-center mt-3 px-10 leading-6">
+              Create your first spiritual habit and
+              begin growing consistently.
             </Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <View
-            className="rounded-[30px] p-5 mb-4"
-            style={{
-              backgroundColor: item.completed ? `${item.color}20` : "#171717",
-              borderWidth: 1,
-              borderColor: item.completed ? item.color : "#262626",
-            }}
+        renderItem={({ item }: any) => (
+          <PressableScale
+            activeScale={0.97}
+            onPress={() =>
+              router.push({
+                pathname: "/(habit)/completehabit",
+                params: {
+                  id: item.id,
+                },
+              })
+            }
+            className="mb-5"
           >
-            {/* TOP */}
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center flex-1">
+            <View className="bg-card-1 h-22 items-center justify-center rounded-3xl mb-2 px-4 py-3">
+
+              <View className="flex-row items-center">
+
+                {/* ICON */}
                 <View
-                  className="w-14 h-14 rounded-2xl items-center justify-center"
-                  style={{ backgroundColor: `${item.color}30` }}
+                  className="w-12 h-12 rounded-xl items-center justify-center"
+                  style={{
+                    backgroundColor: `${item.color}`,
+                  }}
                 >
-                  <Text className="text-2xl">{item.icon}</Text>
+                  {getCategoryIcon(
+                    item.category,
+                    18,
+                    "#fff"
+                  )}
                 </View>
 
-                <View className="ml-4 flex-1">
-                  <Text className="text-white text-lg font-sora-semibold">
+                {/* INFO */}
+                <View className="flex-1 ml-5">
+
+                  <Text className="text-white text-sm font-sora-semibold">
                     {item.title}
                   </Text>
-                  <Text className="text-muted mt-1 capitalize">
-                    {item.category}
+
+                  <Text className="text-muted mt-1 text-xs">
+                    Daily ・ {item.xpReward}xp ・{" "}
+                    {item.streak}🔥
                   </Text>
+
                 </View>
+
+                {/* ARROW */}
+                <View className="p-3 rounded-xl bg-card-2 items-center justify-center">
+                  <ChevronRight
+                    color={"white"}
+                    size={15}
+                  />
+                </View>
+
               </View>
 
-              <View
-                className="px-4 py-2 rounded-2xl"
-                style={{ backgroundColor: `${item.color}25` }}
-              >
-                <Text
-                  style={{ color: item.color }}
-                  className="font-sora-semibold"
-                >
-                  +{item.xpReward}XP
-                </Text>
-              </View>
             </View>
-
-            {/* BUTTON */}
-            <Pressable
-              disabled={item.completed}
-              onPress={() => handleCompleteHabit(item)}
-              className={`mt-5 py-4 rounded-2xl items-center ${
-                item.completed ? "bg-card" : "bg-white"
-              }`}
-            >
-              <Text
-                className={`font-sora-semibold ${
-                  item.completed ? "text-green-400" : "text-black"
-                }`}
-              >
-                {item.completed ? "Completed Today ✅" : "Complete Habit"}
-              </Text>
-            </Pressable>
-          </View>
+          </PressableScale>
         )}
       />
 
       {/* FLOAT BUTTON */}
       <Pressable
+       
         onPress={() => setOpen(true)}
-        className="absolute bottom-10 right-6 bg-white w-16 h-16 rounded-full items-center justify-center"
-        style={{ elevation: 10 }}
+        className="absolute bottom-4 right-5 w-12 h-12 rounded-full bg-[#F5F5F5] items-center justify-center"
+        style={{
+          shadowColor: "#000",
+          shadowOpacity: 0.3,
+          shadowRadius: 20,
+          elevation: 12,
+        }}
       >
-        <Text className="text-4xl text-black">+</Text>
+        <Plus
+          color={"black"}
+          size={18}
+          strokeWidth={2.2}
+        />
       </Pressable>
 
       {/* MODAL */}
-      <Modal visible={open} transparent animationType="slide">
+      <Modal
+        visible={open}
+        transparent
+        animationType="slide"
+      >
         <View className="flex-1 justify-end bg-black/60">
-          <View className="bg-[#111] rounded-t-[40px] p-6">
-            <Text className="text-white text-2xl font-sora-bold">
+
+          <View className="bg-[#111111] rounded-t-[40px] px-6 pt-7">
+
+            <Text className="text-white text-[30px] font-sora-bold">
               Create Habit
             </Text>
 
+            {/* TITLE */}
             <TextInput
               placeholder="Morning Prayer..."
               placeholderTextColor="#666"
               value={title}
               onChangeText={setTitle}
-              className="bg-card mt-6 rounded-3xl px-5 py-5 text-white"
+              className="bg-[#1A1A1A] mt-7 rounded-[28px] px-5 py-5 text-white text-[16px]"
             />
 
-            {/* CATEGORIES */}
-            <View className="flex-row flex-wrap gap-3 mt-6">
+            {/* CATEGORY */}
+            <Text className="text-white mt-8 mb-4 text-lg font-sora-semibold">
+              Category
+            </Text>
+
+            <View className="flex-row flex-wrap gap-3">
+
               {CATEGORIES.map((cat) => {
-                const active = selectedCategory.id === cat.id;
+                const active =
+                  selectedCategory.id === cat.id;
 
                 return (
                   <Pressable
                     key={cat.id}
-                    onPress={() => setSelectedCategory(cat)}
-                    className="px-4 py-3 rounded-2xl flex-row items-center"
+                    onPress={() =>
+                      setSelectedCategory(cat)
+                    }
+                    className="px-5 py-4 rounded-[22px] flex-row items-center"
                     style={{
-                      backgroundColor: active ? cat.color : "#1F1F1F",
+                      backgroundColor: active
+                        ? cat.color
+                        : "#1A1A1A",
                     }}
                   >
-                    <Text className="mr-2">{cat.icon}</Text>
-                    <Text className="text-white">{cat.label}</Text>
+                    <View className="mr-2">
+                      {getCategoryIcon(
+                        cat.id,
+                        16,
+                        "#fff"
+                      )}
+                    </View>
+
+                    <Text className="text-white font-sora-medium">
+                      {cat.label}
+                    </Text>
                   </Pressable>
                 );
               })}
+
             </View>
 
-            <Text className="text-white mt-6 mb-3 font-sora-semibold">
+            {/* FREQUENCY */}
+            <Text className="text-white mt-8 mb-4 text-lg font-sora-semibold">
               Frequency
             </Text>
 
-            {/*Frequency*/}
             <View className="flex-row flex-wrap gap-3">
-              {[
-                {
-                  id: "morning",
-                  label: "Morning",
-                  icon: "🌅",
-                },
-                {
-                  id: "evening",
-                  label: "Evening",
-                  icon: "🌇",
-                },
-                {
-                  id: "twice_daily",
-                  label: "Twice Daily",
-                  icon: "🔁",
-                },
-                {
-                  id: "weekly",
-                  label: "Weekly",
-                  icon: "📅",
-                },
-                {
-                  id: "throughout_day",
-                  label: "Anytime",
-                  icon: "🌤️",
-                },
-              ].map((f) => {
-                const active = frequency === f.id;
+
+              {frequencyData.map((f) => {
+                const active =
+                  frequency === f.id;
 
                 return (
                   <Pressable
                     key={f.id}
-                    onPress={() => setFrequency(f.id as any)}
-                    className="px-4 py-3 rounded-2xl flex-row items-center"
+                    onPress={() =>
+                      setFrequency(f.id as any)
+                    }
+                    className="px-5 py-4 rounded-[22px]"
                     style={{
-                      backgroundColor: active ? "#fff" : "#1F1F1F",
+                      backgroundColor: active
+                        ? "#F5F5F5"
+                        : "#1A1A1A",
                     }}
                   >
-                    <Text className="mr-2">{f.icon}</Text>
                     <Text
+                      className="font-sora-medium"
                       style={{
-                        color: active ? "#000" : "#fff",
+                        color: active
+                          ? "#000"
+                          : "#fff",
                       }}
                     >
                       {f.label}
@@ -341,51 +401,79 @@ export default function Habits() {
                   </Pressable>
                 );
               })}
+
             </View>
 
-            <Text className="text-white mt-6 mb-3 font-sora-semibold">
-              Duration (minutes)
+            {/* DURATION */}
+            <Text className="text-white mt-8 mb-4 text-lg font-sora-semibold">
+              Duration
             </Text>
 
-            <View className="flex-row flex-wrap items-center gap-3">
-              {[1, 2, 3, 4, 5, 10, 15, 20, 30].map((min) => (
-                <Pressable
-                  key={min}
-                  onPress={() => setDuration(min)}
-                  className="px-4 py-3 rounded-2xl"
-                  style={{
-                    backgroundColor: duration === min ? "#fff" : "#1F1F1F",
-                  }}
-                >
-                  <Text style={{ color: duration === min ? "#000" : "#fff" }}>
-                    {min}m
-                  </Text>
-                </Pressable>
-              ))}
+            <View className="flex-row flex-wrap gap-3">
+
+              {[1, 2, 3, 5, 10, 15, 20, 30].map(
+                (min) => {
+                  const active =
+                    duration === min;
+
+                  return (
+                    <Pressable
+                      key={min}
+                      onPress={() =>
+                        setDuration(min)
+                      }
+                      className="px-5 py-4 rounded-[22px]"
+                      style={{
+                        backgroundColor: active
+                          ? "#F5F5F5"
+                          : "#1A1A1A",
+                      }}
+                    >
+                      <Text
+                        className="font-sora-medium"
+                        style={{
+                          color: active
+                            ? "#000"
+                            : "#fff",
+                        }}
+                      >
+                        {min}m
+                      </Text>
+                    </Pressable>
+                  );
+                }
+              )}
+
             </View>
 
             {/* ACTIONS */}
-            <View className="flex-row gap-3 mt-8">
+            <View className="flex-row gap-4 mt-10 mb-12">
+
               <Pressable
                 onPress={() => setOpen(false)}
-                className="flex-1 bg-card rounded-3xl py-5 items-center"
+                className="flex-1 bg-[#1A1A1A] rounded-[28px] py-5 items-center"
               >
-                <Text className="text-white font-sora-semibold">Cancel</Text>
+                <Text className="text-white font-sora-semibold">
+                  Cancel
+                </Text>
               </Pressable>
 
               <Pressable
-                onPress={handleCreateHabit}
                 disabled={loading}
-                className="flex-1 bg-white rounded-3xl py-5 items-center"
+                onPress={handleCreateHabit}
+                className="flex-1 bg-[#F5F5F5] rounded-[28px] py-5 items-center"
               >
                 <Text className="text-black font-sora-bold">
-                  {loading ? "Creating..." : "Create Habit"}
+                  {loading
+                    ? "Creating..."
+                    : "Create Habit"}
                 </Text>
               </Pressable>
+
             </View>
 
-            <View className="h-10" />
           </View>
+
         </View>
       </Modal>
     </View>

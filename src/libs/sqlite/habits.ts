@@ -105,6 +105,22 @@ export const getHabits = async () => {
   return result;
 };
 
+// GET one habit
+export const getHabitById = async (id:string) => {
+  const result = await sqlite.getAllAsync<Habit>(
+    `
+      SELECT *
+      FROM habits
+
+      WHERE archived = 0 AND id =?
+
+      ORDER BY createdAt DESC
+      `, [id]
+  );
+
+  return result[0];
+};
+
 // CHECK IF COMPLETED TODAY
 export const isHabitCompleted = async (habit: Habit) => {
   const now = new Date();
