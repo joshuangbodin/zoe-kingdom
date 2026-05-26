@@ -1,5 +1,11 @@
 import { Tabs } from "expo-router";
-import { CheckSquare, Home, Newspaper, User } from "lucide-react-native";
+import {
+  BookPlus,
+  CheckSquare,
+  Home,
+  Newspaper,
+  User,
+} from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
@@ -53,6 +59,14 @@ export default function TabLayout() {
           tabBarIcon: ({ size, color }) => (
             <Newspaper size={24} color={color} />
           ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="bible"
+        options={{
+          title: "Bible",
+          tabBarIcon: ({ size, color }) => <BookPlus size={24} color={color} />,
         }}
       />
 
