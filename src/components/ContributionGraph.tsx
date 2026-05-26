@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { Pressable, ScrollView, Text, View } from "react-native";
 
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { getYearContributions } from "../libs/sqlite/contributions";
 
 // const COLORS: any = {
@@ -22,7 +23,7 @@ const COLORS: any = {
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const CELL_SIZE = 16;
+const CELL_SIZE = 24;
 const CELL_GAP = 4;
 const WEEK_WIDTH = CELL_SIZE + CELL_GAP;
 
@@ -94,10 +95,6 @@ export default function ContributionGraph() {
           <Text className="text-white text-base font-sora-bold">
             Consistency Map
           </Text>
-
-          <Text className="text-muted font-sora text-xs mt-1">
-            Your spiritual activity this year
-          </Text>
         </View>
 
         {/* YEAR SWITCHER */}
@@ -106,16 +103,16 @@ export default function ContributionGraph() {
             onPress={() => setYear(year - 1)}
             className="w-8 h-8 items-center justify-center"
           >
-            <Text className="text-gray-400 text-lg">←</Text>
+            <ChevronLeft color={"#fff"} />
           </Pressable>
 
-          <Text className="text-white font-semibold mx-2">{year}</Text>
+          <Text className="text-white font-sora-semibold mx-2">{year}</Text>
 
           <Pressable
             onPress={() => setYear(year + 1)}
             className="w-8 h-8 items-center justify-center"
           >
-            <Text className="text-gray-400 text-lg">→</Text>
+            <ChevronRight color={"#fff"} />
           </Pressable>
         </View>
       </View>
@@ -130,7 +127,7 @@ export default function ContributionGraph() {
           className="justify-between mr-3"
         >
           {DAYS.map((day) => (
-            <Text key={day} className="text-[10px] text-gray-500">
+            <Text key={day} className="text-[10px] font-sora text-muted">
               {day}
             </Text>
           ))}
@@ -177,8 +174,8 @@ export default function ContributionGraph() {
           <View
             key={level}
             style={{
-              width: 12,
-              height: 12,
+              width: 18,
+              height: 18,
               borderRadius: 3,
               marginHorizontal: 2,
               backgroundColor: COLORS[level],

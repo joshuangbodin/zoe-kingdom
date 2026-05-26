@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
@@ -118,7 +118,10 @@ export default function CompleteHabit() {
     >
       {/* header */}
       <View className="items-center flex-row justify-between">
-        <Pressable className="bg-card-1 p-3 aspect-square rounded-xl">
+        <Pressable
+          onPress={() => router.back()}
+          className="bg-card-1 p-3 aspect-square rounded-xl"
+        >
           <ChevronLeft color={"#fff"} />
         </Pressable>
 
@@ -271,7 +274,7 @@ export default function CompleteHabit() {
                 multiline
                 placeholder="Write your reflections..."
                 placeholderTextColor="#666"
-                className="bg-[#1D1D1F] mt-4 rounded-2xl px-5 py-5 text-white min-h-[180px]"
+                className="bg-[#1D1D1F] mt-4 rounded-2xl px-5 py-5 text-white min-h-45"
                 textAlignVertical="top"
               />
             </View>
@@ -350,10 +353,7 @@ export default function CompleteHabit() {
             </View>
           )}
           {/* COMPLETE BUTTON */}
-          <Pressable
-            className="mt-8 rounded-2xl bg-white py-5 items-center"
-           
-          >
+          <Pressable className="mt-8 rounded-2xl bg-white py-5 items-center">
             <Text className="text-black text-sm font-sora-bold">
               Complete Habit
             </Text>
