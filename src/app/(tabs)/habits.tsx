@@ -10,17 +10,14 @@ import {
   View,
 } from "react-native";
 
-import { Plus, ChevronRight } from "lucide-react-native";
+import { Plus } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "react-native-pressable-scale";
 
-import {
-  createHabit,
-  getHabits,
-  Habit,
-} from "@/libs/sqlite/habits";
+import { createHabit, getHabits, Habit } from "@/libs/sqlite/habits";
 
+import HabitCard from "@/components/habits/HabitCard";
 import {
   CATEGORIES,
   frequencyData,
@@ -40,19 +37,13 @@ export default function Habits() {
 
   const [duration, setDuration] = useState(10);
 
-  const [selectedCategory, setSelectedCategory] =
-    useState(CATEGORIES[0]);
+  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0]);
 
   const [frequency, setFrequency] = useState<
-    "morning" |
-    "evening" |
-    "twice_daily" |
-    "weekly" |
-    "throughout_day"
+    "morning" | "evening" | "twice_daily" | "weekly" | "throughout_day"
   >("throughout_day");
 
-  const [filterFrequency, setFilterFrequency] =
-    useState("All");
+  const [filterFrequency, setFilterFrequency] = useState("All");
 
   // LOAD
   const loadHabits = async () => {
@@ -63,21 +54,17 @@ export default function Habits() {
   useFocusEffect(
     useCallback(() => {
       loadHabits();
-    }, [])
+    }, []),
   );
 
   // FILTER
   const filteredHabits = useMemo(() => {
-    if (
-      filterFrequency.toLowerCase() === "all"
-    ) {
+    if (filterFrequency.toLowerCase() === "all") {
       return habits;
     }
 
     return habits.filter(
-      (h: any) =>
-        h.frequency?.toLowerCase() ===
-        filterFrequency.toLowerCase()
+      (h: any) => h.frequency?.toLowerCase() === filterFrequency.toLowerCase(),
     );
   }, [habits, filterFrequency]);
 
@@ -144,24 +131,17 @@ export default function Habits() {
           <>
             {/* SCRIPTURE */}
             <View className="bg-card-2 rounded-3xl p-6 pb-12 overflow-hidden">
-
               <Text className="text-muted text-xs font-sora">
                 1 Corinthians 9: 24–27
               </Text>
 
-              <Text
-                className="text-white text-sm font-serif leading-loose mt-3"
-                
-              >
-                Run in such a way as to get the
-                prize... I discipline my body and
-                keep it under control...
+              <Text className="text-white text-sm font-serif leading-loose mt-3">
+                Run in such a way as to get the prize... I discipline my body
+                and keep it under control...
               </Text>
 
               <Pressable className="absolute bottom-0 right-0 bg-[#F3F3F3] px-4 py-2 rounded-tl-3xl">
-                <Text className="text-black text-xs font-sora">
-                  Read full
-                </Text>
+                <Text className="text-black text-xs font-sora">Read full</Text>
               </Pressable>
             </View>
 
@@ -172,7 +152,6 @@ export default function Habits() {
               className="mt-8 mb-5"
             >
               <View className="flex-row items-center">
-
                 {[{ label: "All" }, ...frequencyData].map(
                   (item: any, index) => {
                     const active =
@@ -182,13 +161,9 @@ export default function Habits() {
                     return (
                       <Pressable
                         key={index}
-                        onPress={() =>
-                          setFilterFrequency(item.label)
-                        }
+                        onPress={() => setFilterFrequency(item.label)}
                         className={`px-4 py-2.5 rounded-full  ${
-                          active
-                            ? "bg-[#2A2A2D]"
-                            : ""
+                          active ? "bg-[#2A2A2D]" : ""
                         }`}
                       >
                         <Text
@@ -202,9 +177,8 @@ export default function Habits() {
                         </Text>
                       </Pressable>
                     );
-                  }
+                  },
                 )}
-
               </View>
             </ScrollView>
           </>
@@ -216,74 +190,15 @@ export default function Habits() {
             </Text>
 
             <Text className="text-[#7C7C80] text-center mt-3 px-10 leading-6">
-              Create your first spiritual habit and
-              begin growing consistently.
+              Create your first spiritual habit and begin growing consistently.
             </Text>
           </View>
         }
-        renderItem={({ item }: any) => (
-          <PressableScale
-            activeScale={0.97}
-            onPress={() =>
-              router.push({
-                pathname: "/(habit)/completehabit",
-                params: {
-                  id: item.id,
-                },
-              })
-            }
-            className="mb-5"
-          >
-            <View className="bg-card-1 h-22 items-center justify-center rounded-3xl mb-2 px-4 py-3">
-
-              <View className="flex-row items-center">
-
-                {/* ICON */}
-                <View
-                  className="w-12 h-12 rounded-xl items-center justify-center"
-                  style={{
-                    backgroundColor: `${item.color}`,
-                  }}
-                >
-                  {getCategoryIcon(
-                    item.category,
-                    18,
-                    "#fff"
-                  )}
-                </View>
-
-                {/* INFO */}
-                <View className="flex-1 ml-5">
-
-                  <Text className="text-white text-sm font-sora-semibold">
-                    {item.title}
-                  </Text>
-
-                  <Text className="text-muted mt-1 text-xs">
-                    Daily ・ {item.xpReward}xp ・{" "}
-                    {item.streak}🔥
-                  </Text>
-
-                </View>
-
-                {/* ARROW */}
-                <View className="p-3 rounded-xl bg-card-2 items-center justify-center">
-                  <ChevronRight
-                    color={"white"}
-                    size={15}
-                  />
-                </View>
-
-              </View>
-
-            </View>
-          </PressableScale>
-        )}
+        renderItem={({ item }: any) => <HabitCard item={item} />}
       />
 
       {/* FLOAT BUTTON */}
       <Pressable
-       
         onPress={() => setOpen(true)}
         className="absolute bottom-4 right-5 w-12 h-12 rounded-full bg-[#F5F5F5] items-center justify-center"
         style={{
@@ -293,23 +208,13 @@ export default function Habits() {
           elevation: 12,
         }}
       >
-        <Plus
-          color={"black"}
-          size={18}
-          strokeWidth={2.2}
-        />
+        <Plus color={"black"} size={18} strokeWidth={2.2} />
       </Pressable>
 
       {/* MODAL */}
-      <Modal
-        visible={open}
-        transparent
-        animationType="slide"
-      >
+      <Modal visible={open} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/60">
-
           <View className="bg-[#111111] rounded-t-[40px] px-6 pt-7">
-
             <Text className="text-white text-[30px] font-sora-bold">
               Create Habit
             </Text>
@@ -329,30 +234,20 @@ export default function Habits() {
             </Text>
 
             <View className="flex-row flex-wrap gap-3">
-
               {CATEGORIES.map((cat) => {
-                const active =
-                  selectedCategory.id === cat.id;
+                const active = selectedCategory.id === cat.id;
 
                 return (
                   <Pressable
                     key={cat.id}
-                    onPress={() =>
-                      setSelectedCategory(cat)
-                    }
+                    onPress={() => setSelectedCategory(cat)}
                     className="px-5 py-4 rounded-[22px] flex-row items-center"
                     style={{
-                      backgroundColor: active
-                        ? cat.color
-                        : "#1A1A1A",
+                      backgroundColor: active ? cat.color : "#1A1A1A",
                     }}
                   >
                     <View className="mr-2">
-                      {getCategoryIcon(
-                        cat.id,
-                        16,
-                        "#fff"
-                      )}
+                      {getCategoryIcon(cat.id, 16, "#fff")}
                     </View>
 
                     <Text className="text-white font-sora-medium">
@@ -361,7 +256,6 @@ export default function Habits() {
                   </Pressable>
                 );
               })}
-
             </View>
 
             {/* FREQUENCY */}
@@ -370,30 +264,22 @@ export default function Habits() {
             </Text>
 
             <View className="flex-row flex-wrap gap-3">
-
               {frequencyData.map((f) => {
-                const active =
-                  frequency === f.id;
+                const active = frequency === f.id;
 
                 return (
                   <Pressable
                     key={f.id}
-                    onPress={() =>
-                      setFrequency(f.id as any)
-                    }
+                    onPress={() => setFrequency(f.id as any)}
                     className="px-5 py-4 rounded-[22px]"
                     style={{
-                      backgroundColor: active
-                        ? "#F5F5F5"
-                        : "#1A1A1A",
+                      backgroundColor: active ? "#F5F5F5" : "#1A1A1A",
                     }}
                   >
                     <Text
                       className="font-sora-medium"
                       style={{
-                        color: active
-                          ? "#000"
-                          : "#fff",
+                        color: active ? "#000" : "#fff",
                       }}
                     >
                       {f.label}
@@ -401,7 +287,6 @@ export default function Habits() {
                   </Pressable>
                 );
               })}
-
             </View>
 
             {/* DURATION */}
@@ -410,52 +295,38 @@ export default function Habits() {
             </Text>
 
             <View className="flex-row flex-wrap gap-3">
+              {[1, 2, 3, 5, 10, 15, 20, 30].map((min) => {
+                const active = duration === min;
 
-              {[1, 2, 3, 5, 10, 15, 20, 30].map(
-                (min) => {
-                  const active =
-                    duration === min;
-
-                  return (
-                    <Pressable
-                      key={min}
-                      onPress={() =>
-                        setDuration(min)
-                      }
-                      className="px-5 py-4 rounded-[22px]"
+                return (
+                  <Pressable
+                    key={min}
+                    onPress={() => setDuration(min)}
+                    className="px-5 py-4 rounded-[22px]"
+                    style={{
+                      backgroundColor: active ? "#F5F5F5" : "#1A1A1A",
+                    }}
+                  >
+                    <Text
+                      className="font-sora-medium"
                       style={{
-                        backgroundColor: active
-                          ? "#F5F5F5"
-                          : "#1A1A1A",
+                        color: active ? "#000" : "#fff",
                       }}
                     >
-                      <Text
-                        className="font-sora-medium"
-                        style={{
-                          color: active
-                            ? "#000"
-                            : "#fff",
-                        }}
-                      >
-                        {min}m
-                      </Text>
-                    </Pressable>
-                  );
-                }
-              )}
-
+                      {min}m
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
 
             {/* ACTIONS */}
             <View className="flex-row gap-4 mt-10 mb-12">
-
               <Pressable
                 onPress={() => setOpen(false)}
                 className="flex-1 bg-[#1A1A1A] rounded-[28px] py-5 items-center"
               >
-                <Text className="text-white font-sora-semibold">
-                  Cancel
-                </Text>
+                <Text className="text-white font-sora-semibold">Cancel</Text>
               </Pressable>
 
               <Pressable
@@ -464,16 +335,11 @@ export default function Habits() {
                 className="flex-1 bg-[#F5F5F5] rounded-[28px] py-5 items-center"
               >
                 <Text className="text-black font-sora-bold">
-                  {loading
-                    ? "Creating..."
-                    : "Create Habit"}
+                  {loading ? "Creating..." : "Create Habit"}
                 </Text>
               </Pressable>
-
             </View>
-
           </View>
-
         </View>
       </Modal>
     </View>
