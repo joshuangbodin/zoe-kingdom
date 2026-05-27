@@ -30,7 +30,7 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontSize: 12,
           marginTop: 4,
-          fontFamily: "Sora-Bold",
+          fontFamily: "Sora-Regular",
         },
       }}
     >
@@ -38,7 +38,7 @@ export default function TabLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ size, color }) => <Home size={24} color={color} />,
+          tabBarIcon: ({ size, color }) => <Home size={22} color={color} />,
         }}
       />
 
@@ -47,7 +47,7 @@ export default function TabLayout() {
         options={{
           title: "Habits",
           tabBarIcon: ({ size, color }) => (
-            <CheckSquare size={24} color={color} />
+            <CheckSquare size={22} color={color} />
           ),
         }}
       />
@@ -57,7 +57,7 @@ export default function TabLayout() {
         options={{
           title: "Feed",
           tabBarIcon: ({ size, color }) => (
-            <Newspaper size={24} color={color} />
+            <Newspaper size={22} color={color} />
           ),
         }}
       />
@@ -66,7 +66,7 @@ export default function TabLayout() {
         name="bible"
         options={{
           title: "Bible",
-          tabBarIcon: ({ size, color }) => <BookPlus size={24} color={color} />,
+          tabBarIcon: ({ size, color }) => <BookPlus size={22} color={color} />,
         }}
       />
 
@@ -74,7 +74,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ size, color }) => <User size={24} color={color} />,
+          tabBarIcon: ({ size, color }) => <User size={22} color={color} />,
         }}
       />
     </Tabs>

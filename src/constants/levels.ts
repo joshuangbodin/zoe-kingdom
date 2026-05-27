@@ -2,40 +2,27 @@ export const getLevelFromXP = (xp: number) => {
   return Math.floor(xp / 50) + 1;
 };
 
-export const getXPForNextLevel = (
-  level: number
-) => {
+export const getXPForNextLevel = (level: number) => {
   return level * 50;
 };
 
-export const getCurrentLevelXP = (
-  level: number
-) => {
+export const getCurrentLevelXP = (level: number) => {
   return (level - 1) * 50;
 };
 
-export const getProgressPercentage = (
-  xp: number
-) => {
+export const getProgressPercentage = (xp: number) => {
   const level = getLevelFromXP(xp);
 
-  const currentLevelXP =
-    getCurrentLevelXP(level);
+  const currentLevelXP = getCurrentLevelXP(level);
 
-  const nextLevelXP =
-    getXPForNextLevel(level);
+  const nextLevelXP = getXPForNextLevel(level);
 
-  const progress =
-    ((xp - currentLevelXP) /
-      (nextLevelXP - currentLevelXP)) *
-    100;
+  const progress = (xp / nextLevelXP) * 100;
 
   return Math.min(progress, 100);
 };
 
-export const getFireStatus = (
-  level: number
-) => {
+export const getFireStatus = (level: number) => {
   if (level < 5) {
     return {
       title: "Kindled Flame ✨",

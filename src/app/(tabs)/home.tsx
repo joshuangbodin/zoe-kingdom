@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Home() {
   const [spirit, setSpirit] = useState<any>(null);
-  const [habits, setHabits] = useState<any[]>([]);
+  const { habits, setHabits } = useApp();
   const [streak, setStreak] = useState<any>(0);
 
   const { top } = useSafeAreaInsets();
@@ -31,7 +31,7 @@ export default function Home() {
     const s = await getSpiritState();
     const h = await getHabits();
     const currentStreak = await getDailyStreak();
-  
+
     setSpirit(s);
     setHabits(h);
     setStreak(currentStreak);

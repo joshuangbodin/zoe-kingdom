@@ -23,12 +23,13 @@ import {
   frequencyData,
   getCategoryIcon,
 } from "@/constants/habit-data";
+import { useApp } from "@/context/app-context";
 
 export default function Habits() {
   const router = useRouter();
   const { top } = useSafeAreaInsets();
 
-  const [habits, setHabits] = useState<Habit[]>([]);
+  const {habits, setHabits} = useApp()
   const [loading, setLoading] = useState(false);
 
   const [open, setOpen] = useState(false);

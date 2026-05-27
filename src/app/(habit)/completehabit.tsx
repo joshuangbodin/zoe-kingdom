@@ -22,6 +22,7 @@ import {
 } from "lucide-react-native";
 
 import { getCategoryIcon } from "@/constants/habit-data";
+import { useApp } from "@/context/app-context";
 import {
   completeHabit,
   getHabitById,
@@ -43,6 +44,8 @@ export default function CompleteHabit() {
   const { top } = useSafeAreaInsets();
 
   const [habit, setHabit] = useState<any>(null);
+
+  const { reloadHabits } = useApp();
 
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [running, setRunning] = useState(false);
@@ -110,6 +113,8 @@ export default function CompleteHabit() {
 
     if (data.success) {
       Alert.alert(data.reason || "completed");
+      await reloadHabits();
+      await loadHabit();
     }
   };
 
