@@ -95,7 +95,7 @@ export default function ShareThought() {
         </View>
 
         {/* INPUT BOX */}
-        <View className="bg-card rounded-2xl p-4 min-h-[180px]">
+        <View className="bg-card rounded-2xl p-4 min-h-45">
           <TextInput
             value={text}
             onChangeText={setText}

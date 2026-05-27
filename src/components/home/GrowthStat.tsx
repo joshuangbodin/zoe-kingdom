@@ -1,7 +1,6 @@
 import {
   getFireStatus,
   getLevelFromXP,
-  getProgressPercentage,
   getXPForNextLevel,
 } from "@/constants/levels";
 import LottieView from "lottie-react-native";
@@ -26,9 +25,8 @@ export default function GrowthStat({
 
   const fire = getFireStatus(levelNumber);
 
-  const progress = getProgressPercentage(xp);
-
   const nextLevelXP = getXPForNextLevel(levelNumber);
+  const progress = ((nextLevelXP - xp) / nextLevelXP) * 100;
   return (
     <View className="gap-2 mt-10">
       {/* top part */}
