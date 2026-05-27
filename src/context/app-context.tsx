@@ -1,4 +1,4 @@
-import { getHabits, Habit } from "@/libs/sqlite/habits";
+import { Habit } from "@/libs/sqlite/habits";
 import React, {
   createContext,
   ReactNode,
@@ -28,8 +28,6 @@ type AppContextType = {
   habits: Habit[];
   setHabits: React.Dispatch<React.SetStateAction<Habit[]>>;
 
-  reloadHabits: () => void;
-
   posts: PostType[];
   setPosts: React.Dispatch<React.SetStateAction<PostType[]>>;
 };
@@ -47,12 +45,6 @@ export default function AppProvider({ children }: ProviderProps) {
 
   const [posts, setPosts] = useState<PostType[]>([]);
 
-  const reloadHabits = async () => {
-    const res = await getHabits();
-
-    setHabits(res);
-  };
-
   const value = useMemo(
     () => ({
       user,
@@ -60,8 +52,6 @@ export default function AppProvider({ children }: ProviderProps) {
 
       habits,
       setHabits,
-
-      reloadHabits,
 
       posts,
       setPosts,

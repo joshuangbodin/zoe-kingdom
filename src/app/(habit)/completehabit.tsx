@@ -15,9 +15,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Check,
   ChevronLeft,
+  Moon,
   Music,
   Play,
   Square,
+  Sun,
   TimerReset,
 } from "lucide-react-native";
 
@@ -26,7 +28,8 @@ import { useApp } from "@/context/app-context";
 import {
   completeHabit,
   getHabitById,
-  isHabitCompleted,
+  getHabits,
+  getHabitStatus,
 } from "@/libs/sqlite/habits";
 
 const CATEGORY_COLORS: any = {
@@ -45,12 +48,16 @@ export default function CompleteHabit() {
 
   const [habit, setHabit] = useState<any>(null);
 
-  const { reloadHabits } = useApp();
+  const { setHabits } = useApp();
 
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [running, setRunning] = useState(false);
 
-  const [completed, setCompleted] = useState(false);
+  const [completed, setCompleted] = useState<any>({
+    status: false,
+    message: "",
+    progress: {},
+  });
 
   const [sessionFinished, setSessionFinished] = useState(false);
 
@@ -96,10 +103,11 @@ export default function CompleteHabit() {
 
   const loadHabit = async () => {
     const data = await getHabitById(id as string);
-
+    const h = await getHabits();
+    setHabits(h);
     setHabit(data);
 
-    const completed = await isHabitCompleted(data);
+    const completed = await getHabitStatus(data);
 
     setCompleted(completed);
 
@@ -113,7 +121,6 @@ export default function CompleteHabit() {
 
     if (data.success) {
       Alert.alert(data.reason || "completed");
-      await reloadHabits();
       await loadHabit();
     }
   };
@@ -173,87 +180,183 @@ export default function CompleteHabit() {
         >
           <View className="mt-4">
             {/* TOP CARD */}
-            <View className="rounded-2xl bg-card-2 p-5">
-              {/* CATEGORY */}
+            <View className="rounded-[34px] overflow-hidden bg-card-2 p-6">
+              {/* HEADER */}
               <View className="flex-row items-center">
+                {/* ICON */}
                 <View
-                  className="w-12 h-12 rounded-xl items-center justify-center"
+                  className="w-14 h-14 rounded-[22px] items-center justify-center"
                   style={{
-                    backgroundColor: `${color}`,
+                    backgroundColor: color,
                   }}
                 >
-                  {getCategoryIcon(category, 18, "#fff")}
+                  {getCategoryIcon(category, 22, "#fff")}
                 </View>
+
+                {/* INFO */}
                 <View className="ml-4 flex-1">
-                  <Text className="text-white text-base font-sora-bold">
+                  <Text className="text-white text-lg font-sora-bold">
                     {habit.title}
                   </Text>
-                  <Text className="text-muted font-sora mt-1 capitalize">
+
+                  <Text className="text-muted font-sora text-xs mt-1 capitalize">
                     {habit.category} ・ {habit.duration} mins ・{" "}
-                    {habit.xpReward}
-                    xp
+                    {habit.xpReward}xp
                   </Text>
+                </View>
+
+                {/* LIVE STATUS */}
+                <View className="items-end">
+                  <View
+                    className={`px-3 py-2 rounded-full ${completed?.status ? "bg-green-500/15" : "bg-orange-500/10"} `}
+                  >
+                    <View className="flex-row items-center">
+                      <View
+                        className={`w-2 h-2 rounded-full mr-2 ${completed?.status ? "bg-green-400" : "bg-orange-300"}`}
+                      />
+
+                      <Text
+                        className={`text-[11px] font-sora-medium ${completed?.status ? "text-green-300" : "text-orange-200"}`}
+                      >
+                        {completed?.status ? "Completed" : "In Progress"}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               </View>
-              {completed && (
-                <Text className="text-white font-serif pt-6">
-                  You have already completed this habit today, However you can
-                  do this as much as you want.
-                </Text>
-              )}
-              {/* TIMER */}
-              <View className="mt-6">
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-muted text-xs font-sora-medium">
-                    Session Timer
-                  </Text>
-                  <Text className="text-white text-sm font-sora-semibold">
-                    {formatTime(secondsLeft)}
+
+              {/* STATUS MESSAGE */}
+              {!!completed?.message && (
+                <View className="mt-5">
+                  <Text className="text-zinc-300 leading-6 font-sora text-sm">
+                    {completed.message}
                   </Text>
                 </View>
+              )}
+
+              {/* TWICE DAILY */}
+              {habit.frequency === "twice_daily" && completed?.progress && (
+                <View className="flex-row gap-3 mt-5">
+                  {/* MORNING */}
+                  <View
+                    className={`flex-1 rounded-2xl p-4 ${completed.progress.morning ? "bg-yellow-500/10" : "bg-card-1"}`}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <Sun
+                        size={18}
+                        color={completed.progress.morning ? "#facc15" : "#666"}
+                      />
+
+                      {completed.progress.morning && (
+                        <Check size={16} color="#facc15" />
+                      )}
+                    </View>
+
+                    <Text className="text-white font-sora-semibold mt-4">
+                      Morning
+                    </Text>
+
+                    <Text className="text-muted text-xs mt-1">
+                      {completed.progress.morning ? "Completed" : "Remaining"}
+                    </Text>
+                  </View>
+
+                  {/* EVENING */}
+                  <View
+                    className={`flex-1 rounded-2xl p-4 ${completed.progress.evening ? "bg-blue-500/10" : "bg-card-1"}`}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <Moon
+                        size={18}
+                        color={completed.progress.evening ? "#60a5fa" : "#666"}
+                      />
+
+                      {completed.progress.evening && (
+                        <Check size={16} color="#60a5fa" />
+                      )}
+                    </View>
+
+                    <Text className="text-white font-sora-semibold mt-4">
+                      Evening
+                    </Text>
+
+                    <Text className="text-muted text-xs mt-1">
+                      {completed.progress.evening ? "Completed" : "Remaining"}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {/* TIMER SECTION */}
+              <View className="mt-8">
+                {/* TIMER */}
+                <View className="items-center">
+                  <Text
+                    style={{
+                      color,
+                    }}
+                    className="text-[52px] font-sora-bold tracking-tight"
+                  >
+                    {formatTime(secondsLeft)}
+                  </Text>
+
+                  <Text className="text-muted text-xs mt-1 font-sora-medium">
+                    Focus Session
+                  </Text>
+                </View>
+
                 {/* PROGRESS */}
-                <View className="h-2 bg-[#1A1A1A] rounded-full overflow-hidden mt-4">
+                <View className="h-1.25 bg-card-1 rounded-full overflow-hidden mt-8">
                   <View
                     className="h-full rounded-full"
                     style={{
                       width: `${progress}%`,
-                      backgroundColor: "#fff",
+                      backgroundColor: color,
                     }}
                   />
                 </View>
-                {/* BUTTONS */}
-                <View className="flex-row gap-3 mt-5">
+
+                {/* CONTROLS */}
+                <View className="flex-row gap-3 mt-6">
                   {!running ? (
                     <Pressable
                       onPress={() => setRunning(true)}
-                      className="flex-1 bg-white rounded-xl py-4 items-center"
+                      className="flex-1 rounded-2xl py-5 items-center"
+                      style={{
+                        backgroundColor: color,
+                      }}
                     >
                       <View className="flex-row items-center">
-                        <Play fill={"black"} color={"black"} size={18} />
-                        <Text className="text-black ml-2 font-sora-semibold">
-                          Start
+                        <Play fill={"white"} color={"white"} size={18} />
+
+                        <Text className="text-white ml-2 font-sora-semibold">
+                          {secondsLeft === habit.duration * 60
+                            ? "Begin Session"
+                            : "Resume"}
                         </Text>
                       </View>
                     </Pressable>
                   ) : (
                     <Pressable
                       onPress={() => setRunning(false)}
-                      className="flex-1 rounded-xl py-4 items-center bg-card-1"
+                      className="flex-1 rounded-2xl py-5 items-center bg-card-1"
                     >
                       <View className="flex-row items-center">
                         <Square color={"white"} size={16} />
+
                         <Text className="text-white ml-2 font-sora-semibold">
                           Pause
                         </Text>
                       </View>
                     </Pressable>
                   )}
+
                   <Pressable
                     onPress={() => {
                       setRunning(false);
                       setSecondsLeft(habit.duration * 60);
                     }}
-                    className="w-16 rounded-2xl items-center justify-center bg-[#1A1A1A]"
+                    className="w-16 rounded-2xl items-center justify-center bg-card-1"
                   >
                     <TimerReset color={"white"} size={20} />
                   </Pressable>

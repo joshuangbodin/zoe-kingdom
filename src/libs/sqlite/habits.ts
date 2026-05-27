@@ -122,52 +122,165 @@ export const getHabitById = async (id:string) => {
 };
 
 // CHECK IF COMPLETED TODAY
-export const isHabitCompleted = async (habit: Habit) => {
+// CHECK HABIT STATUS
+export const getHabitStatus = async (habit: Habit) => {
   const now = new Date();
   const hour = now.getHours();
 
-  let start = new Date();
-  let end = new Date();
+  const today = new Date().toISOString().split("T")[0];
 
-  switch (habit.frequency) {
-    case "morning":
-      start.setHours(4, 0, 0);
-      end.setHours(11, 59, 59);
-      break;
+  // helper
+  const checkLog = async (
+    start: string,
+    end: string,
+    slot?: string | null,
+  ) => {
+    let query = `
+      SELECT id
+      FROM habit_logs
+      WHERE habitId = ?
+      AND completedAt BETWEEN ? AND ?
+    `;
 
-    case "evening":
-      start.setHours(17, 0, 0);
-      end.setHours(23, 59, 59);
-      break;
+    const params: any[] = [habit.id, start, end];
 
-    case "twice_daily":
-      start.setHours(0, 0, 0);
-      end.setHours(23, 59, 59);
-      break;
+    if (slot !== undefined) {
+      query += ` AND slot = ?`;
+      params.push(slot);
+    }
 
-    case "weekly":
-      start.setDate(start.getDate() - start.getDay()); // week start
-      end = new Date();
-      break;
+    query += ` LIMIT 1`;
 
-    case "throughout_day":
-      start.setHours(0, 0, 0);
-      end.setHours(23, 59, 59);
-      break;
+    const result = await sqlite.getFirstAsync(query, params);
+
+    return !!result;
+  };
+
+  // MORNING
+  if (habit.frequency === "morning") {
+    const start = new Date();
+    start.setHours(4, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(11, 59, 59, 999);
+
+    const done = await checkLog(
+      start.toISOString(),
+      end.toISOString(),
+    );
+
+    return {
+      status: done,
+      message: done
+        ? "Morning habit completed"
+        : `${habit.title} remains`,
+    };
   }
 
-  const result = await sqlite.getFirstAsync(
-    `
-    SELECT id
-    FROM habit_logs
-    WHERE habitId = ?
-    AND completedAt BETWEEN ? AND ?
-    LIMIT 1
-    `,
-    [habit.id, start.toISOString(), end.toISOString()],
+  // EVENING
+  if (habit.frequency === "evening") {
+    const start = new Date();
+    start.setHours(17, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    const done = await checkLog(
+      start.toISOString(),
+      end.toISOString(),
+    );
+
+    return {
+      status: done,
+      message: done
+        ? "Evening habit completed"
+        : `${habit.title} remains`,
+    };
+  }
+
+  // TWICE DAILY
+  if (habit.frequency === "twice_daily") {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    const morningDone = await checkLog(
+      start.toISOString(),
+      end.toISOString(),
+      "morning",
+    );
+
+    const eveningDone = await checkLog(
+      start.toISOString(),
+      end.toISOString(),
+      "evening",
+    );
+
+    const fullyCompleted = morningDone && eveningDone;
+
+    let message = "";
+
+    if (fullyCompleted) {
+      message = "Fully completed";
+    } else if (!morningDone && !eveningDone) {
+      message = "Morning and evening remain";
+    } else if (!morningDone) {
+      message = "Morning remains";
+    } else {
+      message = "Evening remains";
+    }
+
+    return {
+      status: fullyCompleted,
+      message,
+      progress: {
+        morning: morningDone,
+        evening: eveningDone,
+      },
+    };
+  }
+
+  // WEEKLY
+  if (habit.frequency === "weekly") {
+    const start = new Date();
+    start.setDate(start.getDate() - start.getDay());
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+
+    const done = await checkLog(
+      start.toISOString(),
+      end.toISOString(),
+    );
+
+    return {
+      status: done,
+      message: done
+        ? "Weekly habit completed"
+        : "This week remains",
+    };
+  }
+
+  // THROUGHOUT DAY
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  const done = await checkLog(
+    start.toISOString(),
+    end.toISOString(),
   );
 
-  return !!result;
+  return {
+    status: done,
+    message: done
+      ? "Completed for today"
+      : `${habit.title} remains`,
+  };
 };
 
 // COMPLETE HABIT
