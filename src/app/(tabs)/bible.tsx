@@ -28,31 +28,9 @@ import {
 import { sqlite } from "@/libs/sqlite/db";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { checkBibleExists, flattenBible, seedBible } from "@/libs/sqlite/bible";
 
-/* ---------------------------- HELPERS ---------------------------- */
 
-const flattenBible = (bible: any[]) => {
-  const rows: any[] = [];
-
-  bible.forEach((book, bookIndex) => {
-    (book.chapters || []).forEach((chapter: string[], chapterIndex: number) => {
-      (chapter || []).forEach((verse: string, verseIndex: number) => {
-        if (!verse) return;
-
-        rows.push({
-          id: `${bookIndex}-${chapterIndex}-${verseIndex}`, // IMPORTANT FIX
-          book: book.name,
-          bookIndex,
-          chapter: chapterIndex + 1,
-          verse: verseIndex + 1,
-          text: verse,
-        });
-      });
-    });
-  });
-
-  return rows;
-};
 
 /* ---------------------------- PURE ROW ---------------------------- */
 
@@ -140,54 +118,8 @@ export default function Bible() {
     }
   };
 
-  /* ---------------------------- DB CHECK ---------------------------- */
 
-  const checkBibleExists = async () => {
-    const res = await sqlite.getFirstAsync(
-      `SELECT COUNT(*) as count FROM bible_verses`,
-    );
 
-    return (res as any)?.count > 0;
-  };
-
-  /* ---------------------------- SEED ---------------------------- */
-
-  const seedBible = async () => {
-    const BIBLE_URL =
-      "https://raw.githubusercontent.com/thiagobodruk/bible/master/json/en_kjv.json";
-
-    const res = await fetch(BIBLE_URL);
-    const bible = await res.json();
-
-    const rows = flattenBible(bible);
-
-    await sqlite.execAsync("BEGIN TRANSACTION;");
-
-    try {
-      const stmt = await sqlite.prepareAsync(`
-        INSERT OR IGNORE INTO bible_verses
-        (id, book, bookIndex, chapter, verse, text)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `);
-
-      for (const r of rows) {
-        await stmt.executeAsync([
-          r.id,
-          r.book,
-          r.bookIndex,
-          r.chapter,
-          r.verse,
-          r.text,
-        ]);
-      }
-
-      await stmt.finalizeAsync();
-      await sqlite.execAsync("COMMIT;");
-    } catch (e) {
-      await sqlite.execAsync("ROLLBACK;");
-      throw e;
-    }
-  };
 
   /* ---------------------------- LOAD BOOKS ---------------------------- */
 

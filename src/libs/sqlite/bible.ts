@@ -3,7 +3,7 @@ import { sqlite } from "./db";
 /* ---------------------------- TYPES ---------------------------- */
 
 export type BibleVerse = {
-  id?: number;
+  id: string;
   book: string;
   bookIndex: number;
   chapter: number;
@@ -24,6 +24,7 @@ export const flattenBible = (bible: any[]): BibleVerse[] => {
         if (!verse) return;
 
         rows.push({
+          id: `${bookIndex}-${chapterIndex}-${verseIndex}`, // IMPORTANT FIX
           book: book.name,
           bookIndex,
           chapter: chapterIndex + 1,
@@ -36,6 +37,55 @@ export const flattenBible = (bible: any[]): BibleVerse[] => {
 
   return rows;
 };
+
+  /* ---------------------------- SEED ---------------------------- */
+
+  export const seedBible = async () => {
+    const BIBLE_URL =
+      "https://raw.githubusercontent.com/thiagobodruk/bible/master/json/en_kjv.json";
+
+    const res = await fetch(BIBLE_URL);
+    const bible = await res.json();
+
+    const rows = flattenBible(bible);
+
+    await sqlite.execAsync("BEGIN TRANSACTION;");
+
+    try {
+      const stmt = await sqlite.prepareAsync(`
+        INSERT OR IGNORE INTO bible_verses
+        (id, book, bookIndex, chapter, verse, text)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+
+      for (const r of rows) {
+        await stmt.executeAsync([
+          r.id,
+          r.book,
+          r.bookIndex,
+          r.chapter,
+          r.verse,
+          r.text,
+        ]);
+      }
+
+      await stmt.finalizeAsync();
+      await sqlite.execAsync("COMMIT;");
+    } catch (e) {
+      await sqlite.execAsync("ROLLBACK;");
+      throw e;
+    }
+  };
+
+  /* ---------------------------- DB CHECK ---------------------------- */
+
+  export const checkBibleExists = async () => {
+    const res = await sqlite.getFirstAsync(
+      `SELECT COUNT(*) as count FROM bible_verses`,
+    );
+
+    return (res as any)?.count > 0;
+  };
 
 /* ---------------------------- INSERT (FAST + SAFE) ---------------------------- */
 

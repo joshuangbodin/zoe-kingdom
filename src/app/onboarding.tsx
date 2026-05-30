@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
-import Animated, { FadeInDown, SlideInDown, SlideInUp } from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 
@@ -41,15 +41,28 @@ export default function Onboarding() {
 
       {/* PRIMARY ACTION */}
       <Pressable
-        onPress={() => router.push("/(auth)/signin")}
+        onPress={() => router.push("/(auth)/signup")}
         className="bg-white py-4 rounded-xl items-center"
       >
         <Text className="text-black font-semibold text-base">Get Started</Text>
       </Pressable>
+      <Pressable
+        onPress={() => router.push("/(auth)/signin")}
+        className="bg-card-2 mt-3 py-4 rounded-xl items-center"
+      >
+        <Text className="text-white font-semibold text-base">Sign In</Text>
+      </Pressable>
 
-      <Animated.Image entering={FadeInDown} className={"absolute bottom-0"} source={man}/>
-      <Animated.Image entering={FadeInDown}  className={" absolute bottom-0 right-0"} source={woman}/>
-
+      <Animated.Image
+        entering={FadeInDown}
+        className={"absolute -bottom-5"}
+        source={man}
+      />
+      <Animated.Image
+        entering={FadeInDown}
+        className={" absolute -bottom-5 right-0"}
+        source={woman}
+      />
     </StyledSafeAreaView>
   );
 }

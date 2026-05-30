@@ -24,7 +24,7 @@ const index = () => {
         return;
       }
 
-      router.push("/(auth)/signin");
+      router.push("/onboarding");
 
       if (initializing) {
         setInitializing(false);
