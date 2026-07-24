@@ -6,6 +6,7 @@ import ContributionGraph from "@/components/ContributionGraph";
 import GrowthStat from "@/components/home/GrowthStat";
 import { getGreeting } from "@/constants/time";
 import { useApp } from "@/context/app-context";
+import { getUserProfile } from "@/libs/firebase/users";
 import { getHabits } from "@/libs/sqlite/habits";
 import { getSpiritState, initializeSpirit } from "@/libs/sqlite/spirit";
 import { getDailyStreak } from "@/libs/sqlite/streak";
@@ -20,23 +21,36 @@ export default function Home() {
 
   const { top } = useSafeAreaInsets();
 
-  const { user } = useApp();
+  const { user, setUser } = useApp();
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    await initializeSpirit();
-    const s = await getSpiritState();
-    const h = await getHabits();
-    const currentStreak = await getDailyStreak();
+    try {
+      await initializeSpirit();
+      const s = await getSpiritState();
+      const h = await getHabits();
+      const currentStreak = await getDailyStreak();
+      if (user && user.uid) {
+        const udata = await getUserProfile(user.uid);
+        console.log(udata);
 
-    setSpirit(s);
-    setHabits(h);
-    setStreak(currentStreak);
+        setUser({ ...user, ...udata });
+      } else {
+        console.log("user:", user);
+        console.log("id", user?.uid);
+        throw Error("Couldn't get user profile");
+      }
+
+      setSpirit(s);
+      setHabits(h);
+      setStreak(currentStreak);
+    } catch (err) {
+      console.log(err);
+    }
   };
-
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -47,7 +61,7 @@ export default function Home() {
     >
       {/* Header */}
       <View className="flex-row items-center justify-between">
-        <Avatar />
+        <Avatar index={user?.avatar} />
         <Text className="text-white flex-1 ml-3 text-lg font-sora-semibold">
           {getGreeting()} User
         </Text>

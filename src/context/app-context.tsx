@@ -1,3 +1,4 @@
+import { UserProfile } from "@/libs/firebase/users";
 import { Habit } from "@/libs/sqlite/habits";
 import React, {
   createContext,
@@ -22,8 +23,8 @@ type PostType = {
 };
 
 type AppContextType = {
-  user: UserType | null;
-  setUser: React.Dispatch<React.SetStateAction<UserType | null>>;
+  user: UserProfile | null;
+  setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
 
   habits: Habit[];
   setHabits: React.Dispatch<React.SetStateAction<Habit[]>>;
@@ -39,7 +40,7 @@ type ProviderProps = {
 };
 
 export default function AppProvider({ children }: ProviderProps) {
-  const [user, setUser] = useState<UserType | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
 
   const [habits, setHabits] = useState<Habit[]>([]);
 

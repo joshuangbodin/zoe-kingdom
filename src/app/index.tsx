@@ -1,5 +1,6 @@
 import { useApp } from "@/context/app-context";
 import { auth } from "@/libs/firebase";
+import { getUserProfile } from "@/libs/firebase/users";
 import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
@@ -10,13 +11,10 @@ const index = () => {
   const { user, setUser } = useApp();
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (currentUser: any) => {
+    const unsub = onAuthStateChanged(auth, async (currentUser: any) => {
       if (currentUser) {
-        setUser({
-          email: currentUser.email,
-          // uid: currentUser.uid,
-          // emailVerified: currentUser.emailVerified,
-        });
+        const udata = await getUserProfile(currentUser.uid);
+        setUser(udata);
         router.push("/(tabs)/home");
         if (initializing) {
           setInitializing(false);

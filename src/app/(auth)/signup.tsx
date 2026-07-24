@@ -84,6 +84,8 @@ export default function SignUp() {
 
       const signedInUser = await registerUser(email, password, username);
 
+      console.log("signed in user",signedInUser)
+
       // update user data
       await updateUserProfile(signedInUser.uid, {
         avatar,
@@ -91,7 +93,7 @@ export default function SignUp() {
         lastUploaded: serverTimestamp,
       });
 
-      router.replace("/(tabs)/home");
+      // router.replace("/(tabs)/home");
     } catch (e) {
       setError(getFirebaseErrorMessage(e));
 
