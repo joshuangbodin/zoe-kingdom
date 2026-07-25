@@ -14,20 +14,25 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
+  BookOpen,
+  Globe,
   Heart,
   MessageCircle,
   MoreHorizontal,
   Plus,
   Send,
   X,
-  BookOpen,
-  Globe,
 } from "lucide-react-native";
 
 import { auth } from "@/libs/firebase";
 
 import Avatar from "@/components/Avatar";
-import { createPost, likePost, subscribeToFeed, hasUserLikedPost } from "@/libs/firebase/posts";
+import {
+  createPost,
+  hasUserLikedPost,
+  likePost,
+  subscribeToFeed,
+} from "@/libs/firebase/posts";
 import {
   getAllUsersSortedByLastUpload,
   getUserProfile,
@@ -35,7 +40,16 @@ import {
 } from "@/libs/firebase/users";
 import { router } from "expo-router";
 
-const TAGS = ["All", "#faith", "#growth", "#love", "#purpose", "#testimony", "#bible", "#prayer"];
+const TAGS = [
+  "All",
+  "#faith",
+  "#growth",
+  "#love",
+  "#purpose",
+  "#testimony",
+  "#bible",
+  "#prayer",
+];
 
 export default function Feed() {
   const { top } = useSafeAreaInsets();
@@ -96,7 +110,10 @@ export default function Feed() {
     try {
       setSubmitting(true);
       const user = auth.currentUser;
-      if (!user) { router.push("/(auth)/signin"); return; }
+      if (!user) {
+        router.push("/(auth)/signin");
+        return;
+      }
       await createPost({
         uid: user.uid,
         username: profile?.username ?? "anonymous",
@@ -116,7 +133,10 @@ export default function Feed() {
 
   const handleLike = useCallback(async (postId: string) => {
     const user = auth.currentUser;
-    if (!user) { router.push("/(auth)/signin"); return; }
+    if (!user) {
+      router.push("/(auth)/signin");
+      return;
+    }
     try {
       await likePost(postId, user.uid);
       setLikedPosts((prev) => new Set(prev).add(postId));
@@ -128,9 +148,10 @@ export default function Feed() {
   const filteredPosts = useMemo(() => {
     if (selectedTag === "All") return posts;
     return posts.filter((post) =>
-      post.tags?.some((tag: string) =>
-        selectedTag.replace("#", "").toLowerCase() === tag.toLowerCase()
-      )
+      post.tags?.some(
+        (tag: string) =>
+          selectedTag.replace("#", "").toLowerCase() === tag.toLowerCase(),
+      ),
     );
   }, [posts, selectedTag]);
 
@@ -145,13 +166,22 @@ export default function Feed() {
     }
   }, []);
 
-  const renderStory = ({ item, index }: { item: UserProfile; index: number }) => (
+  const renderStory = ({
+    item,
+    index,
+  }: {
+    item: UserProfile;
+    index: number;
+  }) => (
     <Pressable className="mr-4 items-center">
       <View className="relative">
         {item.statusNote && (
           <View className="absolute -top-1.5 self-center z-10">
             <View className="bg-card-2 rounded-full px-2 py-0.5 border border-white/5">
-              <Text numberOfLines={1} className="text-white/70 text-[7px] font-sora-medium">
+              <Text
+                numberOfLines={1}
+                className="text-white/70 text-[7px] font-sora-medium"
+              >
                 {item.statusNote}
               </Text>
             </View>
@@ -161,7 +191,10 @@ export default function Feed() {
           <Avatar index={item.avatar} diameter={50} />
         </View>
       </View>
-      <Text numberOfLines={1} className="text-zinc-400 mt-1.5 text-[9px] max-w-14 font-sora text-center">
+      <Text
+        numberOfLines={1}
+        className="text-zinc-400 mt-1.5 text-[9px] max-w-14 font-sora text-center"
+      >
         @{item.username}
       </Text>
     </Pressable>
@@ -172,7 +205,7 @@ export default function Feed() {
     const actionColor = "#666";
 
     return (
-      <View className="mb-4">
+      <View className="mb-4 bg-card-1 p-3 rounded-lg">
         {/* User header - minimal */}
         <View className="flex-row items-center mb-3 px-0.5">
           <Avatar index={item.avatar} diameter={32} />
@@ -200,7 +233,7 @@ export default function Feed() {
         {!!item.verseReference && (
           <Pressable
             onPress={() => openBibleVerse(item.verseReference)}
-            className="bg-card-1 rounded-xl overflow-hidden active:opacity-80 mb-3"
+            className="bg-card-2 rounded-xl overflow-hidden active:opacity-80 mb-3"
           >
             <View className="p-4">
               <View className="flex-row items-center mb-2">
@@ -255,6 +288,60 @@ export default function Feed() {
     );
   };
 
+  const StoriesSection = () => (
+    <FlatList
+      data={userStories}
+      renderItem={renderStory}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyExtractor={(item, index) => item.uid || index.toString()}
+      contentContainerStyle={{
+        
+        paddingVertical: 12,
+      }}
+    />
+  );
+  const TagsSection = () => (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{
+       
+        paddingBottom: 8,
+        marginBottom: 10,
+      }}
+    >
+      {TAGS.map((tag) => {
+        const active = selectedTag === tag;
+
+        return (
+          <Pressable
+            key={tag}
+            onPress={() => setSelectedTag(tag)}
+            className={`mr-2 px-3.5 h-8 py-2 rounded-full ${
+              active ? "bg-white" : "bg-card-1"
+            }`}
+          >
+            <Text
+              className={`text-[10px] font-sora-medium ${
+                active ? "text-black" : "text-zinc-400"
+              }`}
+            >
+              {tag}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+
+  const FeedHeader = () => (
+    <>
+      <StoriesSection />
+      <TagsSection />
+    </>
+  );
+
   return (
     <View style={{ paddingTop: top + 8 }} className="flex-1 bg-bg">
       {/* Header */}
@@ -275,73 +362,49 @@ export default function Feed() {
         </View>
       </View>
 
-      {/* Stories */}
-      <FlatList
-        data={userStories}
-        renderItem={renderStory}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
-        keyExtractor={(item, index) => item.uid || index.toString()}
-      />
-
-      {/* Tags */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="mb-1"
-        contentContainerStyle={{ paddingHorizontal: 16 }}
-      >
-        {TAGS.map((tag) => {
-          const active = selectedTag === tag;
-          return (
-            <Pressable
-              key={tag}
-              onPress={() => setSelectedTag(tag)}
-              className={`mr-2 px-3.5 py-2 rounded-full ${
-                active ? "bg-white" : "bg-card-1"
-              }`}
-            >
-              <Text
-                className={`text-[10px] font-sora-medium ${
-                  active ? "text-black" : "text-zinc-400"
-                }`}
-              >
-                {tag}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-
       {/* Feed */}
-      <FlatList
-        data={filteredPosts}
-        renderItem={renderPost}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 140 }}
-        ItemSeparatorComponent={() => <View className="h-px bg-white/5 mx-4 my-2" />}
-        ListEmptyComponent={
-          <View className="items-center mt-20">
-            <Globe size={32} color="#444" />
-            <Text className="text-zinc-500 text-sm font-sora-semibold mt-4">
-              No posts yet
-            </Text>
-            <Text className="text-zinc-600 text-center mt-1.5 px-10 text-[11px] font-sora leading-5">
-              Share a thought or scripture with the community.
-            </Text>
-          </View>
-        }
-      />
+      <View className="flex-1">
+        <FlatList
+          data={filteredPosts}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={FeedHeader}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingBottom: 140,
+            flexGrow: 1,
+          }}
+          ItemSeparatorComponent={() => (
+            <View className="h-px bg-white/5 my-2" />
+          )}
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center pt-24">
+              <Globe size={34} color="#444" />
 
+              <Text className="text-zinc-500 text-sm font-sora-semibold mt-4">
+                No posts yet
+              </Text>
+
+              <Text className="text-zinc-600 text-center mt-2 px-10 text-[11px] leading-5 font-sora">
+                Share a thought or scripture with the community.
+              </Text>
+            </View>
+          }
+        />
+      </View>
       {/* Create Post Modal */}
       <Modal visible={showCreateModal} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
           <View className="bg-[#0d0d0d] rounded-t-[28px] px-5 pt-5 pb-10">
             <View className="flex-row items-center justify-between mb-5">
-              <Text className="text-white text-sm font-sora-semibold">New Post</Text>
-              <Pressable onPress={() => setShowCreateModal(false)} className="p-1.5">
+              <Text className="text-white text-sm font-sora-semibold">
+                New Post
+              </Text>
+              <Pressable
+                onPress={() => setShowCreateModal(false)}
+                className="p-1.5"
+              >
                 <X size={17} color="#fff" />
               </Pressable>
             </View>
@@ -369,7 +432,10 @@ export default function Feed() {
             />
 
             <Pressable
-              onPress={() => { setShowCreateModal(false); router.push("/(tabs)/bible"); }}
+              onPress={() => {
+                setShowCreateModal(false);
+                router.push("/(tabs)/bible");
+              }}
               className="flex-row items-center mt-3 bg-card-1 rounded-xl px-4 py-3"
             >
               <BookOpen size={14} color="#fbbf24" />
@@ -390,7 +456,9 @@ export default function Feed() {
               ) : (
                 <View className="flex-row items-center">
                   <Send size={13} color={content.trim() ? "black" : "#555"} />
-                  <Text className={`ml-2 font-sora-semibold text-[11px] ${content.trim() ? "text-black" : "text-zinc-500"}`}>
+                  <Text
+                    className={`ml-2 font-sora-semibold text-[11px] ${content.trim() ? "text-black" : "text-zinc-500"}`}
+                  >
                     Post
                   </Text>
                 </View>
