@@ -25,23 +25,25 @@ import {
   X,
 } from "lucide-react-native";
 
+import { isRedLetterVerse } from "@/constants/red-text";
+import { checkBibleExists, seedBible } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { checkBibleExists, flattenBible, seedBible } from "@/libs/sqlite/bible";
-import { isRedLetterVerse } from "@/constants/red-text";
-
-
 
 /* ---------------------------- PURE ROW ---------------------------- */
 
 const VerseRow = memo(
-  ({ item, index, selected, onToggle }: any) => {
+  ({ item, index, selected, onToggle, highlighted }: any) => {
     const isRed = isRedLetterVerse(item.book, item.chapter, item.verse);
+    const isHighlighted = highlighted === item.verse;
+
     return (
       <Pressable
         onPress={() => onToggle(item.id)}
-        className="flex-row items-start mb-6"
+        className={`flex-row items-start mb-6 p-2 rounded-lg ${
+          isHighlighted ? "bg-amber-500/20" : ""
+        }`}
       >
         <Text className="text-muted text-xs font-sora-semibold mt-1 w-6">
           {index + 1}
@@ -67,16 +69,22 @@ const VerseRow = memo(
 
 export default function Bible() {
   const { top } = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ book?: string; chapter?: string }>();
+  const params = useLocalSearchParams<{
+    book?: string;
+    chapter?: string;
+    verse?: string;
+  }>();
 
   const [loading, setLoading] = useState(true);
 
   const [books, setBooks] = useState<any[]>([]);
+  const [highlightedVerse, setHighlightedVerse] = useState<number | null>(null);
   const [chapters, setChapters] = useState<number[]>([]);
   const [verses, setVerses] = useState<any[]>([]);
   const [selectedVerses, setSelectedVerses] = useState<Record<string, boolean>>(
     {},
   );
+  const flatListRef = useRef<FlatList>(null);
 
   const [selectedBookIndex, setSelectedBookIndex] = useState(0);
   const [selectedChapter, setSelectedChapter] = useState(1);
@@ -101,19 +109,50 @@ export default function Bible() {
 
   /* ---------------------------- NAVIGATE TO BOOK ---------------------------- */
 
-  const navigateToBook = useCallback(async (bookName: string, chapterNum: number) => {
-    const normalizeBook = (name: string) =>
-      name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const navigateToBook = useCallback(
+    async (bookName: string, chapterNum: number, verseNum?: number) => {
+      const normalizeBook = (name: string) =>
+        name.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-    const target = normalizeBook(bookName);
-    const found = books.find(
-      (b: any) => normalizeBook(b.book) === target
-    );
+      const target = normalizeBook(bookName);
+      const found = books.find((b: any) => normalizeBook(b.book) === target);
 
-    if (found) {
-      await goToChapter(found.bookIndex, chapterNum);
-    }
-  }, [books]);
+      if (found) {
+        await goToChapter(found.bookIndex, chapterNum, verseNum);
+      }
+    },
+    [books],
+  );
+
+  const scrollToVerse = useCallback(
+    (verseNumber: number) => {
+      if (!verses.length || !flatListRef.current) return;
+
+      // Find the index of the verse
+      const index = verses.findIndex((v) => v.verse === verseNumber);
+
+      if (index === -1) {
+        console.warn(`Verse ${verseNumber} not found in current chapter`);
+        return;
+      }
+
+      // Set highlight
+      setHighlightedVerse(verseNumber);
+
+      // Clear highlight after 3 seconds
+      setTimeout(() => {
+        setHighlightedVerse(null);
+      }, 3000);
+
+      // Scroll to the verse with some offset for better visibility
+      flatListRef.current.scrollToIndex({
+        index,
+        animated: true,
+        viewPosition: 0.2, // Positions the verse about 20% from the top
+      });
+    },
+    [verses],
+  );
 
   /* ---------------------------- INIT ---------------------------- */
 
@@ -124,9 +163,17 @@ export default function Bible() {
   // Handle navigation params after books are loaded
   useEffect(() => {
     if (!loading && books.length > 0 && params.book && params.chapter) {
-      navigateToBook(params.book, parseInt(params.chapter, 10));
+      const verseNum = params.verse ? parseInt(params.verse, 10) : undefined;
+      navigateToBook(params.book, parseInt(params.chapter, 10), verseNum);
     }
-  }, [loading, books, params.book, params.chapter, navigateToBook]);
+  }, [
+    loading,
+    books,
+    params.book,
+    params.chapter,
+    params.verse,
+    navigateToBook,
+  ]);
 
   const bootstrap = async () => {
     try {
@@ -144,8 +191,17 @@ export default function Bible() {
     }
   };
 
-
-
+  useEffect(() => {
+    if (!loading && verses.length > 0 && params.verse) {
+      const verseNum = parseInt(params.verse, 10);
+      if (!isNaN(verseNum)) {
+        // Small delay to ensure FlatList is rendered
+        setTimeout(() => {
+          scrollToVerse(verseNum);
+        }, 300);
+      }
+    }
+  }, [loading, verses, params.verse, scrollToVerse]);
 
   /* ---------------------------- LOAD BOOKS ---------------------------- */
 
@@ -202,12 +258,23 @@ export default function Bible() {
     setVerses(res);
   };
 
-  const goToChapter = async (bookIndex: number, chapter: number) => {
+  const goToChapter = async (
+    bookIndex: number,
+    chapter: number,
+    verse?: number,
+  ) => {
     setSelectedBookIndex(bookIndex);
     setSelectedChapter(chapter);
 
     await loadChapters(bookIndex);
     await loadVerses(bookIndex, chapter);
+
+    // If verse is provided, scroll to it after verses load
+    if (verse) {
+      setTimeout(() => {
+        scrollToVerse(verse);
+      }, 100);
+    }
   };
   const goNext = async () => {
     const currentBook = books.find((b) => b.bookIndex === selectedBookIndex);
@@ -433,7 +500,9 @@ export default function Bible() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
         ListEmptyComponent={
           <View className="items-center mt-16">
-            <Text className="text-zinc-400 text-sm font-sora">Select a book and chapter to begin reading</Text>
+            <Text className="text-zinc-400 text-sm font-sora">
+              Select a book and chapter to begin reading
+            </Text>
           </View>
         }
       />
@@ -443,7 +512,9 @@ export default function Bible() {
         <View className="flex-1 justify-end bg-black/60">
           <View className="bg-[#111] rounded-t-[32px] h-[80%]">
             <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-white/5">
-              <Text className="text-white text-sm font-sora-semibold">Books of the Bible</Text>
+              <Text className="text-white text-sm font-sora-semibold">
+                Books of the Bible
+              </Text>
               <Pressable onPress={() => setOpen(false)} className="p-1.5">
                 <X color="white" size={18} />
               </Pressable>
