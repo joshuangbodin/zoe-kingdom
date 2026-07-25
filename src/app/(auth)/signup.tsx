@@ -25,9 +25,8 @@ import InputField from "@/components/InputField";
 import { Avatars } from "@/constants/avatar";
 import { registerUser } from "@/libs/firebase/auth";
 import { getFirebaseErrorMessage } from "@/libs/firebase/firebaseErrorMap";
-import { updateUserProfile } from "@/libs/firebase/users";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { serverTimestamp } from "firebase/firestore";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SPIRIT_MODES = [
   "Disciplined",
@@ -82,18 +81,17 @@ export default function SignUp() {
     try {
       setLoading(true);
 
-      const signedInUser = await registerUser(email, password, username);
-
-      console.log("signed in user",signedInUser)
-
-      // update user data
-      await updateUserProfile(signedInUser.uid, {
+      const signedInUser = await registerUser(email, password, {
+        username,
         avatar,
-        statusNote: statusNote ?? spiritMode,
-        lastUploaded: serverTimestamp,
+        statusNote: statusNote || spiritMode,
+        spiritStage: spiritMode,
+        lastUploaded: serverTimestamp(),
       });
 
-      // router.replace("/(tabs)/home");
+      console.log("signed in user", signedInUser);
+
+      router.replace("/(tabs)/home");
     } catch (e) {
       setError(getFirebaseErrorMessage(e));
 

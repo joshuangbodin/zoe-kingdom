@@ -4,11 +4,11 @@ import {
   getDoc,
   getDocs,
   limit,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
   updateDoc,
-  orderBy,
 } from "firebase/firestore";
 
 import { db } from "./index";
@@ -56,7 +56,7 @@ export const syncUserProfile = async (
   uid: string,
   data: {
     email: string;
-    username?: string;
+    userData: Partial<UserProfile>;
   },
 ) => {
   const ref = doc(db, collectionId, uid);
@@ -76,8 +76,7 @@ export const syncUserProfile = async (
   const profile: UserProfile = {
     uid,
 
-    username:
-      data.username || generateUsername(data.email),
+    username: data.userData.username || generateUsername(data.email),
 
     email: data.email,
 
@@ -94,6 +93,7 @@ export const syncUserProfile = async (
 
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+    ...data.userData,
   };
 
   await setDoc(ref, profile);
@@ -106,9 +106,7 @@ export const syncUserProfile = async (
 /* -------------------------------------------------------------------------- */
 
 export const getUserProfile = async (uid: string) => {
-  const snapshot = await getDoc(
-    doc(db, collectionId, uid),
-  );
+  const snapshot = await getDoc(doc(db, collectionId, uid));
 
   if (!snapshot.exists()) return null;
 
@@ -133,10 +131,7 @@ export const updateUserProfile = async (
 /*                              UPDATE STATUS NOTE                            */
 /* -------------------------------------------------------------------------- */
 
-export const updateStatusNote = async (
-  uid: string,
-  statusNote: string,
-) => {
+export const updateStatusNote = async (uid: string, statusNote: string) => {
   await updateDoc(doc(db, collectionId, uid), {
     statusNote,
     updatedAt: serverTimestamp(),
@@ -147,10 +142,7 @@ export const updateStatusNote = async (
 /*                               UPDATE AVATAR                                */
 /* -------------------------------------------------------------------------- */
 
-export const updateAvatar = async (
-  uid: string,
-  avatar: number,
-) => {
+export const updateAvatar = async (uid: string, avatar: number) => {
   await updateDoc(doc(db, collectionId, uid), {
     avatar,
     updatedAt: serverTimestamp(),
@@ -161,10 +153,7 @@ export const updateAvatar = async (
 /*                                  UPDATE XP                                 */
 /* -------------------------------------------------------------------------- */
 
-export const updateXP = async (
-  uid: string,
-  xp: number,
-) => {
+export const updateXP = async (uid: string, xp: number) => {
   await updateDoc(doc(db, collectionId, uid), {
     xp,
     updatedAt: serverTimestamp(),
@@ -175,10 +164,7 @@ export const updateXP = async (
 /*                                UPDATE LEVEL                                */
 /* -------------------------------------------------------------------------- */
 
-export const updateLevel = async (
-  uid: string,
-  level: number,
-) => {
+export const updateLevel = async (uid: string, level: number) => {
   await updateDoc(doc(db, collectionId, uid), {
     level,
     updatedAt: serverTimestamp(),
@@ -189,10 +175,7 @@ export const updateLevel = async (
 /*                            UPDATE SPIRIT STAGE                             */
 /* -------------------------------------------------------------------------- */
 
-export const updateSpiritStage = async (
-  uid: string,
-  spiritStage: string,
-) => {
+export const updateSpiritStage = async (uid: string, spiritStage: string) => {
   await updateDoc(doc(db, collectionId, uid), {
     spiritStage,
     updatedAt: serverTimestamp(),
@@ -203,10 +186,7 @@ export const updateSpiritStage = async (
 /*                           ADD XP + AUTO LEVELING                           */
 /* -------------------------------------------------------------------------- */
 
-export const addXPToUser = async (
-  uid: string,
-  amount: number,
-) => {
+export const addXPToUser = async (uid: string, amount: number) => {
   const profile = await getUserProfile(uid);
 
   if (!profile) return;
@@ -254,4 +234,39 @@ export const getUserStatusFeed = async () => {
 
     spiritStage: doc.data().spiritStage,
   }));
+};
+
+/* -------------------------------------------------------------------------- */
+/*                               GET ALL USERS                                */
+/* -------------------------------------------------------------------------- */
+
+export const getAllUsersSortedByLastUpload = async () => {
+  const snapshot = await getDocs(collection(db, collectionId));
+
+  const users = snapshot.docs.map((doc) => ({
+    ...(doc.data() as UserProfile),
+  }));
+
+  users.sort((a, b) => {
+    // Handle users with no uploads
+    if (!a.lastUploaded && !b.lastUploaded) return 0;
+    if (!a.lastUploaded) return 1;
+    if (!b.lastUploaded) return -1;
+
+    // Firestore Timestamp -> milliseconds
+    const aTime =
+      typeof a.lastUploaded.toMillis === "function"
+        ? a.lastUploaded.toMillis()
+        : new Date(a.lastUploaded).getTime();
+
+    const bTime =
+      typeof b.lastUploaded.toMillis === "function"
+        ? b.lastUploaded.toMillis()
+        : new Date(b.lastUploaded).getTime();
+
+    // Newest first
+    return bTime - aTime;
+  });
+
+  return users;
 };

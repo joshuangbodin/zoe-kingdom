@@ -93,9 +93,12 @@ export default function SignIn() {
       </Pressable>
 
       {/* FOOTER TEXT */}
-      <Text className="text-muted text-xs text-center mt-6">
-        Don’t have an account? <Text className="text-primary">Create one</Text>
-      </Text>
+      <Pressable onPress={() => router.push("/(auth)/signup")}>
+        <Text className="text-muted text-xs text-center mt-6">
+          Don't have an account?{" "}
+          <Text className="text-white font-sora-semibold">Create one</Text>
+        </Text>
+      </Pressable>
     </View>
   );
 }

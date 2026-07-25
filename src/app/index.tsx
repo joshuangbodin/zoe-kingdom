@@ -2,30 +2,38 @@ import { useApp } from "@/context/app-context";
 import { auth } from "@/libs/firebase";
 import { getUserProfile } from "@/libs/firebase/users";
 import { router } from "expo-router";
-import { onAuthStateChanged } from "firebase/auth";
-import React, { useEffect, useState } from "react";
+import { onAuthStateChanged, User } from "firebase/auth";
+import React, { useEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
 
-const index = () => {
+const Index = () => {
   const [initializing, setInitializing] = useState(true);
-  const { user, setUser } = useApp();
+  const { setUser } = useApp();
+  const hasNavigated = useRef(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (currentUser: any) => {
-      if (currentUser) {
-        const udata = await getUserProfile(currentUser.uid);
-        setUser(udata);
-        router.push("/(tabs)/home");
+    const unsub = onAuthStateChanged(auth, async (currentUser: User | null) => {
+      // Prevent double navigation
+      if (hasNavigated.current) return;
+      hasNavigated.current = true;
+
+      try {
+        if (currentUser) {
+          const udata = await getUserProfile(currentUser.uid);
+          if (udata) {
+            setUser(udata);
+          }
+          router.replace("/(tabs)/home");
+        } else {
+          router.replace("/onboarding");
+        }
+      } catch (err) {
+        console.error("Auth redirect error:", err);
+        router.replace("/onboarding");
+      } finally {
         if (initializing) {
           setInitializing(false);
         }
-        return;
-      }
-
-      router.push("/onboarding");
-
-      if (initializing) {
-        setInitializing(false);
       }
     });
 
@@ -33,7 +41,7 @@ const index = () => {
   }, []);
 
   return (
-    <View className="relative justify-center items-center  bg-black flex-1 ">
+    <View className="relative justify-center items-center bg-black flex-1">
       <Text className="text-white text-3xl font-sora-bold">
         My<Text className="text-muted">Zoe</Text>Life
       </Text>
@@ -46,4 +54,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Index;

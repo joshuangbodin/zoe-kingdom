@@ -26,7 +26,7 @@ import {
 } from "lucide-react-native";
 
 import { sqlite } from "@/libs/sqlite/db";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { checkBibleExists, flattenBible, seedBible } from "@/libs/sqlite/bible";
 
@@ -65,6 +65,7 @@ const VerseRow = memo(
 
 export default function Bible() {
   const { top } = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ book?: string; chapter?: string }>();
 
   const [loading, setLoading] = useState(true);
 
@@ -113,6 +114,19 @@ export default function Bible() {
       }
 
       await loadBooks();
+
+      // Navigate to specific book/chapter if passed via params
+      if (params.book && params.chapter) {
+        const bookData = books.length > 0 ? books : await sqlite.getAllAsync(
+          `SELECT DISTINCT book, bookIndex FROM bible_verses ORDER BY bookIndex ASC`
+        );
+        const targetBook = (bookData as any[]).find(
+          (b: any) => b.book.toLowerCase() === params.book!.toLowerCase()
+        );
+        if (targetBook) {
+          await goToChapter(targetBook.bookIndex, parseInt(params.chapter, 10));
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -381,7 +395,7 @@ export default function Bible() {
             const selected = verses.filter((v) => selectedVerses[v.id]);
 
             router.push({
-              pathname: "/sharethought",
+              pathname: "/(network)/sharethought",
               params: {
                 verses: JSON.stringify(selected),
               },

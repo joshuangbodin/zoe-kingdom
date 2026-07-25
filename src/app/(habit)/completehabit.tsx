@@ -517,7 +517,7 @@ export default function CompleteHabit() {
                 {running
                   ? `Complete in ${formatTime(secondsLeft)}`
                   : sessionFinished
-                    ? completed
+                    ? completed?.status
                       ? "Hooray! Already completed"
                       : "Complete Habit"
                     : "Start Timer First"}
