@@ -427,7 +427,7 @@ export default function Feed() {
               placeholder="Share a thought..."
               placeholderTextColor="#444"
               multiline
-              className="bg-card-1 rounded-xl px-4 py-3.5 text-white/85 font-sora text-sm leading-6 min-h-[90px]"
+              className="bg-card-1 rounded-xl px-4 py-3.5 text-white/85 font-sora text-sm leading-6 min-h-22.5"
               textAlignVertical="top"
             />
 
