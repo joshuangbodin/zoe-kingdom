@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   ActivityIndicator,
@@ -16,12 +16,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Heart,
   MessageCircle,
-  MoreVertical,
+  MoreHorizontal,
   Plus,
-  Search,
   Send,
   X,
   BookOpen,
+  Globe,
 } from "lucide-react-native";
 
 import { auth } from "@/libs/firebase";
@@ -75,11 +75,9 @@ export default function Feed() {
     loadProfile();
   }, []);
 
-  /* Realtime feed */
   useEffect(() => {
     const unsubscribe = subscribeToFeed((newPosts) => {
       setPosts(newPosts);
-      // Check which posts the current user has liked
       const user = auth.currentUser;
       if (user) {
         newPosts.forEach(async (post) => {
@@ -93,18 +91,12 @@ export default function Feed() {
     return () => unsubscribe();
   }, []);
 
-  /* Create post */
   const handleCreatePost = useCallback(async () => {
     if (!content.trim() || submitting) return;
-
     try {
       setSubmitting(true);
       const user = auth.currentUser;
-      if (!user) {
-        router.push("/(auth)/signin");
-        return;
-      }
-
+      if (!user) { router.push("/(auth)/signin"); return; }
       await createPost({
         uid: user.uid,
         username: profile?.username ?? "anonymous",
@@ -113,7 +105,6 @@ export default function Feed() {
         thought: content.trim(),
         tags: ["faith"],
       });
-
       setContent("");
       setShowCreateModal(false);
     } catch (error) {
@@ -123,13 +114,9 @@ export default function Feed() {
     }
   }, [content, submitting, profile]);
 
-  /* Like handler */
   const handleLike = useCallback(async (postId: string) => {
     const user = auth.currentUser;
-    if (!user) {
-      router.push("/(auth)/signin");
-      return;
-    }
+    if (!user) { router.push("/(auth)/signin"); return; }
     try {
       await likePost(postId, user.uid);
       setLikedPosts((prev) => new Set(prev).add(postId));
@@ -138,7 +125,6 @@ export default function Feed() {
     }
   }, []);
 
-  /* Filtered posts */
   const filteredPosts = useMemo(() => {
     if (selectedTag === "All") return posts;
     return posts.filter((post) =>
@@ -148,148 +134,118 @@ export default function Feed() {
     );
   }, [posts, selectedTag]);
 
-  /* Navigate to Bible verse */
   const openBibleVerse = useCallback((reference: string) => {
     if (!reference) return;
-    // Parse "Book Chapter:Verse" format
     const match = reference.match(/^(.+?)\s(\d+):(\d+)/);
     if (match) {
       router.push({
         pathname: "/(tabs)/bible",
-        params: {
-          book: match[1],
-          chapter: match[2],
-        },
+        params: { book: match[1], chapter: match[2] },
       });
     }
   }, []);
 
-  /* Render story */
   const renderStory = ({ item, index }: { item: UserProfile; index: number }) => (
-    <Pressable
-      onPress={() => {
-        if (item.uid) {
-          // Navigate to user's profile or posts
-        }
-      }}
-      className="mr-5 items-center"
-    >
-      <View className="overflow-visible">
+    <Pressable className="mr-4 items-center">
+      <View className="relative">
         {item.statusNote && (
-          <View className="absolute -top-2 self-center z-50">
-            <View className="bg-card-2 rounded-full px-2.5 py-1 border border-white/10">
-              <Text
-                numberOfLines={1}
-                className="text-white text-[9px] font-sora-medium"
-              >
+          <View className="absolute -top-1.5 self-center z-10">
+            <View className="bg-card-2 rounded-full px-2 py-0.5 border border-white/5">
+              <Text numberOfLines={1} className="text-white/70 text-[7px] font-sora-medium">
                 {item.statusNote}
               </Text>
             </View>
           </View>
         )}
-
-        <View
-          className="w-20 h-20 rounded-full items-center justify-end"
-          style={{
-            backgroundColor: [
-              "#FACC15", "#FB923C", "#06B6D4", "#F43F5E", "#14B8A6",
-            ][index % 5],
-          }}
-        >
-          <Avatar index={item.avatar} diameter={70} />
+        <View className="w-14 h-14 rounded-full items-center justify-center bg-white/5">
+          <Avatar index={item.avatar} diameter={50} />
         </View>
       </View>
-
-      <Text
-        numberOfLines={1}
-        className="text-white mt-3 text-[10px] max-w-20 truncate font-sora"
-      >
+      <Text numberOfLines={1} className="text-zinc-400 mt-1.5 text-[9px] max-w-14 font-sora text-center">
         @{item.username}
       </Text>
     </Pressable>
   );
 
-  /* Render post */
   const renderPost = ({ item }: any) => {
     const isLiked = likedPosts.has(item.id);
+    const actionColor = "#666";
 
     return (
-      <View className="bg-card-1 rounded-[34px] p-6 mb-5">
-        {/* User header */}
-        <View className="flex-row items-start justify-between">
-          <View className="flex-row items-center flex-1">
-            <Avatar index={item.avatar} />
-            <View className="ml-4 flex-1">
-              <Text className="text-white text-lg font-sora-semibold">
-                {item.username}
-              </Text>
-              <Text className="text-muted text-sm mt-1">
-                @{item.username?.toLowerCase()}
-              </Text>
-            </View>
+      <View className="mb-4">
+        {/* User header - minimal */}
+        <View className="flex-row items-center mb-3 px-0.5">
+          <Avatar index={item.avatar} diameter={32} />
+          <View className="ml-2.5 flex-1">
+            <Text className="text-white text-[13px] font-sora-semibold leading-5">
+              {item.username}
+            </Text>
+            <Text className="text-zinc-500 text-[10px] font-sora">
+              @{item.username?.toLowerCase()}
+            </Text>
           </View>
-          <Pressable className="p-2">
-            <MoreVertical size={20} color="white" />
+          <Pressable className="p-1.5">
+            <MoreHorizontal size={16} color={actionColor} />
           </Pressable>
         </View>
 
         {/* Thought */}
         {item.thought && (
-          <Text className="text-white text-[17px] leading-8 mt-8 font-sora">
+          <Text className="text-white/85 text-sm leading-6 font-sora mb-3">
             {item.thought}
           </Text>
         )}
 
-        {/* Verse Card - Tappable to open Bible */}
+        {/* Verse Card */}
         {!!item.verseReference && (
           <Pressable
             onPress={() => openBibleVerse(item.verseReference)}
-            className="bg-card-2 rounded-[30px] mt-6 overflow-hidden active:opacity-80"
+            className="bg-card-1 rounded-xl overflow-hidden active:opacity-80 mb-3"
           >
-            <View className="p-6">
-              <View className="flex-row items-center mb-3">
-                <BookOpen size={16} color="#fbbf24" />
-                <Text className="text-amber-300 text-sm font-sora-semibold ml-2">
+            <View className="p-4">
+              <View className="flex-row items-center mb-2">
+                <BookOpen size={12} color="#fbbf24" />
+                <Text className="text-amber-400/70 text-[9px] font-sora-semibold ml-1.5 uppercase tracking-widest">
                   Scripture
                 </Text>
               </View>
-              <Text className="text-white text-2xl font-serif mb-3">
+              <Text className="text-white text-sm font-serif mb-1.5">
                 {item.verseReference}
               </Text>
-              <Text className="text-zinc-300 leading-9 text-[17px] font-serif">
+              <Text className="text-zinc-400 text-[12px] leading-6 font-serif">
                 {item.verseText}
               </Text>
             </View>
-            <View className="bg-white/10 px-6 py-3">
-              <Text className="text-white/60 text-xs font-sora">
-                Tap to read full chapter →
+            <View className="border-t border-white/5 px-4 py-2">
+              <Text className="text-zinc-500 text-[9px] font-sora">
+                Read full chapter →
               </Text>
             </View>
           </Pressable>
         )}
 
         {/* Actions */}
-        <View className="flex-row items-center mt-7">
+        <View className="flex-row items-center border-t border-white/5 pt-3">
           <Pressable
             onPress={() => handleLike(item.id)}
-            className="mr-6 flex-row items-center"
+            className="flex-row items-center mr-5"
           >
             <Heart
-              color={isLiked ? "#ef4444" : "white"}
-              size={28}
+              color={isLiked ? "#ef4444" : actionColor}
+              size={17}
               fill={isLiked ? "#ef4444" : "transparent"}
             />
             {item.likesCount > 0 && (
-              <Text className="text-white text-xs ml-2 font-sora">
+              <Text className="text-zinc-500 text-[11px] ml-1.5 font-sora">
                 {item.likesCount}
               </Text>
             )}
           </Pressable>
 
-          <Pressable className="flex-row items-center">
-            <MessageCircle color="white" size={26} />
+          <Pressable className="flex-row items-center mr-5">
+            <MessageCircle color={actionColor} size={17} />
             {item.commentsCount > 0 && (
-              <Text className="text-white text-xs ml-2 font-sora">
+              <Text className="text-zinc-500 text-[11px] ml-1.5 font-sora">
                 {item.commentsCount}
               </Text>
             )}
@@ -302,31 +258,20 @@ export default function Feed() {
   return (
     <View style={{ paddingTop: top + 8 }} className="flex-1 bg-bg">
       {/* Header */}
-      <View className="px-5">
+      <View className="px-5 pb-3 border-b border-white/5">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
-            <Avatar index={profile?.avatar} />
-            <View className="w-4 h-4 rounded-full bg-green-500 absolute bottom-0 right-0 border-[2px] border-bg" />
+            <Avatar index={profile?.avatar} diameter={32} />
+            <Text className="text-white text-sm font-sora-semibold ml-3">
+              Zoe Network
+            </Text>
           </View>
-          <Text className="text-white text-lg font-sora-bold">
-            The Zoe Network
-          </Text>
           <Pressable
             onPress={() => setShowCreateModal(true)}
-            className="w-10 h-10 rounded-xl bg-white items-center justify-center"
+            className="w-8 h-8 rounded-full bg-white/10 items-center justify-center"
           >
-            <Plus color="black" size={24} />
+            <Plus color="white" size={16} />
           </Pressable>
-        </View>
-
-        {/* Search */}
-        <View className="mt-6 bg-card-1 rounded-xl px-5 py-4 flex-row items-center">
-          <Search color="#888" size={24} />
-          <TextInput
-            placeholder="Search Scripture, interest or thought"
-            placeholderTextColor="#888"
-            className="ml-4 flex-1 text-white text-sm font-sora"
-          />
         </View>
       </View>
 
@@ -336,7 +281,7 @@ export default function Feed() {
         renderItem={renderStory}
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 24 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
         keyExtractor={(item, index) => item.uid || index.toString()}
       />
 
@@ -344,8 +289,8 @@ export default function Feed() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="mt-6"
-        contentContainerStyle={{ paddingHorizontal: 20 }}
+        className="mb-1"
+        contentContainerStyle={{ paddingHorizontal: 16 }}
       >
         {TAGS.map((tag) => {
           const active = selectedTag === tag;
@@ -353,13 +298,13 @@ export default function Feed() {
             <Pressable
               key={tag}
               onPress={() => setSelectedTag(tag)}
-              className={`mr-3 px-5 py-3 rounded-full ${
+              className={`mr-2 px-3.5 py-2 rounded-full ${
                 active ? "bg-white" : "bg-card-1"
               }`}
             >
               <Text
-                className={`text-sm font-sora-medium ${
-                  active ? "text-black" : "text-zinc-300"
+                className={`text-[10px] font-sora-medium ${
+                  active ? "text-black" : "text-zinc-400"
                 }`}
               >
                 {tag}
@@ -375,18 +320,16 @@ export default function Feed() {
         renderItem={renderPost}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingHorizontal: 20,
-          paddingTop: 24,
-          paddingBottom: 180,
-        }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 140 }}
+        ItemSeparatorComponent={() => <View className="h-px bg-white/5 mx-4 my-2" />}
         ListEmptyComponent={
           <View className="items-center mt-20">
-            <Text className="text-white text-xl font-sora-bold">
+            <Globe size={32} color="#444" />
+            <Text className="text-zinc-500 text-sm font-sora-semibold mt-4">
               No posts yet
             </Text>
-            <Text className="text-muted text-center mt-3 px-10 leading-6 font-sora">
-              Be the first to share a thought or scripture with The Zoe Network.
+            <Text className="text-zinc-600 text-center mt-1.5 px-10 text-[11px] font-sora leading-5">
+              Share a thought or scripture with the community.
             </Text>
           </View>
         }
@@ -395,24 +338,21 @@ export default function Feed() {
       {/* Create Post Modal */}
       <Modal visible={showCreateModal} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-[#111] rounded-t-[40px] px-6 pt-6 pb-10">
-            <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-white text-xl font-sora-bold">
-                Share a Thought
-              </Text>
-              <Pressable onPress={() => setShowCreateModal(false)} className="p-2">
-                <X size={22} color="#fff" />
+          <View className="bg-[#0d0d0d] rounded-t-[28px] px-5 pt-5 pb-10">
+            <View className="flex-row items-center justify-between mb-5">
+              <Text className="text-white text-sm font-sora-semibold">New Post</Text>
+              <Pressable onPress={() => setShowCreateModal(false)} className="p-1.5">
+                <X size={17} color="#fff" />
               </Pressable>
             </View>
 
-            {/* User info */}
             <View className="flex-row items-center mb-4">
-              <Avatar index={profile?.avatar} />
-              <View className="ml-3">
-                <Text className="text-white font-sora-semibold">
+              <Avatar index={profile?.avatar} diameter={28} />
+              <View className="ml-2.5">
+                <Text className="text-white text-[13px] font-sora-semibold">
                   {profile?.username || "You"}
                 </Text>
-                <Text className="text-muted text-xs font-sora">
+                <Text className="text-zinc-500 text-[9px] font-sora">
                   {profile?.spiritStage || "Kindled Flame"}
                 </Text>
               </View>
@@ -421,32 +361,27 @@ export default function Feed() {
             <TextInput
               value={content}
               onChangeText={setContent}
-              placeholder="What's on your heart?"
-              placeholderTextColor="#666"
+              placeholder="Share a thought..."
+              placeholderTextColor="#444"
               multiline
-              className="bg-card-1 rounded-[28px] px-5 py-5 text-white font-sora text-[16px] leading-7 min-h-[120px]"
+              className="bg-card-1 rounded-xl px-4 py-3.5 text-white/85 font-sora text-sm leading-6 min-h-[90px]"
               textAlignVertical="top"
             />
 
-            {/* Add verse button */}
             <Pressable
-              onPress={() => {
-                setShowCreateModal(false);
-                router.push("/(tabs)/bible");
-              }}
-              className="flex-row items-center mt-4 bg-card-1 rounded-2xl px-5 py-4"
+              onPress={() => { setShowCreateModal(false); router.push("/(tabs)/bible"); }}
+              className="flex-row items-center mt-3 bg-card-1 rounded-xl px-4 py-3"
             >
-              <BookOpen size={20} color="#fbbf24" />
-              <Text className="text-white font-sora-medium ml-3">
+              <BookOpen size={14} color="#fbbf24" />
+              <Text className="text-zinc-400 text-[11px] font-sora-medium ml-2.5">
                 Add a Bible verse
               </Text>
             </Pressable>
 
-            {/* Post button */}
             <Pressable
               onPress={handleCreatePost}
               disabled={submitting || !content.trim()}
-              className={`mt-6 rounded-2xl py-4 items-center ${
+              className={`mt-4 rounded-xl py-3.5 items-center ${
                 content.trim() ? "bg-white" : "bg-card-1"
               }`}
             >
@@ -454,12 +389,8 @@ export default function Feed() {
                 <ActivityIndicator color="black" />
               ) : (
                 <View className="flex-row items-center">
-                  <Send size={18} color={content.trim() ? "black" : "#666"} />
-                  <Text
-                    className={`ml-2 font-sora-bold text-sm ${
-                      content.trim() ? "text-black" : "text-muted"
-                    }`}
-                  >
+                  <Send size={13} color={content.trim() ? "black" : "#555"} />
+                  <Text className={`ml-2 font-sora-semibold text-[11px] ${content.trim() ? "text-black" : "text-zinc-500"}`}>
                     Post
                   </Text>
                 </View>

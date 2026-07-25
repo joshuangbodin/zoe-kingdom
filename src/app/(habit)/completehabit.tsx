@@ -43,11 +43,9 @@ const CATEGORY_COLORS: any = {
 
 export default function CompleteHabit() {
   const { id } = useLocalSearchParams();
-
   const { top } = useSafeAreaInsets();
 
   const [habit, setHabit] = useState<any>(null);
-
   const { setHabits } = useApp();
 
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -86,18 +84,14 @@ export default function CompleteHabit() {
         setSecondsLeft((prev) => {
           if (prev <= 1) {
             clearInterval(intervalRef.current);
-
             setRunning(false);
             setSessionFinished(true);
-
             return 0;
           }
-
           return prev - 1;
         });
       }, 1000);
     }
-
     return () => clearInterval(intervalRef.current);
   }, [running]);
 
@@ -107,9 +101,8 @@ export default function CompleteHabit() {
     setHabits(h);
     setHabit(data);
 
-    const completed = await getHabitStatus(data);
-
-    setCompleted(completed);
+    const status = await getHabitStatus(data);
+    setCompleted(status);
 
     if (data?.duration) {
       setSecondsLeft(data.duration * 60);
@@ -118,412 +111,377 @@ export default function CompleteHabit() {
 
   const HandleCompleteHabit = async () => {
     const data = await completeHabit(habit);
-
     if (data.success) {
-      Alert.alert(data.reason || "completed");
+      Alert.alert("Completed!", "Habit logged successfully.");
       await loadHabit();
     }
   };
 
   const category = habit?.category || "discipline";
-
   const color = CATEGORY_COLORS[category] || "#10B981";
 
   const progress = useMemo(() => {
     if (!habit?.duration) return 0;
-
     const total = habit.duration * 60;
-
     return ((total - secondsLeft) / total) * 100;
   }, [secondsLeft, habit]);
 
   const formatTime = (secs: number) => {
     const mins = Math.floor(secs / 60);
     const rem = secs % 60;
-
     return `${String(mins).padStart(2, "0")}:${String(rem).padStart(2, "0")}`;
   };
 
   if (!habit) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#090909]">
-        <Text className="text-white">Loading Habit...</Text>
+      <View className="flex-1 items-center justify-center bg-bg">
+        <Text className="text-zinc-400 text-sm font-sora">Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View
-      style={{
-        paddingTop: top + 10,
-      }}
-      className="bg-bg px-5 flex-1"
-    >
+    <View style={{ paddingTop: top + 8 }} className="bg-bg px-5 flex-1">
       {/* header */}
-      <View className="items-center flex-row justify-between">
+      <View className="flex-row items-center justify-between mb-4">
         <Pressable
           onPress={() => router.back()}
-          className="bg-card-1 p-3 aspect-square rounded-xl"
+          className="w-9 h-9 rounded-xl bg-card-1 items-center justify-center"
         >
-          <ChevronLeft color={"#fff"} />
+          <ChevronLeft color="#fff" size={18} />
         </Pressable>
-
-        <Pressable className=" p-3 aspect-square rounded-xl">
-          <Music color={"#fff"} />
+        <Pressable className="w-9 h-9 rounded-xl bg-card-1 items-center justify-center">
+          <Music color="#fff" size={16} />
         </Pressable>
       </View>
 
       <KeyboardAvoidingView className="flex-1" behavior="padding">
         <ScrollView
-          contentContainerClassName="flex-1"
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
         >
-          <View className="mt-4">
-            {/* TOP CARD */}
-            <View className="rounded-[34px] overflow-hidden bg-card-2 p-6">
-              {/* HEADER */}
-              <View className="flex-row items-center">
-                {/* ICON */}
-                <View
-                  className="w-14 h-14 rounded-[22px] items-center justify-center"
-                  style={{
-                    backgroundColor: color,
-                  }}
-                >
-                  {getCategoryIcon(category, 22, "#fff")}
-                </View>
-
-                {/* INFO */}
-                <View className="ml-4 flex-1">
-                  <Text className="text-white text-lg font-sora-bold">
-                    {habit.title}
-                  </Text>
-
-                  <Text className="text-muted font-sora text-xs mt-1 capitalize">
-                    {habit.category} ・ {habit.duration} mins ・{" "}
-                    {habit.xpReward}xp
-                  </Text>
-                </View>
-
-                {/* LIVE STATUS */}
-                <View className="items-end">
-                  <View
-                    className={`px-3 py-2 rounded-full ${completed?.status ? "bg-green-500/15" : "bg-orange-500/10"} `}
-                  >
-                    <View className="flex-row items-center">
-                      <View
-                        className={`w-2 h-2 rounded-full mr-2 ${completed?.status ? "bg-green-400" : "bg-orange-300"}`}
-                      />
-
-                      <Text
-                        className={`text-[11px] font-sora-medium ${completed?.status ? "text-green-300" : "text-orange-200"}`}
-                      >
-                        {completed?.status ? "Completed" : "In Progress"}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
+          {/* TOP CARD */}
+          <View className="rounded-2xl overflow-hidden bg-card-1 p-5">
+            {/* HEADER */}
+            <View className="flex-row items-center">
+              <View
+                className="w-12 h-12 rounded-xl items-center justify-center"
+                style={{ backgroundColor: color + "30" }}
+              >
+                {getCategoryIcon(category, 20, color)}
               </View>
 
-              {/* STATUS MESSAGE */}
-              {!!completed?.message && (
-                <View className="mt-5">
-                  <Text className="text-zinc-300 leading-6 font-sora text-sm">
-                    {completed.message}
-                  </Text>
-                </View>
-              )}
+              <View className="ml-3 flex-1">
+                <Text className="text-white text-base font-sora-semibold">
+                  {habit.title}
+                </Text>
+                <Text className="text-zinc-500 text-[10px] font-sora mt-0.5 capitalize">
+                  {habit.category} · {habit.duration} mins · {habit.xpReward}xp
+                </Text>
+              </View>
 
-              {/* TWICE DAILY */}
-              {habit.frequency === "twice_daily" && completed?.progress && (
-                <View className="flex-row gap-3 mt-5">
-                  {/* MORNING */}
+              <View
+                className={`px-3 py-1.5 rounded-full ${
+                  completed?.status ? "bg-green-500/10" : "bg-orange-500/10"
+                }`}
+              >
+                <View className="flex-row items-center">
                   <View
-                    className={`flex-1 rounded-2xl p-4 ${completed.progress.morning ? "bg-yellow-500/10" : "bg-card-1"}`}
-                  >
-                    <View className="flex-row items-center justify-between">
-                      <Sun
-                        size={18}
-                        color={completed.progress.morning ? "#facc15" : "#666"}
-                      />
-
-                      {completed.progress.morning && (
-                        <Check size={16} color="#facc15" />
-                      )}
-                    </View>
-
-                    <Text className="text-white font-sora-semibold mt-4">
-                      Morning
-                    </Text>
-
-                    <Text className="text-muted text-xs mt-1">
-                      {completed.progress.morning ? "Completed" : "Remaining"}
-                    </Text>
-                  </View>
-
-                  {/* EVENING */}
-                  <View
-                    className={`flex-1 rounded-2xl p-4 ${completed.progress.evening ? "bg-blue-500/10" : "bg-card-1"}`}
-                  >
-                    <View className="flex-row items-center justify-between">
-                      <Moon
-                        size={18}
-                        color={completed.progress.evening ? "#60a5fa" : "#666"}
-                      />
-
-                      {completed.progress.evening && (
-                        <Check size={16} color="#60a5fa" />
-                      )}
-                    </View>
-
-                    <Text className="text-white font-sora-semibold mt-4">
-                      Evening
-                    </Text>
-
-                    <Text className="text-muted text-xs mt-1">
-                      {completed.progress.evening ? "Completed" : "Remaining"}
-                    </Text>
-                  </View>
-                </View>
-              )}
-
-              {/* TIMER SECTION */}
-              <View className="mt-8">
-                {/* TIMER */}
-                <View className="items-center">
-                  <Text
-                    style={{
-                      color,
-                    }}
-                    className="text-[52px] font-sora-bold tracking-tight"
-                  >
-                    {formatTime(secondsLeft)}
-                  </Text>
-
-                  <Text className="text-muted text-xs mt-1 font-sora-medium">
-                    Focus Session
-                  </Text>
-                </View>
-
-                {/* PROGRESS */}
-                <View className="h-1.25 bg-card-1 rounded-full overflow-hidden mt-8">
-                  <View
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${progress}%`,
-                      backgroundColor: color,
-                    }}
+                    className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                      completed?.status ? "bg-green-400" : "bg-orange-300"
+                    }`}
                   />
-                </View>
-
-                {/* CONTROLS */}
-                <View className="flex-row gap-3 mt-6">
-                  {!running ? (
-                    <Pressable
-                      onPress={() => setRunning(true)}
-                      className="flex-1 rounded-2xl py-5 items-center"
-                      style={{
-                        backgroundColor: color,
-                      }}
-                    >
-                      <View className="flex-row items-center">
-                        <Play fill={"white"} color={"white"} size={18} />
-
-                        <Text className="text-white ml-2 font-sora-semibold">
-                          {secondsLeft === habit.duration * 60
-                            ? "Begin Session"
-                            : "Resume"}
-                        </Text>
-                      </View>
-                    </Pressable>
-                  ) : (
-                    <Pressable
-                      onPress={() => setRunning(false)}
-                      className="flex-1 rounded-2xl py-5 items-center bg-card-1"
-                    >
-                      <View className="flex-row items-center">
-                        <Square color={"white"} size={16} />
-
-                        <Text className="text-white ml-2 font-sora-semibold">
-                          Pause
-                        </Text>
-                      </View>
-                    </Pressable>
-                  )}
-
-                  <Pressable
-                    onPress={() => {
-                      setRunning(false);
-                      setSecondsLeft(habit.duration * 60);
-                    }}
-                    className="w-16 rounded-2xl items-center justify-center bg-card-1"
+                  <Text
+                    className={`text-[10px] font-sora-medium ${
+                      completed?.status ? "text-green-400" : "text-orange-300"
+                    }`}
                   >
-                    <TimerReset color={"white"} size={20} />
-                  </Pressable>
+                    {completed?.status ? "Done" : "Active"}
+                  </Text>
                 </View>
               </View>
             </View>
-            {/* DYNAMIC CONTENT */}
-            {/* PRAYER */}
-            {category === "prayer" && (
-              <View className="mt-6 bg-card-1 rounded-2xl p-6">
-                <Text className="text-white  text-base font-sora-bold">
-                  Prayer Points
+
+            {/* STATUS MESSAGE */}
+            {!!completed?.message && (
+              <View className="mt-4">
+                <Text className="text-zinc-400 text-xs font-sora leading-5">
+                  {completed.message}
                 </Text>
-                <Text className="text-muted font-sora text-xs mt-2">
-                  Write what you want to pray about during this session.
-                </Text>
-                <View className="mt-6 gap-4">
-                  {prayerPoints.map((point, index) => (
-                    <TextInput
-                      key={index}
-                      value={point}
-                      onChangeText={(text) => {
-                        const updated = [...prayerPoints];
-                        updated[index] = text;
-                        setPrayerPoints(updated);
-                      }}
-                      placeholder={`Prayer Point ${index + 1}`}
-                      placeholderTextColor="#666"
-                      className="bg-bg rounded-2xl px-5 py-5 text-white"
+              </View>
+            )}
+
+            {/* TWICE DAILY */}
+            {habit.frequency === "twice_daily" && completed?.progress && (
+              <View className="flex-row gap-2 mt-4">
+                <View
+                  className={`flex-1 rounded-xl p-3 ${
+                    completed.progress.morning ? "bg-yellow-500/10" : "bg-card-2"
+                  }`}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <Sun
+                      size={14}
+                      color={completed.progress.morning ? "#facc15" : "#555"}
                     />
-                  ))}
-                </View>
-                <Pressable
-                  onPress={() => setPrayerPoints((prev) => [...prev, ""])}
-                  className="bg-bg mt-5 rounded-2xl py-4 items-center"
-                >
-                  <Text className="text-white font-sora-semibold">
-                    Add Prayer Point
+                    {completed.progress.morning && (
+                      <Check size={12} color="#facc15" />
+                    )}
+                  </View>
+                  <Text className="text-white text-xs font-sora-semibold mt-2">
+                    Morning
                   </Text>
+                  <Text className="text-zinc-500 text-[10px] mt-0.5">
+                    {completed.progress.morning ? "Done" : "Remaining"}
+                  </Text>
+                </View>
+
+                <View
+                  className={`flex-1 rounded-xl p-3 ${
+                    completed.progress.evening ? "bg-blue-500/10" : "bg-card-2"
+                  }`}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <Moon
+                      size={14}
+                      color={completed.progress.evening ? "#60a5fa" : "#555"}
+                    />
+                    {completed.progress.evening && (
+                      <Check size={12} color="#60a5fa" />
+                    )}
+                  </View>
+                  <Text className="text-white text-xs font-sora-semibold mt-2">
+                    Evening
+                  </Text>
+                  <Text className="text-zinc-500 text-[10px] mt-0.5">
+                    {completed.progress.evening ? "Done" : "Remaining"}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {/* TIMER SECTION */}
+            <View className="mt-6">
+              <View className="items-center">
+                <Text
+                  style={{ color }}
+                  className="text-[48px] font-sora-bold tracking-tight"
+                >
+                  {formatTime(secondsLeft)}
+                </Text>
+                <Text className="text-zinc-500 text-[10px] mt-1 font-sora-medium">
+                  Focus Session
+                </Text>
+              </View>
+
+              {/* PROGRESS */}
+              <View className="h-1 bg-card-2 rounded-full overflow-hidden mt-6">
+                <View
+                  className="h-full rounded-full"
+                  style={{ width: `${progress}%`, backgroundColor: color }}
+                />
+              </View>
+
+              {/* CONTROLS */}
+              <View className="flex-row gap-2 mt-4">
+                {!running ? (
+                  <Pressable
+                    onPress={() => setRunning(true)}
+                    className="flex-1 rounded-xl py-4 items-center"
+                    style={{ backgroundColor: color }}
+                  >
+                    <View className="flex-row items-center">
+                      <Play fill="white" color="white" size={16} />
+                      <Text className="text-white ml-2 text-xs font-sora-semibold">
+                        {secondsLeft === habit.duration * 60
+                          ? "Begin"
+                          : "Resume"}
+                      </Text>
+                    </View>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    onPress={() => setRunning(false)}
+                    className="flex-1 rounded-xl py-4 items-center bg-card-2"
+                  >
+                    <View className="flex-row items-center">
+                      <Square color="white" size={14} />
+                      <Text className="text-white ml-2 text-xs font-sora-semibold">
+                        Pause
+                      </Text>
+                    </View>
+                  </Pressable>
+                )}
+
+                <Pressable
+                  onPress={() => {
+                    setRunning(false);
+                    setSecondsLeft(habit.duration * 60);
+                  }}
+                  className="w-14 rounded-xl items-center justify-center bg-card-2"
+                >
+                  <TimerReset color="white" size={18} />
                 </Pressable>
               </View>
-            )}
-            {/* BIBLE */}
-            {category === "bible" && (
-              <View className="mt-6 bg-[#151515] rounded-[34px] p-6">
-                <Text className="text-white text-xl font-sora-bold">
-                  Bible Study Notes
-                </Text>
-                <Text className="text-muted font-sora text-xs mt-2">
-                  Record what you studied and learned today.
-                </Text>
-                <TextInput
-                  value={chapter}
-                  onChangeText={setChapter}
-                  placeholder="John 3"
-                  placeholderTextColor="#666"
-                  className="bg-[#1D1D1F] mt-6 rounded-2xl px-5 py-5 text-white"
-                />
-                <TextInput
-                  value={reflection}
-                  onChangeText={setReflection}
-                  multiline
-                  placeholder="Write your reflections..."
-                  placeholderTextColor="#666"
-                  className="bg-[#1D1D1F] mt-4 rounded-2xl px-5 py-5 text-white min-h-45"
-                  textAlignVertical="top"
-                />
-              </View>
-            )}
-            {/* EVANGELISM */}
-            {category === "evangelism" && (
-              <View className="mt-6 bg-[#151515] rounded-[34px] p-6">
-                <Text className="text-white text-xl font-sora-bold">
-                  Souls Reached
-                </Text>
-                <Text className="text-muted font-sora text-xs mt-2">
-                  Track the number of people you spoke to today.
-                </Text>
-                <View className="items-center mt-10">
-                  <Text
-                    style={{
-                      color,
+            </View>
+          </View>
+
+          {/* DYNAMIC CONTENT */}
+          {/* PRAYER */}
+          {category === "prayer" && (
+            <View className="mt-4 bg-card-1 rounded-2xl p-5">
+              <Text className="text-white text-sm font-sora-semibold">
+                Prayer Points
+              </Text>
+              <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+                Write what you want to pray about.
+              </Text>
+              <View className="mt-4 gap-3">
+                {prayerPoints.map((point, index) => (
+                  <TextInput
+                    key={index}
+                    value={point}
+                    onChangeText={(text) => {
+                      const updated = [...prayerPoints];
+                      updated[index] = text;
+                      setPrayerPoints(updated);
                     }}
-                    className="text-[72px] font-sora-bold"
-                  >
-                    {soulsReached}
-                  </Text>
-                  <Text className="text-muted font-sora text-xs mt-1">
-                    people reached
-                  </Text>
-                </View>
-                <View className="flex-row gap-4 mt-8">
-                  <Pressable
-                    onPress={() =>
-                      setSoulsReached((prev) => Math.max(0, prev - 1))
-                    }
-                    className="flex-1 bg-[#1D1D1F] rounded-2xl py-5 items-center"
-                  >
-                    <Text className="text-white text-2xl">−</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setSoulsReached((prev) => prev + 1)}
-                    className="flex-1 rounded-2xl py-5 items-center"
-                    style={{
-                      backgroundColor: color,
-                    }}
-                  >
-                    <Text className="text-white text-2xl">+</Text>
-                  </Pressable>
-                </View>
+                    placeholder={`Point ${index + 1}`}
+                    placeholderTextColor="#555"
+                    className="bg-card-2 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora"
+                  />
+                ))}
               </View>
-            )}
-            {/* DEFAULT */}
-            {!["prayer", "bible", "evangelism"].includes(category) && (
-              <View className="mt-6 bg-[#151515] rounded-[34px] p-6">
-                <Text className="text-white text-xl font-sora-bold">
-                  Habit Completion
+              <Pressable
+                onPress={() => setPrayerPoints((prev) => [...prev, ""])}
+                className="bg-card-2 mt-3 rounded-xl py-3.5 items-center"
+              >
+                <Text className="text-white/70 text-xs font-sora-semibold">
+                  + Add Point
                 </Text>
-                <Text className="text-muted font-sora text-xs mt-2">
-                  Complete the session after the timer finishes.
-                </Text>
-                <Pressable
-                  onPress={() => setChecked(!checked)}
-                  className="bg-[#1D1D1F] mt-8 rounded-3xl p-5 flex-row items-center justify-between"
+              </Pressable>
+            </View>
+          )}
+
+          {/* BIBLE */}
+          {category === "bible" && (
+            <View className="mt-4 bg-card-1 rounded-2xl p-5">
+              <Text className="text-white text-sm font-sora-semibold">
+                Bible Study Notes
+              </Text>
+              <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+                Record what you studied.
+              </Text>
+              <TextInput
+                value={chapter}
+                onChangeText={setChapter}
+                placeholder="John 3"
+                placeholderTextColor="#555"
+                className="bg-card-2 mt-4 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora"
+              />
+              <TextInput
+                value={reflection}
+                onChangeText={setReflection}
+                multiline
+                placeholder="Write your reflections..."
+                placeholderTextColor="#555"
+                className="bg-card-2 mt-3 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora min-h-[80px]"
+                textAlignVertical="top"
+              />
+            </View>
+          )}
+
+          {/* EVANGELISM */}
+          {category === "evangelism" && (
+            <View className="mt-4 bg-card-1 rounded-2xl p-5">
+              <Text className="text-white text-sm font-sora-semibold">
+                Souls Reached
+              </Text>
+              <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+                Track people you spoke to today.
+              </Text>
+              <View className="items-center mt-6">
+                <Text
+                  style={{ color }}
+                  className="text-[56px] font-sora-bold"
                 >
-                  <View>
-                    <Text className="text-white font-sora-semibold text-lg">
-                      I have completed this habit
-                    </Text>
-                    <Text className="text-muted font-sora text-xs mt-1">
-                      Mark your progress
-                    </Text>
-                  </View>
-                  <View
-                    className="w-10 h-10 rounded-full items-center justify-center"
-                    style={{
-                      backgroundColor: checked ? color : "#2A2A2D",
-                    }}
-                  >
-                    {checked && <Check color={"white"} size={18} />}
-                  </View>
+                  {soulsReached}
+                </Text>
+                <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+                  people reached
+                </Text>
+              </View>
+              <View className="flex-row gap-3 mt-6">
+                <Pressable
+                  onPress={() => setSoulsReached((prev) => Math.max(0, prev - 1))}
+                  className="flex-1 bg-card-2 rounded-xl py-4 items-center"
+                >
+                  <Text className="text-white text-xl">−</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setSoulsReached((prev) => prev + 1)}
+                  className="flex-1 rounded-xl py-4 items-center"
+                  style={{ backgroundColor: color }}
+                >
+                  <Text className="text-white text-xl">+</Text>
                 </Pressable>
               </View>
-            )}
-            {/* COMPLETE BUTTON */}
-            <Pressable
-              disabled={!sessionFinished}
-              onPress={HandleCompleteHabit}
-              className={`mt-8 rounded-2xl py-5 items-center ${
-                sessionFinished ? "bg-white" : "bg-card-1"
+            </View>
+          )}
+
+          {/* DEFAULT */}
+          {!["prayer", "bible", "evangelism"].includes(category) && (
+            <View className="mt-4 bg-card-1 rounded-2xl p-5">
+              <Text className="text-white text-sm font-sora-semibold">
+                Completion
+              </Text>
+              <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+                Mark as complete after the timer finishes.
+              </Text>
+              <Pressable
+                onPress={() => setChecked(!checked)}
+                className="bg-card-2 mt-4 rounded-xl p-4 flex-row items-center justify-between"
+              >
+                <View>
+                  <Text className="text-white text-sm font-sora-semibold">
+                    I completed this habit
+                  </Text>
+                  <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+                    Mark your progress
+                  </Text>
+                </View>
+                <View
+                  className="w-8 h-8 rounded-full items-center justify-center"
+                  style={{ backgroundColor: checked ? color : "#2A2A2D" }}
+                >
+                  {checked && <Check color="white" size={14} />}
+                </View>
+              </Pressable>
+            </View>
+          )}
+
+          {/* COMPLETE BUTTON */}
+          <Pressable
+            disabled={!sessionFinished}
+            onPress={HandleCompleteHabit}
+            className={`mt-6 rounded-xl py-4 items-center ${
+              sessionFinished ? "bg-white" : "bg-card-1"
+            }`}
+          >
+            <Text
+              className={`text-xs font-sora-bold ${
+                sessionFinished ? "text-black" : "text-zinc-500"
               }`}
             >
-              <Text
-                className={`text-sm font-sora-bold ${
-                  sessionFinished ? "text-black" : "text-muted"
-                }`}
-              >
-                {running
-                  ? `Complete in ${formatTime(secondsLeft)}`
-                  : sessionFinished
-                    ? completed?.status
-                      ? "Hooray! Already completed"
-                      : "Complete Habit"
-                    : "Start Timer First"}
-              </Text>
-            </Pressable>
-          </View>
+              {running
+                ? `Complete in ${formatTime(secondsLeft)}`
+                : sessionFinished
+                  ? completed?.status
+                    ? "Already Completed ✓"
+                    : "Complete Habit"
+                  : "Start Timer First"}
+            </Text>
+          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

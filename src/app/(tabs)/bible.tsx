@@ -29,6 +29,7 @@ import { sqlite } from "@/libs/sqlite/db";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { checkBibleExists, flattenBible, seedBible } from "@/libs/sqlite/bible";
+import { isRedLetterVerse } from "@/constants/red-text";
 
 
 
@@ -36,6 +37,7 @@ import { checkBibleExists, flattenBible, seedBible } from "@/libs/sqlite/bible";
 
 const VerseRow = memo(
   ({ item, index, selected, onToggle }: any) => {
+    const isRed = isRedLetterVerse(item.book, item.chapter, item.verse);
     return (
       <Pressable
         onPress={() => onToggle(item.id)}
@@ -47,7 +49,7 @@ const VerseRow = memo(
 
         <Text
           className={`flex-1 text-base leading-8 font-serif ${
-            selected ? "text-amber-300" : "text-white"
+            selected ? "text-amber-300" : isRed ? "text-red-400" : "text-white"
           }`}
         >
           {item.text}
@@ -97,11 +99,34 @@ export default function Bible() {
 
   const verseCache = useRef(new Map<string, any[]>());
 
+  /* ---------------------------- NAVIGATE TO BOOK ---------------------------- */
+
+  const navigateToBook = useCallback(async (bookName: string, chapterNum: number) => {
+    const normalizeBook = (name: string) =>
+      name.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    const target = normalizeBook(bookName);
+    const found = books.find(
+      (b: any) => normalizeBook(b.book) === target
+    );
+
+    if (found) {
+      await goToChapter(found.bookIndex, chapterNum);
+    }
+  }, [books]);
+
   /* ---------------------------- INIT ---------------------------- */
 
   useEffect(() => {
     bootstrap();
   }, []);
+
+  // Handle navigation params after books are loaded
+  useEffect(() => {
+    if (!loading && books.length > 0 && params.book && params.chapter) {
+      navigateToBook(params.book, parseInt(params.chapter, 10));
+    }
+  }, [loading, books, params.book, params.chapter, navigateToBook]);
 
   const bootstrap = async () => {
     try {
@@ -114,19 +139,6 @@ export default function Bible() {
       }
 
       await loadBooks();
-
-      // Navigate to specific book/chapter if passed via params
-      if (params.book && params.chapter) {
-        const bookData = books.length > 0 ? books : await sqlite.getAllAsync(
-          `SELECT DISTINCT book, bookIndex FROM bible_verses ORDER BY bookIndex ASC`
-        );
-        const targetBook = (bookData as any[]).find(
-          (b: any) => b.book.toLowerCase() === params.book!.toLowerCase()
-        );
-        if (targetBook) {
-          await goToChapter(targetBook.bookIndex, parseInt(params.chapter, 10));
-        }
-      }
     } finally {
       setLoading(false);
     }
@@ -360,32 +372,32 @@ export default function Bible() {
   /* ---------------------------- UI ---------------------------- */
 
   return (
-    <View style={{ paddingTop: top + 10 }} className="flex-1 bg-bg">
+    <View style={{ paddingTop: top + 8 }} className="flex-1 bg-bg">
       {/* HEADER */}
-      <View className="px-5 pb-4 flex-row justify-between items-center">
+      <View className="px-5 pb-3 flex-row justify-between items-center">
         <Pressable
           onPress={goPrev}
-          className="w-12 h-12 bg-card-1 rounded-2xl items-center justify-center"
+          className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center"
         >
-          <ChevronLeft color="white" size={22} />
+          <ChevronLeft color="white" size={18} />
         </Pressable>
 
         <Pressable
           onPress={() => setOpen(true)}
-          className="bg-card-2 px-4 py-2 rounded-2xl"
+          className="bg-card-1 px-3 py-2 rounded-xl"
         >
-          <Text className="text-white font-sora-semibold">
+          <Text className="text-white text-sm font-sora-semibold">
             {books.find((b) => b.bookIndex === selectedBookIndex)?.book ??
               "Bible"}{" "}
-            {selectedChapter}
+            <Text className="text-zinc-400">{selectedChapter}</Text>
           </Text>
         </Pressable>
 
         <Pressable
           onPress={goNext}
-          className="w-12 h-12 bg-card-1 rounded-2xl items-center justify-center"
+          className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center"
         >
-          <ChevronRight color="white" size={22} />
+          <ChevronRight color="white" size={18} />
         </Pressable>
       </View>
 
@@ -401,15 +413,15 @@ export default function Bible() {
               },
             });
           }}
-          className="absolute bottom-5 z-80 right-5 bg-white px-5 py-3 rounded-2xl"
+          className="absolute bottom-6 z-50 right-5 bg-white px-4 py-2.5 rounded-xl"
         >
-          <Text className="text-black font-bold">
+          <Text className="text-black text-sm font-sora-semibold">
             Share ({Object.keys(selectedVerses).length})
           </Text>
         </Pressable>
       )}
 
-      {/* VERSES (OPTIMIZED) */}
+      {/* VERSES */}
       <FlatList
         data={verses}
         renderItem={renderVerse}
@@ -418,39 +430,36 @@ export default function Bible() {
         maxToRenderPerBatch={12}
         windowSize={7}
         initialNumToRender={10}
-        updateCellsBatchingPeriod={50}
-        getItemLayout={(_, i) => ({
-          length: 80,
-          offset: 80 * i,
-          index: i,
-        })}
-        contentContainerStyle={{ padding: 20, paddingBottom: 120 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
+        ListEmptyComponent={
+          <View className="items-center mt-16">
+            <Text className="text-zinc-400 text-sm font-sora">Select a book and chapter to begin reading</Text>
+          </View>
+        }
       />
 
       {/* MODAL */}
       <Modal visible={open} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/60">
-          <View className="bg-[#111] rounded-t-[40px] h-[80%]">
+          <View className="bg-[#111] rounded-t-[32px] h-[80%]">
+            <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-white/5">
+              <Text className="text-white text-sm font-sora-semibold">Books of the Bible</Text>
+              <Pressable onPress={() => setOpen(false)} className="p-1.5">
+                <X color="white" size={18} />
+              </Pressable>
+            </View>
             {/* SEARCH */}
-            <View className="p-5 border-b border-[#222]">
-              <View className="flex-row items-center bg-card-1 px-4 py-3 rounded-2xl">
-                <Search color="#666" size={18} />
-
+            <View className="px-5 py-3 border-b border-white/5">
+              <View className="flex-row items-center bg-card-1 px-3 py-2.5 rounded-xl">
+                <Search color="#555" size={15} />
                 <TextInput
                   value={search}
                   onChangeText={setSearch}
                   placeholder="Search book..."
-                  placeholderTextColor="#666"
-                  className="flex-1 text-white ml-3"
+                  placeholderTextColor="#555"
+                  className="flex-1 text-white/80 text-xs ml-2.5 font-sora"
                 />
               </View>
-
-              <Pressable
-                onPress={() => setOpen(false)}
-                className="absolute right-5 top-5"
-              >
-                <X color="white" size={20} />
-              </Pressable>
             </View>
 
             {/* BOOK LIST */}
@@ -461,7 +470,7 @@ export default function Bible() {
               removeClippedSubviews
               maxToRenderPerBatch={10}
               windowSize={6}
-              initialNumToRender={8}
+              contentContainerStyle={{ padding: 16 }}
             />
           </View>
         </View>
