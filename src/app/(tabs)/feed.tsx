@@ -364,7 +364,7 @@ export default function Feed() {
             </Text>
           </View>
           <Pressable
-            onPress={() => setShowCreateModal(true)}
+            onPress={() => router.push("/(network)/sharethought")}
             className="w-8 h-8 rounded-full bg-white/10 items-center justify-center"
           >
             <Plus color="white" size={16} />

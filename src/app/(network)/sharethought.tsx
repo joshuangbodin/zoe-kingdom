@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -15,14 +15,22 @@ import { auth } from "@/libs/firebase";
 import { createPost } from "@/libs/firebase/posts";
 import { getUserProfile } from "@/libs/firebase/users";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ChevronLeft, BookOpen } from "lucide-react-native";
-import BibleModal from "@/components/BibleModal";
+import {
+  ChevronLeft,
+  BookOpen,
+  Image,
+  Hash,
+  Sparkles,
+} from "lucide-react-native";
+import BibleModal, { BibleSelection } from "@/components/BibleModal";
+import Avatar from "@/components/Avatar";
 
 export default function ShareThought() {
   const { verses } = useLocalSearchParams();
   const { top } = useSafeAreaInsets();
 
-  const parsed = useMemo(() => {
+  // Parse initial verses if passed from bible page
+  const initialVerses = useMemo(() => {
     try {
       return JSON.parse(verses as string);
     } catch {
@@ -30,30 +38,45 @@ export default function ShareThought() {
     }
   }, [verses]);
 
-  const scriptureMeta = useMemo(() => {
-    if (!parsed.length) return null;
-
-    const book = parsed[0].book;
-    const chapter = parsed[0].chapter;
-    const verseNumbers = parsed.map((v: any) => v.verse);
-    const startVerse = Math.min(...verseNumbers);
-    const endVerse = Math.max(...verseNumbers);
-
-    return {
-      book,
-      chapter,
-      range:
-        startVerse === endVerse ? `${startVerse}` : `${startVerse}-${endVerse}`,
-      reference: `${book} ${chapter}:${startVerse === endVerse ? startVerse : `${startVerse}-${endVerse}`}`,
-      text: parsed.map((v: any) => v.text).join(" "),
-    };
-  }, [parsed]);
-
   const [thought, setThought] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showBibleModal, setShowBibleModal] = useState(false);
+  const [selectedVerse, setSelectedVerse] = useState<BibleSelection | null>(
+    initialVerses.length > 0
+      ? {
+          verses: initialVerses,
+          reference: (() => {
+            const book = initialVerses[0].book;
+            const chapter = initialVerses[0].chapter;
+            const vNums = initialVerses.map((v: any) => v.verse);
+            const start = Math.min(...vNums);
+            const end = Math.max(...vNums);
+            const range = start === end ? `${start}` : `${start}-${end}`;
+            return `${book} ${chapter}:${range}`;
+          })(),
+          text: initialVerses.map((v: any) => v.text).join(" "),
+        }
+      : null,
+  );
 
-  const canPost = thought.trim().length > 0 || parsed.length > 0;
+  const [profile, setProfile] = useState<any>(null);
+
+  // Load profile on mount
+  React.useEffect(() => {
+    const load = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      const data = await getUserProfile(user.uid);
+      setProfile(data);
+    };
+    load();
+  }, []);
+
+  const canPost = thought.trim().length > 0 || !!selectedVerse;
+
+  const handleBibleSelect = useCallback((selection: BibleSelection) => {
+    setSelectedVerse(selection);
+  }, []);
 
   const handleShare = async () => {
     if (!canPost || submitting) return;
@@ -66,17 +89,17 @@ export default function ShareThought() {
         return;
       }
 
-      const profile = await getUserProfile(user.uid);
+      const p = profile || (await getUserProfile(user.uid));
 
       await createPost({
         uid: user.uid,
-        username: profile?.username || "anonymous",
-        avatar: profile?.avatar ?? 0,
-        spiritStage: profile?.spiritStage || "Kindled Flame",
+        username: p?.username || "anonymous",
+        avatar: p?.avatar ?? 0,
+        spiritStage: p?.spiritStage || "Kindled Flame",
         thought: thought.trim() || "Shared a scripture",
-        verseText: scriptureMeta?.text || "",
-        verseReference: scriptureMeta?.reference || "",
-        tags: ["faith", "bible"],
+        verseText: selectedVerse?.text || "",
+        verseReference: selectedVerse?.reference || "",
+        tags: ["faith", ...(selectedVerse ? ["bible"] : [])],
       });
 
       router.back();
@@ -92,103 +115,170 @@ export default function ShareThought() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       className="flex-1 bg-bg"
     >
-      <View style={{ paddingTop: top + 10 }} className="flex-1 px-5">
+      <View style={{ paddingTop: top + 10 }} className="flex-1">
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-6">
+        <View className="flex-row items-center justify-between px-5 pb-4 border-b border-white/5">
           <Pressable
             onPress={() => router.back()}
-            className="w-10 h-10 rounded-xl bg-card-2 items-center justify-center"
+            className="w-9 h-9 rounded-xl bg-card-2 items-center justify-center"
           >
-            <ChevronLeft color="white" size={18} />
+            <ChevronLeft color="white" size={17} />
           </Pressable>
-          <Text className="text-white text-lg font-sora-bold">Share Thought</Text>
-          <View className="w-10" />
+          <Text className="text-white text-base font-sora-semibold">
+            New Post
+          </Text>
+          <Pressable
+            onPress={handleShare}
+            disabled={submitting || !canPost}
+            className={`px-5 py-2 rounded-xl ${
+              canPost ? "bg-white" : "bg-card-1"
+            }`}
+          >
+            {submitting ? (
+              <ActivityIndicator size="small" color="black" />
+            ) : (
+              <Text
+                className={`text-xs font-sora-bold ${
+                  canPost ? "text-black" : "text-zinc-500"
+                }`}
+              >
+                Share
+              </Text>
+            )}
+          </Pressable>
         </View>
 
         <ScrollView
           contentContainerStyle={{ paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}
         >
-          {/* Verse Preview */}
-          {scriptureMeta && (
-            <Pressable
-              onPress={() => {
-                setShowBibleModal(true);
-              }}
-              className="bg-card-2 rounded-[30px] overflow-hidden mb-6"
-            >
-              <View className="p-6">
-                <Text className="text-white text-2xl font-serif mb-2">
-                  {scriptureMeta.reference}
-                </Text>
-                <Text className="text-zinc-300 leading-9 text-[17px] font-serif">
-                  "{scriptureMeta.text}"
-                </Text>
-              </View>
-              <View className="bg-white/10 px-6 py-3 flex-row items-center">
-                <BookOpen size={12} color="white" />
-                <Text className="text-white/60 text-xs font-sora ml-2">
-                  Tap to read in Bible →
-                </Text>
-              </View>
-            </Pressable>
-          )}
+          {/* User Row */}
+          <View className="flex-row items-center px-5 pt-5 pb-4">
+            <Avatar index={profile?.avatar} diameter={36} />
+            <View className="ml-3">
+              <Text className="text-white text-sm font-sora-semibold">
+                {profile?.username || "You"}
+              </Text>
+              <Text className="text-zinc-500 text-[10px] font-sora">
+                {profile?.spiritStage || "Kindled Flame"}
+              </Text>
+            </View>
+          </View>
 
           {/* Thought Input */}
-          <Text className="text-white text-sm font-sora-semibold mb-3">
-            Your Reflection
-          </Text>
-          <TextInput
-            value={thought}
-            onChangeText={setThought}
-            placeholder={
-              parsed.length > 0
-                ? "What does this verse mean to you?"
-                : "Share a thought, prayer, or testimony..."
-            }
-            placeholderTextColor="#666"
-            multiline
-            className="bg-card-1 rounded-[28px] px-5 py-5 text-white font-sora text-[16px] leading-7 min-h-[160px]"
-            textAlignVertical="top"
-          />
+          <View className="px-5 mb-4">
+            <TextInput
+              value={thought}
+              onChangeText={setThought}
+              placeholder={
+                selectedVerse
+                  ? "What does this verse mean to you?"
+                  : "Share a thought, prayer, or testimony..."
+              }
+              placeholderTextColor="#555"
+              multiline
+              className="text-white/90 font-sora text-[15px] leading-7 min-h-[120px]"
+              textAlignVertical="top"
+            />
+          </View>
 
-          {/* Share Button */}
-          <Pressable
-            onPress={handleShare}
-            disabled={submitting || !canPost}
-            className={`mt-8 rounded-2xl py-5 items-center ${
-              canPost ? "bg-white" : "bg-card-1"
-            }`}
-          >
-            {submitting ? (
-              <ActivityIndicator color="black" />
+          {/* Bible Verse Section */}
+          <View className="px-5">
+            {selectedVerse ? (
+              <View className="bg-card-2 rounded-[24px] overflow-hidden">
+                {/* Verse Header */}
+                <View className="px-5 pt-5 pb-3">
+                  <View className="flex-row items-center mb-2.5">
+                    <View className="w-6 h-6 rounded-full bg-amber-500/20 items-center justify-center mr-2">
+                      <BookOpen size={12} color="#fbbf24" />
+                    </View>
+                    <Text className="text-amber-400/80 text-[10px] font-sora-semibold uppercase tracking-widest">
+                      Scripture
+                    </Text>
+                  </View>
+                  <Text className="text-white text-lg font-serif mb-2">
+                    {selectedVerse.reference}
+                  </Text>
+                  <Text className="text-zinc-300 text-[14px] leading-7 font-serif">
+                    "{selectedVerse.text}"
+                  </Text>
+                </View>
+
+                {/* Actions bar */}
+                <View className="flex-row border-t border-white/5">
+                  <Pressable
+                    onPress={() => setShowBibleModal(true)}
+                    className="flex-1 flex-row items-center justify-center py-3 border-r border-white/5"
+                  >
+                    <BookOpen size={13} color="#888" />
+                    <Text className="text-zinc-500 text-[10px] font-sora-medium ml-1.5">
+                      Read
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setSelectedVerse(null)}
+                    className="flex-1 flex-row items-center justify-center py-3"
+                  >
+                    <Text className="text-red-400/60 text-[10px] font-sora-medium">
+                      Remove
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
             ) : (
-              <Text
-                className={`font-sora-bold text-sm ${
-                  canPost ? "text-black" : "text-muted"
-                }`}
+              /* Add Verse Button */
+              <Pressable
+                onPress={() => setShowBibleModal(true)}
+                className="bg-card-1 rounded-[24px] px-5 py-5 flex-row items-center"
               >
-                Share with The Zoe Network
-              </Text>
+                <View className="w-9 h-9 rounded-full bg-amber-500/10 items-center justify-center mr-3">
+                  <BookOpen size={16} color="#fbbf24" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white text-sm font-sora-semibold">
+                    Add a Bible verse
+                  </Text>
+                  <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+                    Include scripture in your post
+                  </Text>
+                </View>
+              </Pressable>
             )}
-          </Pressable>
+          </View>
+
+          {/* Post extras */}
+          <View className="px-5 mt-6">
+            <View className="bg-card-1 rounded-[20px] px-5 py-4 flex-row items-center">
+              <View className="w-8 h-8 rounded-full bg-white/5 items-center justify-center mr-3">
+                <Hash size={14} color="#666" />
+              </View>
+              <Text className="text-zinc-500 text-xs font-sora-medium flex-1">
+                Add topics (coming soon)
+              </Text>
+            </View>
+
+            <View className="bg-card-1 rounded-[20px] px-5 py-4 flex-row items-center mt-2 opacity-50">
+              <View className="w-8 h-8 rounded-full bg-white/5 items-center justify-center mr-3">
+                <Image size={14} color="#666" />
+              </View>
+              <Text className="text-zinc-500 text-xs font-sora-medium flex-1">
+                Add image (coming soon)
+              </Text>
+            </View>
+          </View>
         </ScrollView>
       </View>
 
-      {/* Bible Modal for reading */}
-      {scriptureMeta && (
-        <BibleModal
-          visible={showBibleModal}
-          onClose={() => setShowBibleModal(false)}
-          initialBook={scriptureMeta.book}
-          initialChapter={scriptureMeta.chapter}
-          initialVerse={
-            scriptureMeta.range.includes("-")
-              ? parseInt(scriptureMeta.range.split("-")[0], 10)
-              : parseInt(scriptureMeta.range, 10)
-          }
-        />
-      )}
+      {/* Bible Modal for selecting/reading verses */}
+      <BibleModal
+        visible={showBibleModal}
+        onClose={() => setShowBibleModal(false)}
+        onSelect={handleBibleSelect}
+        selectionMode
+        initialBook={selectedVerse?.verses?.[0]?.book}
+        initialChapter={selectedVerse?.verses?.[0]?.chapter}
+        initialVerse={selectedVerse?.verses?.[0]?.verse}
+      />
     </KeyboardAvoidingView>
   );
 }
