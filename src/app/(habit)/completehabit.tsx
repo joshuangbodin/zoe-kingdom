@@ -25,6 +25,7 @@ import {
 
 import { getCategoryIcon } from "@/constants/habit-data";
 import { useApp } from "@/context/app-context";
+import { useToast } from "@/components/Toast";
 import {
   completeHabit,
   getHabitById,
@@ -58,6 +59,7 @@ export default function CompleteHabit() {
   });
 
   const [sessionFinished, setSessionFinished] = useState(false);
+  const { showToast } = useToast();
 
   // prayer
   const [prayerPoints, setPrayerPoints] = useState<string[]>([""]);
@@ -112,8 +114,10 @@ export default function CompleteHabit() {
   const HandleCompleteHabit = async () => {
     const data = await completeHabit(habit);
     if (data.success) {
-      Alert.alert("Completed!", "Habit logged successfully.");
+      showToast("Habit completed! +" + habit.xpReward + " XP", "success");
       await loadHabit();
+    } else if (data.reason === "already_completed") {
+      showToast("Already completed today!", "info");
     }
   };
 

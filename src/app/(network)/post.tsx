@@ -27,6 +27,7 @@ import {
   subscribeToComments,
 } from "@/libs/firebase/posts";
 import { getUserProfile, UserProfile } from "@/libs/firebase/users";
+import { useToast } from "@/components/Toast";
 
 export default function PostDetail() {
   const { id, uid, thought, verseText, verseReference, likesCount } =
@@ -46,6 +47,7 @@ export default function PostDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
+  const { showToast } = useToast();
 
   // Load author from uid
   useEffect(() => {
@@ -80,7 +82,8 @@ export default function PostDetail() {
     if (!user || !id) return;
     await likePost(id, user.uid);
     setIsLiked(true);
-  }, [id]);
+    showToast("Post liked!", "success");
+  }, [id, showToast]);
 
   const handleComment = useCallback(async () => {
     if (!commentText.trim() || submitting || !id) return;
@@ -99,8 +102,10 @@ export default function PostDetail() {
         text: commentText.trim(),
       });
       setCommentText("");
+      showToast("Comment added!", "success");
     } catch (err) {
       console.error("Error commenting:", err);
+      showToast("Failed to comment", "error");
     } finally {
       setSubmitting(false);
     }

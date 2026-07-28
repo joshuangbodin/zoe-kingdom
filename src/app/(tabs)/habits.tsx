@@ -19,6 +19,7 @@ import { createHabit, getHabits } from "@/libs/sqlite/habits";
 
 import HabitCard from "@/components/habits/HabitCard";
 import BibleModal from "@/components/BibleModal";
+import { useToast } from "@/components/Toast";
 import { DAILY_VERSES } from "@/constants/dailyverse";
 import {
   CATEGORIES,
@@ -58,6 +59,8 @@ export default function Habits() {
 
   const [filterFrequency, setFilterFrequency] = useState("All");
   const [showBibleModal, setShowBibleModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const { showToast } = useToast();
   const [bibleModalVerse, setBibleModalVerse] = useState<{
     book: string;
     chapter: number;
@@ -87,6 +90,13 @@ export default function Habits() {
     );
   }, [habits, filterFrequency]);
 
+  // REFRESH
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadHabits();
+    setRefreshing(false);
+  }, []);
+
   // CREATE
   const handleCreateHabit = async () => {
     if (!title.trim()) return;
@@ -105,10 +115,12 @@ export default function Habits() {
 
       setTitle("");
       setOpen(false);
+      showToast("Habit created!", "success");
 
       await loadHabits();
     } catch (err) {
       console.log(err);
+      showToast("Failed to create habit", "error");
     } finally {
       setLoading(false);
     }
@@ -141,6 +153,8 @@ export default function Habits() {
         data={filteredHabits}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
         contentContainerStyle={{
           paddingHorizontal: 20,
           paddingTop: 20,

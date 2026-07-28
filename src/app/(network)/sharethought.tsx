@@ -24,6 +24,7 @@ import {
 } from "lucide-react-native";
 import BibleModal, { BibleSelection } from "@/components/BibleModal";
 import Avatar from "@/components/Avatar";
+import { useToast } from "@/components/Toast";
 
 export default function ShareThought() {
   const { verses } = useLocalSearchParams();
@@ -60,6 +61,7 @@ export default function ShareThought() {
   );
 
   const [profile, setProfile] = useState<any>(null);
+  const { showToast } = useToast();
 
   // Load profile on mount
   React.useEffect(() => {
@@ -99,9 +101,11 @@ export default function ShareThought() {
         tags: ["faith", ...(selectedVerse ? ["bible"] : [])],
       });
 
+      showToast("Post shared!", "success");
       router.back();
     } catch (err) {
       console.error("Error sharing thought:", err);
+      showToast("Failed to share post", "error");
     } finally {
       setSubmitting(false);
     }

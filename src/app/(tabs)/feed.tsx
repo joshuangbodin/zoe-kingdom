@@ -27,6 +27,7 @@ import { onSnapshot, collection, doc } from "firebase/firestore";
 import { db } from "@/libs/firebase";
 
 import Avatar from "@/components/Avatar";
+import { useToast } from "@/components/Toast";
 import {
   hasUserLikedPost,
   likePost,
@@ -87,6 +88,8 @@ export default function Feed() {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [statusNoteModalVisible, setStatusNoteModalVisible] = useState(false);
   const [selectedStatusNote, setSelectedStatusNote] = useState<string>("");
+  const [refreshing, setRefreshing] = useState(false);
+  const { showToast } = useToast();
 
   // Collect all unique uids from posts for user cache
   const postUids = useMemo(
@@ -147,9 +150,17 @@ export default function Feed() {
     try {
       await likePost(postId, user.uid);
       setLikedPosts((prev) => new Set(prev).add(postId));
+      showToast("Post liked!", "success");
     } catch (err) {
       console.error("Error liking post:", err);
+      showToast("Failed to like post", "error");
     }
+  }, [showToast]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadStories();
+    setRefreshing(false);
   }, []);
 
   const filteredPosts = useMemo(() => {
@@ -405,6 +416,8 @@ export default function Feed() {
           keyExtractor={(item) => item.id}
           ListHeaderComponent={FeedHeader}
           showsVerticalScrollIndicator={false}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           contentContainerStyle={{
             paddingHorizontal: 16,
             paddingBottom: 140,

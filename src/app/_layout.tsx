@@ -10,6 +10,7 @@ import { useColorScheme } from "react-native";
 import "../global.css";
 
 import AppProvider from "@/context/app-context";
+import { ToastProvider } from "@/components/Toast";
 import { initDB } from "@/libs/sqlite/db";
 import { Stack } from "expo-router";
 
@@ -45,9 +46,11 @@ export default function TabLayout() {
 
   return (
     <AppProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }} />
-      </ThemeProvider>
+      <ToastProvider>
+        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+          <Stack screenOptions={{ headerShown: false }} />
+        </ThemeProvider>
+      </ToastProvider>
     </AppProvider>
   );
 }
