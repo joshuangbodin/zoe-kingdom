@@ -27,6 +27,7 @@ import {
 import { auth } from "@/libs/firebase";
 
 import Avatar from "@/components/Avatar";
+import BibleModal, { BibleSelection } from "@/components/BibleModal";
 import {
   createPost,
   hasUserLikedPost,
@@ -60,6 +61,8 @@ export default function Feed() {
   const [submitting, setSubmitting] = useState(false);
   const [selectedTag, setSelectedTag] = useState("All");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showBibleModal, setShowBibleModal] = useState(false);
+  const [pendingVerse, setPendingVerse] = useState<BibleSelection | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
 
   const loadStories = async () => {
@@ -106,7 +109,7 @@ export default function Feed() {
   }, []);
 
   const handleCreatePost = useCallback(async () => {
-    if (!content.trim() || submitting) return;
+    if ((!content.trim() && !pendingVerse) || submitting) return;
     try {
       setSubmitting(true);
       const user = auth.currentUser;
@@ -119,17 +122,24 @@ export default function Feed() {
         username: profile?.username ?? "anonymous",
         avatar: profile?.avatar ?? 0,
         spiritStage: profile?.spiritStage ?? "",
-        thought: content.trim(),
-        tags: ["faith"],
+        thought: content.trim() || "Shared a scripture",
+        verseText: pendingVerse?.text || "",
+        verseReference: pendingVerse?.reference || "",
+        tags: ["faith", ...(pendingVerse ? ["bible"] : [])],
       });
       setContent("");
+      setPendingVerse(null);
       setShowCreateModal(false);
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {
       setSubmitting(false);
     }
-  }, [content, submitting, profile]);
+  }, [content, submitting, profile, pendingVerse]);
+
+  const handleBibleSelect = useCallback((selection: BibleSelection) => {
+    setPendingVerse(selection);
+  }, []);
 
   const handleLike = useCallback(async (postId: string) => {
     const user = auth.currentUser;
@@ -161,7 +171,7 @@ export default function Feed() {
     if (match) {
       router.push({
         pathname: "/(tabs)/bible",
-        params: { book: match[1], chapter: match[2] },
+        params: { book: match[1], chapter: match[2], verse: match[3] },
       });
     }
   }, []);
@@ -433,31 +443,50 @@ export default function Feed() {
 
             <Pressable
               onPress={() => {
-                setShowCreateModal(false);
-                router.push("/(tabs)/bible");
+                setShowBibleModal(true);
               }}
               className="flex-row items-center mt-3 bg-card-1 rounded-xl px-4 py-3"
             >
               <BookOpen size={14} color="#fbbf24" />
               <Text className="text-zinc-400 text-[11px] font-sora-medium ml-2.5">
-                Add a Bible verse
+                {pendingVerse ? "Change Bible verse" : "Add a Bible verse"}
               </Text>
             </Pressable>
 
+            {pendingVerse && (
+              <View className="mt-3 bg-card-2 rounded-xl p-3">
+                <Text className="text-amber-400/70 text-[9px] font-sora-semibold uppercase tracking-widest mb-1">
+                  Scripture
+                </Text>
+                <Text className="text-white text-sm font-serif mb-1">
+                  {pendingVerse.reference}
+                </Text>
+                <Text className="text-zinc-400 text-[11px] leading-5 font-serif" numberOfLines={2}>
+                  {pendingVerse.text}
+                </Text>
+                <Pressable
+                  onPress={() => setPendingVerse(null)}
+                  className="self-end mt-1"
+                >
+                  <Text className="text-red-400/60 text-[9px] font-sora">Remove</Text>
+                </Pressable>
+              </View>
+            )}
+
             <Pressable
               onPress={handleCreatePost}
-              disabled={submitting || !content.trim()}
+              disabled={submitting || (!content.trim() && !pendingVerse)}
               className={`mt-4 rounded-xl py-3.5 items-center ${
-                content.trim() ? "bg-white" : "bg-card-1"
+                content.trim() || pendingVerse ? "bg-white" : "bg-card-1"
               }`}
             >
               {submitting ? (
                 <ActivityIndicator color="black" />
               ) : (
                 <View className="flex-row items-center">
-                  <Send size={13} color={content.trim() ? "black" : "#555"} />
+                  <Send size={13} color={content.trim() || pendingVerse ? "black" : "#555"} />
                   <Text
-                    className={`ml-2 font-sora-semibold text-[11px] ${content.trim() ? "text-black" : "text-zinc-500"}`}
+                    className={`ml-2 font-sora-semibold text-[11px] ${content.trim() || pendingVerse ? "text-black" : "text-zinc-500"}`}
                   >
                     Post
                   </Text>
@@ -467,6 +496,14 @@ export default function Feed() {
           </View>
         </View>
       </Modal>
+
+      {/* Bible Verse Selection Modal */}
+      <BibleModal
+        visible={showBibleModal}
+        onClose={() => setShowBibleModal(false)}
+        onSelect={handleBibleSelect}
+        selectionMode
+      />
     </View>
   );
 }

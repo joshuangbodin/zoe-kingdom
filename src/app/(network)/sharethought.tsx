@@ -15,7 +15,8 @@ import { auth } from "@/libs/firebase";
 import { createPost } from "@/libs/firebase/posts";
 import { getUserProfile } from "@/libs/firebase/users";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, BookOpen } from "lucide-react-native";
+import BibleModal from "@/components/BibleModal";
 
 export default function ShareThought() {
   const { verses } = useLocalSearchParams();
@@ -50,6 +51,7 @@ export default function ShareThought() {
 
   const [thought, setThought] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showBibleModal, setShowBibleModal] = useState(false);
 
   const canPost = thought.trim().length > 0 || parsed.length > 0;
 
@@ -111,13 +113,7 @@ export default function ShareThought() {
           {scriptureMeta && (
             <Pressable
               onPress={() => {
-                router.push({
-                  pathname: "/(tabs)/bible",
-                  params: {
-                    book: scriptureMeta.book,
-                    chapter: scriptureMeta.chapter,
-                  },
-                });
+                setShowBibleModal(true);
               }}
               className="bg-card-2 rounded-[30px] overflow-hidden mb-6"
             >
@@ -129,8 +125,9 @@ export default function ShareThought() {
                   "{scriptureMeta.text}"
                 </Text>
               </View>
-              <View className="bg-white/10 px-6 py-3">
-                <Text className="text-white/60 text-xs font-sora">
+              <View className="bg-white/10 px-6 py-3 flex-row items-center">
+                <BookOpen size={12} color="white" />
+                <Text className="text-white/60 text-xs font-sora ml-2">
                   Tap to read in Bible →
                 </Text>
               </View>
@@ -177,6 +174,21 @@ export default function ShareThought() {
           </Pressable>
         </ScrollView>
       </View>
+
+      {/* Bible Modal for reading */}
+      {scriptureMeta && (
+        <BibleModal
+          visible={showBibleModal}
+          onClose={() => setShowBibleModal(false)}
+          initialBook={scriptureMeta.book}
+          initialChapter={scriptureMeta.chapter}
+          initialVerse={
+            scriptureMeta.range.includes("-")
+              ? parseInt(scriptureMeta.range.split("-")[0], 10)
+              : parseInt(scriptureMeta.range, 10)
+          }
+        />
+      )}
     </KeyboardAvoidingView>
   );
 }

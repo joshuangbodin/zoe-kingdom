@@ -18,6 +18,7 @@ import { PressableScale } from "react-native-pressable-scale";
 import { createHabit, getHabits } from "@/libs/sqlite/habits";
 
 import HabitCard from "@/components/habits/HabitCard";
+import BibleModal from "@/components/BibleModal";
 import { DAILY_VERSES } from "@/constants/dailyverse";
 import {
   CATEGORIES,
@@ -56,6 +57,12 @@ export default function Habits() {
   >("throughout_day");
 
   const [filterFrequency, setFilterFrequency] = useState("All");
+  const [showBibleModal, setShowBibleModal] = useState(false);
+  const [bibleModalVerse, setBibleModalVerse] = useState<{
+    book: string;
+    chapter: number;
+    verse: number;
+  } | null>(null);
 
   // LOAD
   const loadHabits = async () => {
@@ -154,14 +161,12 @@ export default function Habits() {
                   </Text>
                   <Pressable
                     onPress={() => {
-                      router.push({
-                        pathname: "/(tabs)/bible",
-                        params: {
-                          book: dailyVerse.book,
-                          chapter: dailyVerse.chapter,
-                          verse: dailyVerse.verse,
-                        },
+                      setBibleModalVerse({
+                        book: dailyVerse.book,
+                        chapter: dailyVerse.chapter,
+                        verse: dailyVerse.verse,
                       });
+                      setShowBibleModal(true);
                     }}
                     className="absolute bottom-0 right-0 bg-white/10 px-4 py-2 rounded-tl-2xl"
                   >
@@ -362,6 +367,17 @@ export default function Habits() {
           </View>
         </View>
       </Modal>
+
+      {/* Bible Modal */}
+      {bibleModalVerse && (
+        <BibleModal
+          visible={showBibleModal}
+          onClose={() => setShowBibleModal(false)}
+          initialBook={bibleModalVerse.book}
+          initialChapter={bibleModalVerse.chapter}
+          initialVerse={bibleModalVerse.verse}
+        />
+      )}
     </View>
   );
 }
