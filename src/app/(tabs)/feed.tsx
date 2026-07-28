@@ -20,16 +20,14 @@ import {
   MessageCircle,
   MoreHorizontal,
   Plus,
-  Send,
-  X,
 } from "lucide-react-native";
 
 import { auth } from "@/libs/firebase";
+import { onSnapshot, collection, doc } from "firebase/firestore";
+import { db } from "@/libs/firebase";
 
 import Avatar from "@/components/Avatar";
-import BibleModal, { BibleSelection } from "@/components/BibleModal";
 import {
-  createPost,
   hasUserLikedPost,
   likePost,
   subscribeToFeed,
@@ -52,18 +50,50 @@ const TAGS = [
   "#prayer",
 ];
 
+/* ---------------------------- USER CACHE ---------------------------- */
+// A simple hook that subscribes to user profile changes in real-time
+function useUserCache(uids: string[]): Map<string, UserProfile> {
+  const [cache, setCache] = useState<Map<string, UserProfile>>(new Map());
+
+  useEffect(() => {
+    const unsubs: (() => void)[] = [];
+    const uniqueUids = [...new Set(uids.filter(Boolean))];
+
+    for (const uid of uniqueUids) {
+      const unsub = onSnapshot(doc(db, "users", uid), (snap) => {
+        if (snap.exists()) {
+          setCache((prev) => {
+            const next = new Map(prev);
+            next.set(uid, snap.data() as UserProfile);
+            return next;
+          });
+        }
+      });
+      unsubs.push(unsub);
+    }
+
+    return () => unsubs.forEach((fn) => fn());
+  }, [JSON.stringify([...new Set(uids.filter(Boolean))].sort())]);
+
+  return cache;
+}
+
 export default function Feed() {
   const { top } = useSafeAreaInsets();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [userStories, setUserStories] = useState<UserProfile[]>([]);
-  const [content, setContent] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const [selectedTag, setSelectedTag] = useState("All");
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showBibleModal, setShowBibleModal] = useState(false);
-  const [pendingVerse, setPendingVerse] = useState<BibleSelection | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [statusNoteModalVisible, setStatusNoteModalVisible] = useState(false);
+  const [selectedStatusNote, setSelectedStatusNote] = useState<string>("");
+
+  // Collect all unique uids from posts for user cache
+  const postUids = useMemo(
+    () => posts.map((p: any) => p.uid),
+    [posts],
+  );
+  const userCache = useUserCache(postUids);
 
   const loadStories = async () => {
     try {
@@ -97,7 +127,7 @@ export default function Feed() {
       setPosts(newPosts);
       const user = auth.currentUser;
       if (user) {
-        newPosts.forEach(async (post) => {
+        newPosts.forEach(async (post: any) => {
           const liked = await hasUserLikedPost(post.id, user.uid);
           if (liked) {
             setLikedPosts((prev) => new Set(prev).add(post.id));
@@ -106,39 +136,6 @@ export default function Feed() {
       }
     });
     return () => unsubscribe();
-  }, []);
-
-  const handleCreatePost = useCallback(async () => {
-    if ((!content.trim() && !pendingVerse) || submitting) return;
-    try {
-      setSubmitting(true);
-      const user = auth.currentUser;
-      if (!user) {
-        router.push("/(auth)/signin");
-        return;
-      }
-      await createPost({
-        uid: user.uid,
-        username: profile?.username ?? "anonymous",
-        avatar: profile?.avatar ?? 0,
-        spiritStage: profile?.spiritStage ?? "",
-        thought: content.trim() || "Shared a scripture",
-        verseText: pendingVerse?.text || "",
-        verseReference: pendingVerse?.reference || "",
-        tags: ["faith", ...(pendingVerse ? ["bible"] : [])],
-      });
-      setContent("");
-      setPendingVerse(null);
-      setShowCreateModal(false);
-    } catch (error) {
-      console.error("Error creating post:", error);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [content, submitting, profile, pendingVerse]);
-
-  const handleBibleSelect = useCallback((selection: BibleSelection) => {
-    setPendingVerse(selection);
   }, []);
 
   const handleLike = useCallback(async (postId: string) => {
@@ -157,7 +154,7 @@ export default function Feed() {
 
   const filteredPosts = useMemo(() => {
     if (selectedTag === "All") return posts;
-    return posts.filter((post) =>
+    return posts.filter((post: any) =>
       post.tags?.some(
         (tag: string) =>
           selectedTag.replace("#", "").toLowerCase() === tag.toLowerCase(),
@@ -183,16 +180,26 @@ export default function Feed() {
     item: UserProfile;
     index: number;
   }) => (
-    <Pressable className="mr-4 items-center">
+    <Pressable
+      onPress={() => {
+        if (item.statusNote) {
+          setSelectedStatusNote(item.statusNote);
+          setStatusNoteModalVisible(true);
+        }
+      }}
+      className="mr-4 items-center"
+    >
       <View className="relative">
         {item.statusNote && (
           <View className="absolute -top-1.5 self-center z-10">
             <View className="bg-card-2 rounded-full px-2 py-0.5 border border-white/5">
               <Text
                 numberOfLines={1}
-                className="text-white/70 text-[7px] font-sora-medium"
+                className="text-white/70 text-[7px] font-sora-medium max-w-[60px]"
               >
-                {item.statusNote}
+                {item.statusNote.length > 10
+                  ? item.statusNote.slice(0, 10) + "…"
+                  : item.statusNote}
               </Text>
             </View>
           </View>
@@ -214,17 +221,22 @@ export default function Feed() {
     const isLiked = likedPosts.has(item.id);
     const actionColor = "#666";
 
+    // Resolve user data from cache — this updates in real-time
+    const userData = userCache.get(item.uid);
+    const username = userData?.username ?? "anonymous";
+    const avatar = userData?.avatar ?? 0;
+
     return (
       <View className="mb-4 bg-card-1 p-3 rounded-lg">
         {/* User header - minimal */}
         <View className="flex-row items-center mb-3 px-0.5">
-          <Avatar index={item.avatar} diameter={32} />
+          <Avatar index={avatar} diameter={32} />
           <View className="ml-2.5 flex-1">
             <Text className="text-white text-[13px] font-sora-semibold leading-5">
-              {item.username}
+              {username}
             </Text>
             <Text className="text-zinc-500 text-[10px] font-sora">
-              @{item.username?.toLowerCase()}
+              @{username?.toLowerCase()}
             </Text>
           </View>
           <Pressable className="p-1.5">
@@ -285,7 +297,22 @@ export default function Feed() {
             )}
           </Pressable>
 
-          <Pressable className="flex-row items-center mr-5">
+          <Pressable
+            onPress={() => {
+              router.push({
+                pathname: "/(network)/post",
+                params: {
+                  id: item.id,
+                  uid: item.uid,
+                  thought: item.thought || "",
+                  verseText: item.verseText || "",
+                  verseReference: item.verseReference || "",
+                  likesCount: item.likesCount?.toString() || "0",
+                },
+              });
+            }}
+            className="flex-row items-center mr-5"
+          >
             <MessageCircle color={actionColor} size={17} />
             {item.commentsCount > 0 && (
               <Text className="text-zinc-500 text-[11px] ml-1.5 font-sora">
@@ -306,7 +333,6 @@ export default function Feed() {
       showsHorizontalScrollIndicator={false}
       keyExtractor={(item, index) => item.uid || index.toString()}
       contentContainerStyle={{
-        
         paddingVertical: 12,
       }}
     />
@@ -316,7 +342,6 @@ export default function Feed() {
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{
-       
         paddingBottom: 8,
         marginBottom: 10,
       }}
@@ -403,107 +428,34 @@ export default function Feed() {
           }
         />
       </View>
-      {/* Create Post Modal */}
-      <Modal visible={showCreateModal} animationType="slide" transparent>
-        <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-[#0d0d0d] rounded-t-[28px] px-5 pt-5 pb-10">
-            <View className="flex-row items-center justify-between mb-5">
-              <Text className="text-white text-sm font-sora-semibold">
-                New Post
-              </Text>
-              <Pressable
-                onPress={() => setShowCreateModal(false)}
-                className="p-1.5"
-              >
-                <X size={17} color="#fff" />
-              </Pressable>
-            </View>
 
-            <View className="flex-row items-center mb-4">
-              <Avatar index={profile?.avatar} diameter={28} />
-              <View className="ml-2.5">
-                <Text className="text-white text-[13px] font-sora-semibold">
-                  {profile?.username || "You"}
-                </Text>
-                <Text className="text-zinc-500 text-[9px] font-sora">
-                  {profile?.spiritStage || "Kindled Flame"}
-                </Text>
-              </View>
-            </View>
-
-            <TextInput
-              value={content}
-              onChangeText={setContent}
-              placeholder="Share a thought..."
-              placeholderTextColor="#444"
-              multiline
-              className="bg-card-1 rounded-xl px-4 py-3.5 text-white/85 font-sora text-sm leading-6 min-h-22.5"
-              textAlignVertical="top"
-            />
-
+      {/* Status Note Full View Modal */}
+      <Modal visible={statusNoteModalVisible} transparent animationType="fade">
+        <Pressable
+          onPress={() => setStatusNoteModalVisible(false)}
+          className="flex-1 bg-black/60 items-center justify-center px-8"
+        >
+          <Pressable
+            onPress={() => {}}
+            className="bg-[#1a1a1a] rounded-[28px] px-6 py-8 w-full max-w-sm"
+          >
+            <Text className="text-white text-lg font-sora-bold mb-4 text-center">
+              Status Note
+            </Text>
+            <Text className="text-zinc-300 text-sm font-sora leading-7 text-center">
+              "{selectedStatusNote}"
+            </Text>
             <Pressable
-              onPress={() => {
-                setShowBibleModal(true);
-              }}
-              className="flex-row items-center mt-3 bg-card-1 rounded-xl px-4 py-3"
+              onPress={() => setStatusNoteModalVisible(false)}
+              className="mt-6 bg-white/10 rounded-xl py-3 items-center"
             >
-              <BookOpen size={14} color="#fbbf24" />
-              <Text className="text-zinc-400 text-[11px] font-sora-medium ml-2.5">
-                {pendingVerse ? "Change Bible verse" : "Add a Bible verse"}
+              <Text className="text-white/70 text-xs font-sora-semibold">
+                Close
               </Text>
             </Pressable>
-
-            {pendingVerse && (
-              <View className="mt-3 bg-card-2 rounded-xl p-3">
-                <Text className="text-amber-400/70 text-[9px] font-sora-semibold uppercase tracking-widest mb-1">
-                  Scripture
-                </Text>
-                <Text className="text-white text-sm font-serif mb-1">
-                  {pendingVerse.reference}
-                </Text>
-                <Text className="text-zinc-400 text-[11px] leading-5 font-serif" numberOfLines={2}>
-                  {pendingVerse.text}
-                </Text>
-                <Pressable
-                  onPress={() => setPendingVerse(null)}
-                  className="self-end mt-1"
-                >
-                  <Text className="text-red-400/60 text-[9px] font-sora">Remove</Text>
-                </Pressable>
-              </View>
-            )}
-
-            <Pressable
-              onPress={handleCreatePost}
-              disabled={submitting || (!content.trim() && !pendingVerse)}
-              className={`mt-4 rounded-xl py-3.5 items-center ${
-                content.trim() || pendingVerse ? "bg-white" : "bg-card-1"
-              }`}
-            >
-              {submitting ? (
-                <ActivityIndicator color="black" />
-              ) : (
-                <View className="flex-row items-center">
-                  <Send size={13} color={content.trim() || pendingVerse ? "black" : "#555"} />
-                  <Text
-                    className={`ml-2 font-sora-semibold text-[11px] ${content.trim() || pendingVerse ? "text-black" : "text-zinc-500"}`}
-                  >
-                    Post
-                  </Text>
-                </View>
-              )}
-            </Pressable>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
-
-      {/* Bible Verse Selection Modal */}
-      <BibleModal
-        visible={showBibleModal}
-        onClose={() => setShowBibleModal(false)}
-        onSelect={handleBibleSelect}
-        selectionMode
-      />
     </View>
   );
 }

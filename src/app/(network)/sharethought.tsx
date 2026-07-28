@@ -93,9 +93,6 @@ export default function ShareThought() {
 
       await createPost({
         uid: user.uid,
-        username: p?.username || "anonymous",
-        avatar: p?.avatar ?? 0,
-        spiritStage: p?.spiritStage || "Kindled Flame",
         thought: thought.trim() || "Shared a scripture",
         verseText: selectedVerse?.text || "",
         verseReference: selectedVerse?.reference || "",

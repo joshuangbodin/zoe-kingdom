@@ -25,12 +25,6 @@ import { db } from "./index";
 export type CreatePostPayload = {
   uid: string;
 
-  username: string;
-
-  avatar: number;
-
-  spiritStage: string;
-
   thought: string;
 
   verseText?: string;
@@ -49,12 +43,6 @@ export const createPost = async (
 ) => {
   return await addDoc(collection(db, "posts"), {
     uid: payload.uid,
-
-    username: payload.username,
-
-    avatar: payload.avatar,
-
-    spiritStage: payload.spiritStage,
 
     thought: payload.thought,
 
