@@ -230,12 +230,12 @@ export default function Habits() {
         }
         ListEmptyComponent={
           <View className="items-center mt-24">
-            <Text className="text-white/60 text-base font-sora-semibold">
-              No Habits Yet
-            </Text>
-            <Text className="text-zinc-500 text-center mt-2 px-10 text-xs font-sora leading-5">
-              Create your first spiritual habit and begin growing consistently.
-            </Text>
+              <Text className="text-white/60 text-sm font-sora-semibold">
+                No Habits Yet
+              </Text>
+              <Text className="text-zinc-500 text-center mt-2 px-10 text-xs font-sora leading-5">
+                Create your first spiritual habit and begin growing consistently.
+              </Text>
           </View>
         }
         renderItem={({ item }: any) => <HabitCard item={item} />}
@@ -259,7 +259,7 @@ export default function Habits() {
       <Modal visible={open} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/60">
           <View className="bg-[#111] rounded-t-4xl px-5 pt-6 pb-10">
-            <Text className="text-white text-lg font-sora-semibold mb-6">
+            <Text className="text-white text-base font-sora-semibold mb-6">
               Create Habit
             </Text>
 
@@ -364,7 +364,7 @@ export default function Habits() {
                 onPress={() => setOpen(false)}
                 className="flex-1 bg-card-1 rounded-xl py-3.5 items-center"
               >
-                <Text className="text-white/70 text-xs font-sora-semibold">
+                <Text className="text-white/70 text-sm font-sora-semibold">
                   Cancel
                 </Text>
               </Pressable>
@@ -373,7 +373,7 @@ export default function Habits() {
                 onPress={handleCreateHabit}
                 className="flex-1 bg-white rounded-xl py-3.5 items-center"
               >
-                <Text className="text-black text-xs font-sora-bold">
+                <Text className="text-black text-sm font-sora-semibold">
                   {loading ? "Creating..." : "Create"}
                 </Text>
               </Pressable>

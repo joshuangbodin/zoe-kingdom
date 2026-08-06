@@ -109,7 +109,7 @@ export default function Home() {
           <View className="w-9 h-9 rounded-xl bg-amber-500/10 items-center justify-center">
             <BookOpen size={16} color="#fbbf24" />
           </View>
-          <Text className="text-white text-xs font-sora-semibold ml-3">Scripture</Text>
+          <Text className="text-white text-sm font-sora-semibold ml-3">Scripture</Text>
         </Pressable>
 
         <Pressable
@@ -119,7 +119,7 @@ export default function Home() {
           <View className="w-9 h-9 rounded-xl bg-green-500/10 items-center justify-center">
             <BookOpen size={16} color="#4ade80" />
           </View>
-          <Text className="text-white text-xs font-sora-semibold ml-3">Habits</Text>
+          <Text className="text-white text-sm font-sora-semibold ml-3">Habits</Text>
         </Pressable>
       </View>
 

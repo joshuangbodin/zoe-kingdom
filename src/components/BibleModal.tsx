@@ -601,7 +601,7 @@ export default function BibleModal({
                         }}
                         className="flex-1 bg-card-1 rounded-xl py-3.5 items-center"
                       >
-                        <Text className="text-white/70 text-xs font-sora-semibold">
+                        <Text className="text-white/70 text-sm font-sora-semibold">
                           Cancel
                         </Text>
                       </Pressable>
@@ -617,7 +617,7 @@ export default function BibleModal({
                         }`}
                       >
                         <Text
-                          className={`text-xs font-sora-bold ${
+                          className={`text-sm font-sora-semibold ${
                             Object.keys(selectedVerses).length > 0
                               ? "text-black"
                               : "text-zinc-500"
@@ -635,7 +635,7 @@ export default function BibleModal({
                         className="flex-1 bg-card-1 rounded-xl py-3.5 items-center flex-row justify-center"
                       >
                         <ChevronLeft color="white" size={16} />
-                        <Text className="text-white text-xs font-sora-semibold ml-1">
+                        <Text className="text-white text-sm font-sora-semibold ml-1">
                           Prev
                         </Text>
                       </Pressable>
@@ -643,7 +643,7 @@ export default function BibleModal({
                         onPress={goNext}
                         className="flex-1 bg-card-1 rounded-xl py-3.5 items-center flex-row justify-center"
                       >
-                        <Text className="text-white text-xs font-sora-semibold mr-1">
+                        <Text className="text-white text-sm font-sora-semibold mr-1">
                           Next
                         </Text>
                         <ChevronRight color="white" size={16} />

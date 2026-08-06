@@ -139,7 +139,7 @@ export default function ShareThought() {
               <ActivityIndicator size="small" color="black" />
             ) : (
               <Text
-                className={`text-xs font-sora-bold ${
+                className={`text-sm font-sora-semibold ${
                   canPost ? "text-black" : "text-zinc-500"
                 }`}
               >
@@ -193,7 +193,7 @@ export default function ShareThought() {
                     <View className="w-6 h-6 rounded-full bg-amber-500/20 items-center justify-center mr-2">
                       <BookOpen size={12} color="#fbbf24" />
                     </View>
-                    <Text className="text-amber-400/80 text-[10px] font-sora-semibold uppercase tracking-widest">
+                    <Text className="text-amber-400/80 text-[11px] font-sora-semibold uppercase tracking-widest">
                       Scripture
                     </Text>
                   </View>
@@ -253,7 +253,7 @@ export default function ShareThought() {
               <View className="w-8 h-8 rounded-full bg-white/5 items-center justify-center mr-3">
                 <Hash size={14} color="#666" />
               </View>
-              <Text className="text-zinc-500 text-xs font-sora-medium flex-1">
+              <Text className="text-zinc-500 text-sm font-sora-medium flex-1">
                 Add topics (coming soon)
               </Text>
             </View>
@@ -262,7 +262,7 @@ export default function ShareThought() {
               <View className="w-8 h-8 rounded-full bg-white/5 items-center justify-center mr-3">
                 <Image size={14} color="#666" />
               </View>
-              <Text className="text-zinc-500 text-xs font-sora-medium flex-1">
+              <Text className="text-zinc-500 text-sm font-sora-medium flex-1">
                 Add image (coming soon)
               </Text>
             </View>

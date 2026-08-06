@@ -130,7 +130,7 @@ export default function PostDetail() {
           <Text className="text-white text-xs font-sora-semibold">
             {item.username}
           </Text>
-          <Text className="text-zinc-600 text-[9px] font-sora ml-2">
+          <Text className="text-zinc-600 text-[10px] font-sora ml-2">
             {item.createdAt?.toDate
               ? new Date(item.createdAt.toDate()).toLocaleDateString()
               : ""}
@@ -173,7 +173,7 @@ export default function PostDetail() {
                 <View className="flex-row items-center mb-3">
                   <Avatar index={author?.avatar} diameter={32} />
                   <View className="ml-2.5">
-                    <Text className="text-white text-[13px] font-sora-semibold">
+                    <Text className="text-white text-sm font-sora-semibold">
                       {author?.username || "Loading..."}
                     </Text>
                     <Text className="text-zinc-500 text-[10px] font-sora">
@@ -198,7 +198,7 @@ export default function PostDetail() {
                     <View className="p-4">
                       <View className="flex-row items-center mb-2">
                         <BookOpen size={12} color="#fbbf24" />
-                        <Text className="text-amber-400/70 text-[9px] font-sora-semibold ml-1.5 uppercase tracking-widest">
+                        <Text className="text-amber-400/70 text-[10px] font-sora-semibold ml-1.5 uppercase tracking-widest">
                           Scripture
                         </Text>
                       </View>
@@ -224,7 +224,7 @@ export default function PostDetail() {
                       fill={isLiked ? "#ef4444" : "transparent"}
                     />
                     {parseInt(likesCount || "0") > 0 && (
-                      <Text className="text-zinc-500 text-[11px] ml-1.5 font-sora">
+                      <Text className="text-zinc-500 text-xs ml-1.5 font-sora">
                         {likesCount}
                       </Text>
                     )}

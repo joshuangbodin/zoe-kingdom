@@ -42,13 +42,13 @@ export default function Onboarding() {
       {/* PRIMARY ACTION */}
       <Pressable
         onPress={() => router.push("/(auth)/signup")}
-        className="bg-white py-4 rounded-xl items-center"
+        className="bg-white py-4 z-10 rounded-xl items-center"
       >
         <Text className="text-black font-semibold text-base">Get Started</Text>
       </Pressable>
       <Pressable
         onPress={() => router.push("/(auth)/signin")}
-        className="bg-card-2 mt-3 py-4 rounded-xl items-center"
+        className="bg-card-2 mt-3 py-4 z-10 rounded-xl items-center"
       >
         <Text className="text-white font-semibold text-base">Sign In</Text>
       </Pressable>

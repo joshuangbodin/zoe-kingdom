@@ -232,7 +232,7 @@ export default function CompleteHabit() {
                       <Check size={12} color="#facc15" />
                     )}
                   </View>
-                  <Text className="text-white text-xs font-sora-semibold mt-2">
+                  <Text className="text-white text-sm font-sora-semibold mt-2">
                     Morning
                   </Text>
                   <Text className="text-zinc-500 text-[10px] mt-0.5">
@@ -254,7 +254,7 @@ export default function CompleteHabit() {
                       <Check size={12} color="#60a5fa" />
                     )}
                   </View>
-                  <Text className="text-white text-xs font-sora-semibold mt-2">
+                  <Text className="text-white text-sm font-sora-semibold mt-2">
                     Evening
                   </Text>
                   <Text className="text-zinc-500 text-[10px] mt-0.5">
@@ -296,7 +296,7 @@ export default function CompleteHabit() {
                   >
                     <View className="flex-row items-center">
                       <Play fill="white" color="white" size={16} />
-                      <Text className="text-white ml-2 text-xs font-sora-semibold">
+                      <Text className="text-white ml-2 text-sm font-sora-semibold">
                         {secondsLeft === habit.duration * 60
                           ? "Begin"
                           : "Resume"}
@@ -310,7 +310,7 @@ export default function CompleteHabit() {
                   >
                     <View className="flex-row items-center">
                       <Square color="white" size={14} />
-                      <Text className="text-white ml-2 text-xs font-sora-semibold">
+                      <Text className="text-white ml-2 text-sm font-sora-semibold">
                         Pause
                       </Text>
                     </View>
@@ -360,7 +360,7 @@ export default function CompleteHabit() {
                 onPress={() => setPrayerPoints((prev) => [...prev, ""])}
                 className="bg-card-2 mt-3 rounded-xl py-3.5 items-center"
               >
-                <Text className="text-white/70 text-xs font-sora-semibold">
+                <Text className="text-white/70 text-sm font-sora-semibold">
                   + Add Point
                 </Text>
               </Pressable>
@@ -473,7 +473,7 @@ export default function CompleteHabit() {
             }`}
           >
             <Text
-              className={`text-xs font-sora-bold ${
+              className={`text-sm font-sora-semibold ${
                 sessionFinished ? "text-black" : "text-zinc-500"
               }`}
             >

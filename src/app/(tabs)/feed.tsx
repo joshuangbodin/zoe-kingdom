@@ -206,7 +206,7 @@ export default function Feed() {
             <View className="bg-card-2 rounded-full px-2 py-0.5 border border-white/5">
               <Text
                 numberOfLines={1}
-                className="text-white/70 text-[7px] font-sora-medium max-w-[60px]"
+                className="text-white/70 text-[8px] font-sora-medium max-w-[60px]"
               >
                 {item.statusNote.length > 10
                   ? item.statusNote.slice(0, 10) + "…"
@@ -221,7 +221,7 @@ export default function Feed() {
       </View>
       <Text
         numberOfLines={1}
-        className="text-zinc-400 mt-1.5 text-[9px] max-w-14 font-sora text-center"
+        className="text-zinc-400 mt-1.5 text-[10px] max-w-14 font-sora text-center"
       >
         @{item.username}
       </Text>
@@ -243,7 +243,7 @@ export default function Feed() {
         <View className="flex-row items-center mb-3 px-0.5">
           <Avatar index={avatar} diameter={32} />
           <View className="ml-2.5 flex-1">
-            <Text className="text-white text-[13px] font-sora-semibold leading-5">
+            <Text className="text-white text-sm font-sora-semibold leading-5">
               {username}
             </Text>
             <Text className="text-zinc-500 text-[10px] font-sora">
@@ -271,7 +271,7 @@ export default function Feed() {
             <View className="p-4">
               <View className="flex-row items-center mb-2">
                 <BookOpen size={12} color="#fbbf24" />
-                <Text className="text-amber-400/70 text-[9px] font-sora-semibold ml-1.5 uppercase tracking-widest">
+                <Text className="text-amber-400/70 text-[10px] font-sora-semibold ml-1.5 uppercase tracking-widest">
                   Scripture
                 </Text>
               </View>
@@ -283,7 +283,7 @@ export default function Feed() {
               </Text>
             </View>
             <View className="border-t border-white/5 px-4 py-2">
-              <Text className="text-zinc-500 text-[9px] font-sora">
+              <Text className="text-zinc-500 text-[10px] font-sora">
                 Read full chapter →
               </Text>
             </View>
@@ -302,7 +302,7 @@ export default function Feed() {
               fill={isLiked ? "#ef4444" : "transparent"}
             />
             {item.likesCount > 0 && (
-              <Text className="text-zinc-500 text-[11px] ml-1.5 font-sora">
+              <Text className="text-zinc-500 text-xs ml-1.5 font-sora">
                 {item.likesCount}
               </Text>
             )}
@@ -326,7 +326,7 @@ export default function Feed() {
           >
             <MessageCircle color={actionColor} size={17} />
             {item.commentsCount > 0 && (
-              <Text className="text-zinc-500 text-[11px] ml-1.5 font-sora">
+              <Text className="text-zinc-500 text-xs ml-1.5 font-sora">
                 {item.commentsCount}
               </Text>
             )}
@@ -434,7 +434,7 @@ export default function Feed() {
                 No posts yet
               </Text>
 
-              <Text className="text-zinc-600 text-center mt-2 px-10 text-[11px] leading-5 font-sora">
+              <Text className="text-zinc-600 text-center mt-2 px-10 text-xs leading-5 font-sora">
                 Share a thought or scripture with the community.
               </Text>
             </View>
