@@ -1,44 +1,22 @@
 import { useApp } from "@/context/app-context";
-import { auth } from "@/libs/firebase";
-import { getUserProfile } from "@/libs/firebase/users";
 import { router } from "expo-router";
-import { onAuthStateChanged, User } from "firebase/auth";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import { Text, View } from "react-native";
 
 const Index = () => {
-  const [initializing, setInitializing] = useState(true);
-  const { setUser } = useApp();
-  const hasNavigated = useRef(false);
+  const { user, initializing } = useApp();
 
+  // The AppProvider subscribes to Firebase auth on mount and hydrated the user
+  // into context. Once bootstrap completes we route accordingly.
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (currentUser: User | null) => {
-      // Prevent double navigation
-      if (hasNavigated.current) return;
-      hasNavigated.current = true;
+    if (initializing) return;
 
-      try {
-        if (currentUser) {
-          const udata = await getUserProfile(currentUser.uid);
-          if (udata) {
-            setUser(udata);
-          }
-          router.replace("/(tabs)/home");
-        } else {
-          router.replace("/onboarding");
-        }
-      } catch (err) {
-        console.error("Auth redirect error:", err);
-        router.replace("/onboarding");
-      } finally {
-        if (initializing) {
-          setInitializing(false);
-        }
-      }
-    });
-
-    return unsub;
-  }, []);
+    if (user) {
+      router.replace("/(tabs)/home");
+    } else {
+      router.replace("/onboarding");
+    }
+  }, [initializing, user]);
 
   return (
     <View className="relative justify-center items-center bg-black flex-1">
@@ -55,3 +33,4 @@ const Index = () => {
 };
 
 export default Index;
+

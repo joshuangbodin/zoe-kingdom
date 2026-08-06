@@ -1,32 +1,56 @@
-import { loginUser } from "@/libs/firebase/auth";
+import { useApp } from "@/context/app-context";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 
-import InputField from "@/components/InputField";
-import { ChevronLeft, Lock, Mail } from "lucide-react-native";
+import { ChevronLeft } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+/** Simple multi-color "G" badge matching the Google logo. */
+function GoogleMark() {
+  return (
+    <View className="w-6 h-6 bg-white rounded-full items-center justify-center">
+      <Text className="text-sm" style={{ fontFamily: "Sora-Bold", lineHeight: 18 }}>
+        <Text style={{ color: "#4285F4" }}>G</Text>
+        <Text style={{ color: "#EA4335" }}>o</Text>
+        <Text style={{ color: "#FBBC05" }}>o</Text>
+        <Text style={{ color: "#4285F4" }}>g</Text>
+        <Text style={{ color: "#34A853" }}>l</Text>
+        <Text style={{ color: "#EA4335" }}>e</Text>
+      </Text>
+    </View>
+  );
+}
+
 export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { signInWithGoogle } = useApp();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const top = useSafeAreaInsets().top;
 
-  const handleLogin = async () => {
-    if (!email || !password) return;
+  const handleGoogle = async () => {
+    if (loading) return;
+    setLoading(true);
+    setError("");
 
     try {
-      setLoading(true);
-      setError("");
+      const res = await signInWithGoogle();
 
-      await loginUser(email.toLowerCase().trim(), password);
-
-      router.replace("/(tabs)/home");
-    } catch (err) {
-      setError("Invalid credentials. Please try again.");
+      if (res.type === "success") {
+        router.replace("/(tabs)/home");
+      } else if (res.type === "needs_profile") {
+        // New Google account — finish setting up the profile.
+        router.replace("/(auth)/signup");
+      } else if (res.type === "error") {
+        setError(res.error || "Sign-in failed.");
+      }
+      // cancelled → no-op
     } finally {
       setLoading(false);
     }
@@ -41,34 +65,14 @@ export default function SignIn() {
       >
         <ChevronLeft color="white" size={18} />
       </Pressable>
+
       {/* HEADER */}
       <View className="mb-10">
         <Text className="text-white text-lg font-sora-bold">Welcome Back</Text>
-
         <Text className="text-muted text-sm font-sora mt-2 leading-5">
           Sign in to continue your spiritual journey
         </Text>
       </View>
-
-      <InputField
-        label="Email"
-        icon={Mail}
-        value={email}
-        autoCapitalize={"none"}
-        keyboardType="email-address"
-        autoCorrect={false}
-        onChangeText={setEmail}
-        placeholder="Enter your email"
-      />
-
-      <InputField
-        label="Password"
-        icon={Lock}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Enter your password"
-        secureTextEntry
-      />
 
       {/* ERROR */}
       {error ? (
@@ -77,28 +81,29 @@ export default function SignIn() {
         </View>
       ) : null}
 
-      {/* BUTTON */}
+      {/* GOOGLE BUTTON */}
       <Pressable
-        onPress={handleLogin}
+        onPress={handleGoogle}
         disabled={loading}
-        className="bg-white rounded-xl h-14 items-center justify-center"
+        className="bg-white rounded-xl h-14 items-center justify-center flex-row"
       >
         {loading ? (
           <ActivityIndicator color="black" />
         ) : (
-          <View className="flex-row items-center">
-            <Text className="text-black font-sora-bold text-sm">Sign In</Text>
-          </View>
+          <>
+            <GoogleMark />
+            <Text className="text-black font-sora-bold text-sm ml-3">
+              Continue with Google
+            </Text>
+          </>
         )}
       </Pressable>
 
-      {/* FOOTER TEXT */}
-      <Pressable onPress={() => router.push("/(auth)/signup")}>
-        <Text className="text-muted text-xs text-center mt-6">
-          Don't have an account?{" "}
-          <Text className="text-white font-sora-semibold">Create one</Text>
-        </Text>
-      </Pressable>
+      <Text className="text-muted text-[11px] text-center mt-5 font-sora leading-5 px-6">
+        By continuing you agree to our community guidelines. We never post
+        without your permission.
+      </Text>
     </View>
   );
 }
+

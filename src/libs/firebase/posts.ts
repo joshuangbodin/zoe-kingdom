@@ -17,6 +17,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "./index";
+import { enqueueOp } from "@/libs/offline/queue";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -319,4 +320,91 @@ export const updatePost = async (
 
     updatedAt: serverTimestamp(),
   });
+};
+
+/* -------------------------------------------------------------------------- */
+/*                      OFFLINE-AWARE SMART WRAPPERS                           */
+/* -------------------------------------------------------------------------- */
+
+type Online = boolean;
+
+export const createPostSmart = async (
+  payload: CreatePostPayload,
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    const ref = await createPost(payload);
+    return { offline: false, id: ref.id };
+  }
+  await enqueueOp({ type: "create_post", payload });
+  return { offline: true, id: null };
+};
+
+export const likePostSmart = async (
+  postId: string,
+  uid: string,
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await likePost(postId, uid);
+    return { offline: false };
+  }
+  await enqueueOp({ type: "like_post", payload: { postId, uid } });
+  return { offline: true };
+};
+
+export const unlikePostSmart = async (
+  postId: string,
+  uid: string,
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await unlikePost(postId, uid);
+    return { offline: false };
+  }
+  await enqueueOp({ type: "unlike_post", payload: { postId, uid } });
+  return { offline: true };
+};
+
+export const createCommentSmart = async (
+  postId: string,
+  comment: { uid: string; username: string; avatar: number; text: string },
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await createComment(postId, comment);
+    return { offline: false };
+  }
+  await enqueueOp({ type: "create_comment", payload: { postId, comment } });
+  return { offline: true };
+};
+
+export const updatePostSmart = async (
+  postId: string,
+  creatorUid: string,
+  thought: string,
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await updatePost(postId, creatorUid, thought);
+    return { offline: false };
+  }
+  await enqueueOp({
+    type: "update_post",
+    payload: { postId, creatorUid, thought },
+  });
+  return { offline: true };
+};
+
+export const deletePostSmart = async (
+  postId: string,
+  creatorUid: string,
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await deletePost(postId, creatorUid);
+    return { offline: false };
+  }
+  await enqueueOp({ type: "delete_post", payload: { postId, creatorUid } });
+  return { offline: true };
 };

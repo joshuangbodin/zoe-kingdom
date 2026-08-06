@@ -2,8 +2,10 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   Text,
@@ -17,16 +19,21 @@ import {
   ChevronLeft,
   Heart,
   BookOpen,
+  MoreHorizontal,
   Send,
+  X,
 } from "lucide-react-native";
 import Avatar from "@/components/Avatar";
 import {
-  createComment,
+  createCommentSmart,
+  deletePostSmart,
   hasUserLikedPost,
-  likePost,
+  likePostSmart,
   subscribeToComments,
+  updatePostSmart,
 } from "@/libs/firebase/posts";
 import { getUserProfile, UserProfile } from "@/libs/firebase/users";
+import { useApp } from "@/context/app-context";
 import { useToast } from "@/components/Toast";
 
 export default function PostDetail() {
@@ -41,6 +48,7 @@ export default function PostDetail() {
     }>();
 
   const { top } = useSafeAreaInsets();
+  const { isOnline, user: currentUser } = useApp();
   const [author, setAuthor] = useState<UserProfile | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [commentText, setCommentText] = useState("");
@@ -48,6 +56,10 @@ export default function PostDetail() {
   const [isLiked, setIsLiked] = useState(false);
   const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
   const { showToast } = useToast();
+
+  // Creator edit/delete
+  const [editVisible, setEditVisible] = useState(false);
+  const [editText, setEditText] = useState(thought || "");
 
   // Load author from uid
   useEffect(() => {
@@ -79,37 +91,43 @@ export default function PostDetail() {
 
   const handleLike = useCallback(async () => {
     const user = auth.currentUser;
-    if (!user || !id) return;
-    await likePost(id, user.uid);
+    const uid = currentUser?.uid || user?.uid;
+    if (!uid || !id) return;
+    await likePostSmart(id, uid, isOnline);
     setIsLiked(true);
-    showToast("Post liked!", "success");
-  }, [id, showToast]);
+    showToast(isOnline ? "Post liked!" : "Like saved — will sync", "success");
+  }, [id, showToast, isOnline, currentUser?.uid]);
 
   const handleComment = useCallback(async () => {
     if (!commentText.trim() || submitting || !id) return;
     const user = auth.currentUser;
-    if (!user) {
+    const uid = currentUser?.uid || user?.uid;
+    if (!uid) {
       router.push("/(auth)/signin");
       return;
     }
     try {
       setSubmitting(true);
-      const p = currentProfile || (await getUserProfile(user.uid));
-      await createComment(id, {
-        uid: user.uid,
-        username: p?.username || "anonymous",
-        avatar: p?.avatar ?? 0,
-        text: commentText.trim(),
-      });
+      const p = currentProfile || (await getUserProfile(uid));
+      await createCommentSmart(
+        id,
+        {
+          uid,
+          username: p?.username || "anonymous",
+          avatar: p?.avatar ?? 0,
+          text: commentText.trim(),
+        },
+        isOnline,
+      );
       setCommentText("");
-      showToast("Comment added!", "success");
+      showToast(isOnline ? "Comment added!" : "Comment saved — will sync", "success");
     } catch (err) {
       console.error("Error commenting:", err);
       showToast("Failed to comment", "error");
     } finally {
       setSubmitting(false);
     }
-  }, [commentText, submitting, id, currentProfile]);
+  }, [commentText, submitting, id, currentProfile, isOnline, currentUser?.uid]);
 
   const openBibleVerse = useCallback((reference: string) => {
     if (!reference) return;
@@ -121,6 +139,56 @@ export default function PostDetail() {
       });
     }
   }, []);
+
+  const isOwner = !!currentUser && currentUser.uid === uid;
+
+  const openPostActions = useCallback(() => {
+    if (!isOwner) return;
+    Alert.alert("Your Post", "What would you like to do?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Edit",
+        onPress: () => {
+          setEditText(typeof thought === "string" ? thought : "");
+          setEditVisible(true);
+        },
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {
+          Alert.alert("Delete Post", "This cannot be undone.", [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Delete",
+              style: "destructive",
+              onPress: async () => {
+                if (!id) return;
+                try {
+                  await deletePostSmart(id, uid as string, isOnline);
+                  showToast("Post deleted", "success");
+                  router.back();
+                } catch {
+                  showToast("Could not delete post", "error");
+                }
+              },
+            },
+          ]);
+        },
+      },
+    ]);
+  }, [isOwner, id, uid, thought, isOnline, showToast]);
+
+  const saveEdit = useCallback(async () => {
+    if (!id || !editText.trim()) return;
+    try {
+      await updatePostSmart(id, uid as string, editText.trim(), isOnline);
+      showToast("Post updated", "success");
+      setEditVisible(false);
+    } catch {
+      showToast("Could not update post", "error");
+    }
+  }, [id, uid, editText, isOnline, showToast]);
 
   const renderComment = ({ item }: any) => (
     <View className="flex-row items-start mb-5">
@@ -172,7 +240,7 @@ export default function PostDetail() {
                 {/* Author */}
                 <View className="flex-row items-center mb-3">
                   <Avatar index={author?.avatar} diameter={32} />
-                  <View className="ml-2.5">
+                  <View className="ml-2.5 flex-1">
                     <Text className="text-white text-sm font-sora-semibold">
                       {author?.username || "Loading..."}
                     </Text>
@@ -180,6 +248,11 @@ export default function PostDetail() {
                       @{author?.username?.toLowerCase() || "..."}
                     </Text>
                   </View>
+                  {isOwner && (
+                    <Pressable onPress={openPostActions} className="p-1.5">
+                      <MoreHorizontal size={16} color="#666" />
+                    </Pressable>
+                  )}
                 </View>
 
                 {/* Thought */}
@@ -273,6 +346,31 @@ export default function PostDetail() {
           </View>
         </View>
       </View>
+
+      {/* EDIT POST MODAL */}
+      <Modal visible={editVisible} animationType="slide" transparent>
+        <View className="flex-1 bg-black/60 justify-end">
+          <View className="bg-[#111] rounded-t-[32px] px-5 pt-6 pb-10">
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-white text-base font-sora-semibold">Edit Post</Text>
+              <Pressable onPress={() => setEditVisible(false)} className="p-1.5">
+                <X size={18} color="#fff" />
+              </Pressable>
+            </View>
+            <TextInput
+              value={editText}
+              onChangeText={setEditText}
+              multiline
+              placeholder="Edit your post..."
+              placeholderTextColor="#555"
+              className="bg-card-1 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora min-h-[120px]"
+            />
+            <Pressable onPress={saveEdit} className="bg-white rounded-xl py-3.5 items-center mt-4">
+              <Text className="text-black text-sm font-sora-semibold">Save Changes</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }

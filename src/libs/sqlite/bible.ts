@@ -97,12 +97,16 @@ export const insertBible = async (rows: BibleVerse[]) => {
 
     const stmt = await sqlite.prepareAsync(`
       INSERT OR IGNORE INTO bible_verses 
-      (book, bookIndex, chapter, verse, text)
-      VALUES (?, ?, ?, ?, ?)
+      (id, book, bookIndex, chapter, verse, text)
+      VALUES (?, ?, ?, ?, ?, ?)
     `);
 
     for (const r of rows) {
+      // id mirrors flattenBible's convention: bookIndex-chapterIndex-verseIndex
+      const id = `${r.bookIndex}-${r.chapter - 1}-${r.verse - 1}`;
+
       await stmt.executeAsync([
+        id,
         r.book,
         r.bookIndex,
         r.chapter,

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -20,6 +21,7 @@ import {
   MessageCircle,
   MoreHorizontal,
   Plus,
+  X,
 } from "lucide-react-native";
 
 import { auth } from "@/libs/firebase";
@@ -29,10 +31,13 @@ import { db } from "@/libs/firebase";
 import Avatar from "@/components/Avatar";
 import { useToast } from "@/components/Toast";
 import {
+  deletePostSmart,
   hasUserLikedPost,
   likePost,
   subscribeToFeed,
+  updatePostSmart,
 } from "@/libs/firebase/posts";
+import { useApp } from "@/context/app-context";
 import {
   getAllUsersSortedByLastUpload,
   getUserProfile,
@@ -81,6 +86,7 @@ function useUserCache(uids: string[]): Map<string, UserProfile> {
 
 export default function Feed() {
   const { top } = useSafeAreaInsets();
+  const { user: currentUser, isOnline } = useApp();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [userStories, setUserStories] = useState<UserProfile[]>([]);
@@ -90,6 +96,10 @@ export default function Feed() {
   const [selectedStatusNote, setSelectedStatusNote] = useState<string>("");
   const [refreshing, setRefreshing] = useState(false);
   const { showToast } = useToast();
+
+  // Creator edit/delete state
+  const [editPost, setEditPost] = useState<any>(null);
+  const [editText, setEditText] = useState("");
 
   // Collect all unique uids from posts for user cache
   const postUids = useMemo(
@@ -156,6 +166,61 @@ export default function Feed() {
       showToast("Failed to like post", "error");
     }
   }, [showToast]);
+
+  const openPostMenu = useCallback(
+    (post: any) => {
+      if (!currentUser || post.uid !== currentUser.uid) return;
+      Alert.alert("Your Post", "What would you like to do?", [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Edit",
+          onPress: () => {
+            setEditText(post.thought || "");
+            setEditPost(post);
+          },
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            Alert.alert("Delete Post", "This cannot be undone.", [
+              { text: "Cancel", style: "cancel" },
+              {
+                text: "Delete",
+                style: "destructive",
+                onPress: async () => {
+                  try {
+                    await deletePostSmart(post.id, post.uid, isOnline);
+                    showToast("Post deleted", "success");
+                  } catch (e) {
+                    console.error(e);
+                    showToast("Could not delete post", "error");
+                  }
+                },
+              },
+            ]);
+          },
+        },
+      ]);
+    },
+    [currentUser, isOnline, showToast],
+  );
+
+  const saveEditedPost = useCallback(async () => {
+    if (!editPost) return;
+    if (!editText.trim()) {
+      showToast("Post can't be empty", "error");
+      return;
+    }
+    try {
+      await updatePostSmart(editPost.id, editPost.uid, editText.trim(), isOnline);
+      showToast("Post updated", "success");
+      setEditPost(null);
+    } catch (e) {
+      console.error(e);
+      showToast("Could not update post", "error");
+    }
+  }, [editPost, editText, isOnline, showToast]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -250,7 +315,7 @@ export default function Feed() {
               @{username?.toLowerCase()}
             </Text>
           </View>
-          <Pressable className="p-1.5">
+          <Pressable onPress={() => openPostMenu(item)} className="p-1.5">
             <MoreHorizontal size={16} color={actionColor} />
           </Pressable>
         </View>
@@ -468,6 +533,31 @@ export default function Feed() {
             </Pressable>
           </Pressable>
         </Pressable>
+      </Modal>
+
+      {/* EDIT POST MODAL */}
+      <Modal visible={!!editPost} animationType="slide" transparent>
+        <View className="flex-1 bg-black/60 justify-end">
+          <View className="bg-[#111] rounded-t-[32px] px-5 pt-6 pb-10">
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-white text-base font-sora-semibold">Edit Post</Text>
+              <Pressable onPress={() => setEditPost(null)} className="p-1.5">
+                <X size={18} color="#fff" />
+              </Pressable>
+            </View>
+            <TextInput
+              value={editText}
+              onChangeText={setEditText}
+              multiline
+              placeholder="Edit your post..."
+              placeholderTextColor="#555"
+              className="bg-card-1 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora min-h-[120px]"
+            />
+            <Pressable onPress={saveEditedPost} className="bg-white rounded-xl py-3.5 items-center mt-4">
+              <Text className="text-black text-sm font-sora-semibold">Save Changes</Text>
+            </Pressable>
+          </View>
+        </View>
       </Modal>
     </View>
   );

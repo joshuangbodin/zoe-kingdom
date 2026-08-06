@@ -11,9 +11,8 @@ import {
   View,
 } from "react-native";
 
-import { auth } from "@/libs/firebase";
-import { createPost } from "@/libs/firebase/posts";
-import { getUserProfile } from "@/libs/firebase/users";
+import { useApp } from "@/context/app-context";
+import { createPostSmart } from "@/libs/firebase/posts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ChevronLeft,
@@ -60,19 +59,8 @@ export default function ShareThought() {
       : null,
   );
 
-  const [profile, setProfile] = useState<any>(null);
+  const { user, isOnline } = useApp();
   const { showToast } = useToast();
-
-  // Load profile on mount
-  React.useEffect(() => {
-    const load = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-      const data = await getUserProfile(user.uid);
-      setProfile(data);
-    };
-    load();
-  }, []);
 
   const canPost = thought.trim().length > 0 || !!selectedVerse;
 
@@ -85,23 +73,27 @@ export default function ShareThought() {
 
     try {
       setSubmitting(true);
-      const user = auth.currentUser;
-      if (!user) {
+      const uid = user?.uid;
+      if (!uid) {
         router.replace("/(auth)/signin");
         return;
       }
 
-      const p = profile || (await getUserProfile(user.uid));
+      const res = await createPostSmart(
+        {
+          uid,
+          thought: thought.trim() || "Shared a scripture",
+          verseText: selectedVerse?.text || "",
+          verseReference: selectedVerse?.reference || "",
+          tags: ["faith", ...(selectedVerse ? ["bible"] : [])],
+        },
+        isOnline,
+      );
 
-      await createPost({
-        uid: user.uid,
-        thought: thought.trim() || "Shared a scripture",
-        verseText: selectedVerse?.text || "",
-        verseReference: selectedVerse?.reference || "",
-        tags: ["faith", ...(selectedVerse ? ["bible"] : [])],
-      });
-
-      showToast("Post shared!", "success");
+      showToast(
+        res.offline ? "Saved — will post when online" : "Post shared!",
+        "success",
+      );
       router.back();
     } catch (err) {
       console.error("Error sharing thought:", err);
@@ -155,13 +147,13 @@ export default function ShareThought() {
         >
           {/* User Row */}
           <View className="flex-row items-center px-5 pt-5 pb-4">
-            <Avatar index={profile?.avatar} diameter={36} />
+            <Avatar index={user?.avatar} diameter={36} />
             <View className="ml-3">
               <Text className="text-white text-sm font-sora-semibold">
-                {profile?.username || "You"}
+                {user?.username || "You"}
               </Text>
               <Text className="text-zinc-500 text-[10px] font-sora">
-                {profile?.spiritStage || "Kindled Flame"}
+                {user?.spiritStage || "Kindled Flame"}
               </Text>
             </View>
           </View>

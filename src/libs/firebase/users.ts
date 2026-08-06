@@ -66,10 +66,12 @@ export const syncUserProfile = async (
   // USER EXISTS
   if (snapshot.exists()) {
     await updateDoc(ref, {
+      // only merge the fields the caller is allowed to set on an existing user
+      ...sanitizeUserFields(data.userData),
       updatedAt: serverTimestamp(),
     });
 
-    return snapshot.data();
+    return { ...(snapshot.data() as UserProfile), ...data.userData, uid };
   }
 
   // CREATE NEW USER
@@ -83,23 +85,85 @@ export const syncUserProfile = async (
     level: 1,
     xp: 0,
 
-    spiritStage: "Kindled Flame",
+    spiritStage: data.userData.spiritStage || "Kindled Flame",
 
-    avatar: 0,
+    avatar: data.userData.avatar ?? 0,
 
-    statusNote: "",
+    statusNote: data.userData.statusNote || "",
 
     lastUploaded: null,
 
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-    ...data.userData,
   };
 
   await setDoc(ref, profile);
 
   return profile;
 };
+
+/**
+ * Whitelist which fields a caller may set so required/critical fields (uid,
+ * email, level, xp, timestamps) can never be clobbered by arbitrary payloads.
+ */
+const sanitizeUserFields = (
+  data: Partial<UserProfile>,
+): Partial<UserProfile> => {
+  const clean: Partial<UserProfile> = {};
+
+  if (typeof data.username === "string" && data.username.trim()) {
+    clean.username = data.username.trim();
+  }
+  if (typeof data.statusNote === "string") {
+    clean.statusNote = data.statusNote;
+  }
+  if (typeof data.spiritStage === "string" && data.spiritStage.trim()) {
+    clean.spiritStage = data.spiritStage;
+  }
+  if (typeof data.avatar === "number") {
+    clean.avatar = data.avatar;
+  }
+  if (data.lastUploaded !== undefined) {
+    clean.lastUploaded = data.lastUploaded;
+  }
+
+  return clean;
+};
+
+/**
+ * Create a Firestore profile from Google account info if one doesn't exist.
+ * Used on first Google sign-in so the home screen always finds the user doc.
+ */
+export const ensureUserProfile = async (uid: string, email: string) => {
+  const ref = doc(db, collectionId, uid);
+  const snapshot = await getDoc(ref);
+
+  if (snapshot.exists()) return snapshot.data() as UserProfile;
+
+  const profile: UserProfile = {
+    uid,
+    username: generateUsername(email),
+    email,
+    level: 1,
+    xp: 0,
+    spiritStage: "Kindled Flame",
+    avatar: 0,
+    statusNote: "",
+    lastUploaded: null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+
+  await setDoc(ref, profile);
+  return profile;
+};
+
+export const hasUserProfile = async (uid: string) => {
+  const ref = doc(db, collectionId, uid);
+  const snapshot = await getDoc(ref);
+  return snapshot.exists();
+};
+
 
 /* -------------------------------------------------------------------------- */
 /*                               GET USER PROFILE                             */

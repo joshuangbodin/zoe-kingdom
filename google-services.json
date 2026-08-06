@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "388516020259",
+    "project_id": "zoe-kingdom",
+    "storage_bucket": "zoe-kingdom.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:388516020259:android:6052b572bbefd944023196",
+        "android_client_info": {
+          "package_name": "com.jo_sh_ie_ee.zoekingdom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwc7icUBy0zBC_o2N0b6vlAJBazF6kdZ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

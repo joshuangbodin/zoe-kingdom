@@ -6,7 +6,6 @@ import ContributionGraph from "@/components/ContributionGraph";
 import GrowthStat from "@/components/home/GrowthStat";
 import { getGreeting } from "@/constants/time";
 import { useApp } from "@/context/app-context";
-import { getUserProfile } from "@/libs/firebase/users";
 import { getHabits } from "@/libs/sqlite/habits";
 import { getSpiritState, initializeSpirit } from "@/libs/sqlite/spirit";
 import { getDailyStreak } from "@/libs/sqlite/streak";
@@ -16,12 +15,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Home() {
   const [spirit, setSpirit] = useState<any>(null);
-  const { habits, setHabits } = useApp();
+  const { habits, setHabits, user, refreshUser } = useApp();
   const [streak, setStreak] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   const { top } = useSafeAreaInsets();
-  const { user, setUser } = useApp();
 
   useEffect(() => {
     let mounted = true;
@@ -42,16 +40,8 @@ export default function Home() {
         setHabits(h);
         setStreak(currentStreak || 0);
 
-        if (user?.uid) {
-          try {
-            const udata = await getUserProfile(user.uid);
-            if (udata && mounted) {
-              setUser({ ...user, ...udata });
-            }
-          } catch (profileErr) {
-            console.error("Failed to load user profile:", profileErr);
-          }
-        }
+        // Fresh copy of the profile from Firestore (falls back to cache offline).
+        await refreshUser();
       } catch (err) {
         console.error("Home loadData error:", err);
       } finally {

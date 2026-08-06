@@ -41,7 +41,7 @@ export default function Onboarding() {
 
       {/* PRIMARY ACTION */}
       <Pressable
-        onPress={() => router.push("/(auth)/signup")}
+        onPress={() => router.push("/(auth)/signin")}
         className="bg-white py-4 z-10 rounded-xl items-center"
       >
         <Text className="text-black font-semibold text-base">Get Started</Text>
@@ -50,7 +50,9 @@ export default function Onboarding() {
         onPress={() => router.push("/(auth)/signin")}
         className="bg-card-2 mt-3 py-4 z-10 rounded-xl items-center"
       >
-        <Text className="text-white font-semibold text-base">Sign In</Text>
+        <Text className="text-white font-semibold text-base">
+          Sign in with Google
+        </Text>
       </Pressable>
 
       <Animated.Image

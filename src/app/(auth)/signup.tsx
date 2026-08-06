@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -12,20 +12,11 @@ import {
 } from "react-native";
 
 import { router } from "expo-router";
-import {
-  ArrowRight,
-  Check,
-  ChevronLeft,
-  Lock,
-  Mail,
-} from "lucide-react-native";
+import { ArrowRight, Check, ChevronLeft } from "lucide-react-native";
 
 import Avatar from "@/components/Avatar";
-import InputField from "@/components/InputField";
 import { Avatars } from "@/constants/avatar";
-import { registerUser } from "@/libs/firebase/auth";
-import { getFirebaseErrorMessage } from "@/libs/firebase/firebaseErrorMap";
-import { serverTimestamp } from "firebase/firestore";
+import { useApp } from "@/context/app-context";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SPIRIT_MODES = [
@@ -37,91 +28,67 @@ const SPIRIT_MODES = [
   "Calm",
 ];
 
-const isValidEmail = (email: string) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
-
-const getPasswordStrength = (password: string) => {
-  let score = 0;
-
-  if (password.length >= 6) score++;
-  if (password.length >= 10) score++;
-  if (/[A-Z]/.test(password)) score++;
-  if (/[0-9]/.test(password)) score++;
-  if (/[^A-Za-z0-9]/.test(password)) score++;
-
-  return score; // 0 - 5
-};
-
 export default function SignUp() {
-  const [step, setStep] = useState(1);
+  const { user, updateUser } = useApp();
   const top = useSafeAreaInsets().top;
-  const bottom = useSafeAreaInsets().top;
 
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [statusNote, setStatusNote] = useState("");
-
-  const [avatar, setAvatar] = useState(0);
+  const [spiritMode, setSpiritMode] = useState("Disciplined");
+  const [avatar, setAvatar] = useState(user?.avatar ?? 0);
   const [avatarModal, setAvatarModal] = useState(false);
-
   const [error, setError] = useState("");
 
-  const [spiritMode, setSpiritMode] = useState("Disciplined");
+  // Prefill from the Google user the provider already hydrated.
+  useEffect(() => {
+    if (user) {
+      setUsername((prev) => prev || user.username || "");
+      setStatusNote((prev) => prev || user.statusNote || "");
+      setSpiritMode(user.spiritStage || "Disciplined");
+      setAvatar(user.avatar ?? 0);
+    }
+  }, [user]);
 
-  const emailValid = email.length > 0 && isValidEmail(email);
-  const passwordScore = getPasswordStrength(password);
-
-  const handleRegister = async () => {
-    if (!email || !password) return;
+  const handleFinish = async () => {
+    if (!username.trim()) {
+      setError("Please choose a username to continue.");
+      return;
+    }
 
     try {
       setLoading(true);
-
-      const signedInUser = await registerUser(email, password, {
-        username,
+      await updateUser({
+        username: username.trim(),
         avatar,
-        statusNote: statusNote || spiritMode,
         spiritStage: spiritMode,
-        lastUploaded: serverTimestamp(),
+        statusNote: statusNote.trim(),
       });
-
-      console.log("signed in user", signedInUser);
-
       router.replace("/(tabs)/home");
     } catch (e) {
-      setError(getFirebaseErrorMessage(e));
-
-      let et = setTimeout(() => setError(""), 5000);
-
-      return () => clearTimeout(et);
+      console.error(e);
+      setError("Could not save your profile. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const canContinue = step < 4;
-
   return (
-    <View
-      className="flex-1 bg-bg"
-      style={{ paddingTop: top + 8, paddingBottom: bottom + 8 }}
-    >
+    <View className="flex-1 bg-bg" style={{ paddingTop: top + 8 }}>
       {/* HEADER */}
       <View className="flex-row items-center justify-between px-5 mb-2">
         <Pressable
-          onPress={() => (step > 1 ? setStep(step - 1) : router.back())}
+          onPress={() =>
+            step > 1 ? setStep(step - 1) : router.replace("/onboarding")
+          }
           className="w-10 h-10 rounded-xl bg-card-2 items-center justify-center"
         >
           <ChevronLeft color="white" size={18} />
         </Pressable>
 
-        <Text className="text-white  text-xs font-sora-medium">
-          Step {step}/4
-        </Text>
+        <Text className="text-white text-xs font-sora-medium">{step}/3</Text>
 
         <View className="w-10 h-10" />
       </View>
@@ -131,142 +98,18 @@ export default function SignUp() {
         className="flex-1"
       >
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }}>
-          {/* TITLE */}
-          <Text className="text-muted  text-lg font-sora-bold">
-            Join <Text className="text-white">The Zoe Network</Text>
+          <Text className="text-muted text-lg font-sora-bold">
+            Finish your <Text className="text-white">profile</Text>
           </Text>
-
           <Text className="text-muted text-sm mt-2 leading-5">
-            Grow spiritually, share scripture thoughts, and stay connected.
+            Signed in as {user?.email || "your Google account"}. Tell the
+            community who you are.
           </Text>
 
-          {/* STEP 1 */}
+          {/* STEP 1 — AVATAR + USERNAME */}
           {step === 1 && (
-            <View className="mt-8">
-              <Text className="text-white text-sm mb-4 font-sora-semibold">
-                Create your account
-              </Text>
-              {/* 
-              <InputField
-                label="Username"
-                icon={User}
-                value={username}
-                onChangeText={setUsername}
-                placeholder="Enter your username"
-              /> */}
-
-              <InputField
-                label="Email"
-                icon={Mail}
-                value={email}
-                autoCapitalize={"none"}
-                keyboardType="email-address"
-                autoCorrect={false}
-                onChangeText={setEmail}
-                placeholder="Enter your email"
-              />
-
-              <InputField
-                label="Password"
-                icon={Lock}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Enter your password"
-                secureTextEntry
-              />
-
-              {/* VALIDATION FEEDBACK */}
-              <View>
-                <Text className="text-white text-xs mt-2 font-sora-semibold mb-3">
-                  Account Requirements
-                </Text>
-
-                {/* EMAIL CHECK */}
-                <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-xs font-sora text-muted">
-                    Valid email address
-                  </Text>
-                  <Text
-                    className={`text-xs font-sora-medium ${
-                      email.length === 0
-                        ? "text-gray-400"
-                        : emailValid
-                          ? "text-green-400"
-                          : "text-red-400"
-                    }`}
-                  >
-                    {email.length === 0
-                      ? "Pending"
-                      : emailValid
-                        ? "Valid"
-                        : "Invalid"}
-                  </Text>
-                </View>
-
-                {/* PASSWORD LENGTH */}
-                <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-xs font-sora text-muted">
-                    At least 6 characters
-                  </Text>
-                  <Text
-                    className={`text-xs font-sora-medium ${
-                      password.length === 0
-                        ? "text-gray-400"
-                        : password.length >= 6
-                          ? "text-green-400"
-                          : "text-red-400"
-                    }`}
-                  >
-                    {password.length === 0
-                      ? "Pending"
-                      : password.length >= 6
-                        ? "Met"
-                        : "Too short"}
-                  </Text>
-                </View>
-
-                {/* PASSWORD STRENGTH */}
-                <View className="mt-2">
-                  <Text className="text-xs font-sora text-muted mb-1">
-                    Password strength
-                  </Text>
-
-                  <View className="flex-row gap-1">
-                    {[1, 2, 3, 4, 5].map((level) => (
-                      <View
-                        key={level}
-                        className={`flex-1 h-1 rounded-full ${
-                          passwordScore >= level
-                            ? passwordScore <= 2
-                              ? "bg-red-400"
-                              : passwordScore <= 3
-                                ? "bg-yellow-400"
-                                : "bg-green-400"
-                            : "bg-gray-700"
-                        }`}
-                      />
-                    ))}
-                  </View>
-
-                  <Text className="text-[10px] font-sora text-muted mt-2">
-                    {passwordScore <= 2
-                      ? "Weak password"
-                      : passwordScore <= 3
-                        ? "Moderate password"
-                        : "Strong password"}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* STEP 2 */}
-          {step === 2 && (
             <View className="mt-10">
-              <Text className="text-white  text-sm font-sora-semibold">
-                Avatar
-              </Text>
-
+              <Text className="text-white text-sm font-sora-semibold">Avatar</Text>
               <Text className="text-muted font-sora text-xs mt-1">
                 Choose your identity
               </Text>
@@ -278,38 +121,34 @@ export default function SignUp() {
                 >
                   <Avatar diameter={90} index={avatar} />
                 </Pressable>
-
                 <Text className="text-white mt-3 text-sm font-sora-semibold">
                   @{username || "zoe"}
                 </Text>
-
-                <Pressable
-                  onPress={() => setAvatarModal(true)}
-                  className="mt-2"
-                >
-                  <Text className="text-muted font-sora text-xs">
-                    Change avatar
-                  </Text>
+                <Pressable onPress={() => setAvatarModal(true)} className="mt-2">
+                  <Text className="text-muted font-sora text-xs">Change avatar</Text>
                 </Pressable>
+
+                <TextInput
+                  value={username}
+                  onChangeText={setUsername}
+                  placeholder="Choose a username"
+                  placeholderTextColor="#666"
+                  autoCapitalize="none"
+                  className="mt-8 bg-card-1 text-white font-sora rounded-2xl px-4 py-4 w-full text-sm"
+                />
               </View>
             </View>
           )}
 
-          {/* STEP 3 */}
-          {step === 3 && (
+          {/* STEP 2 — SPIRITUAL FOCUS */}
+          {step === 2 && (
             <View className="mt-10">
-              <Text className="text-white  text-sm font-sora-semibold">
-                Spiritual Focus
-              </Text>
-
-              <Text className="text-muted text-xs mt-1">
-                Pick what describes your walk
-              </Text>
+              <Text className="text-white text-sm font-sora-semibold">Spiritual Focus</Text>
+              <Text className="text-muted text-xs mt-1">Pick what describes your walk</Text>
 
               <View className="mt-6">
                 {SPIRIT_MODES.map((mode) => {
                   const selected = spiritMode === mode;
-
                   return (
                     <Pressable
                       key={mode}
@@ -318,11 +157,7 @@ export default function SignUp() {
                         selected ? "bg-white" : "bg-card-1"
                       }`}
                     >
-                      <Text
-                        className={`text-xs font-sora-medium ${
-                          selected ? "text-black" : "text-white font-sora"
-                        }`}
-                      >
+                      <Text className={`text-xs font-sora-medium ${selected ? "text-black" : "text-white"}`}>
                         {mode}
                       </Text>
                     </Pressable>
@@ -331,25 +166,19 @@ export default function SignUp() {
               </View>
             </View>
           )}
-
-          {/* STEP 4 */}
-          {step === 4 && (
+          {/* STEP 3 — STATUS NOTE */}
+          {step === 3 && (
             <View className="mt-10">
-              <Text className="text-white  text-sm font-sora-semibold">
-                Status Note
-              </Text>
-
-              <Text className="text-muted text-xs mt-1">
-                Share a thought or scripture
-              </Text>
+              <Text className="text-white text-sm font-sora-semibold">Status Note</Text>
+              <Text className="text-muted text-xs mt-1">Share a thought or scripture</Text>
 
               <TextInput
                 value={statusNote}
                 onChangeText={setStatusNote}
-                multiline
-                placeholder="Walking by faith today..."
+                placeholder="e.g. Trusting God's timing today ✨"
                 placeholderTextColor="#666"
-                className="bg-card-1 text-white font-sora rounded-2xl px-4 py-4 mt-4 min-h-40 text-sm"
+                multiline
+                className="bg-card-1 text-white font-sora rounded-2xl px-4 py-4 mt-4 min-h-32 text-sm"
               />
 
               <View className="bg-card-1 rounded-2xl p-4 mt-5">
@@ -362,7 +191,6 @@ export default function SignUp() {
                     <Text className="text-muted text-xs">{spiritMode}</Text>
                   </View>
                 </View>
-
                 <Text className="text-white font-sora text-sm mt-4">
                   {statusNote || "Your status will appear here..."}
                 </Text>
@@ -371,17 +199,16 @@ export default function SignUp() {
           )}
         </ScrollView>
 
-        {/* BUTTON */}
-
         {error && (
-          <Text className="mx-5 text-red-50 font-sora-semibold text-center py-3 rounded-xl mb-4  bg-red-800 ">
+          <Text className="mx-5 text-red-50 font-sora-semibold text-center py-3 rounded-xl mb-4 bg-red-800">
             {error}
           </Text>
         )}
+
         <Pressable
           onPress={() => {
-            if (step < 4) setStep(step + 1);
-            else handleRegister();
+            if (step < 3) setStep(step + 1);
+            else handleFinish();
           }}
           disabled={loading}
           className="bg-white mx-5 mb-6 rounded-xl h-14 justify-center items-center"
@@ -391,10 +218,9 @@ export default function SignUp() {
           ) : (
             <View className="flex-row items-center">
               <Text className="text-black text-sm font-sora-bold">
-                {step === 4 ? "Create Account" : "Continue"}
+                {step === 3 ? "Create Account" : "Continue"}
               </Text>
-
-              {step !== 4 && (
+              {step !== 3 && (
                 <ArrowRight color="black" size={16} style={{ marginLeft: 6 }} />
               )}
             </View>
@@ -406,22 +232,15 @@ export default function SignUp() {
       <Modal visible={avatarModal} animationType="slide">
         <View style={{ paddingTop: top + 8 }} className="flex-1 bg-bg px-5">
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-white  text-sm font-sora-semibold">
-              Select Avatar
-            </Text>
-
+            <Text className="text-white text-sm font-sora-semibold">Select Avatar</Text>
             <Pressable onPress={() => setAvatarModal(false)}>
-              <Text className="text-primary text-white font-sora text-xs">
-                Done
-              </Text>
+              <Text className="text-white font-sora text-xs">Done</Text>
             </Pressable>
           </View>
-
           <ScrollView>
             <View className="flex-row flex-wrap justify-between">
               {Avatars.map((_, index) => {
                 const selected = avatar === index;
-
                 return (
                   <Pressable
                     key={index}
@@ -431,7 +250,6 @@ export default function SignUp() {
                     }`}
                   >
                     <Avatar index={index} diameter={55} />
-
                     {selected && (
                       <View className="absolute bottom-1 right-1 bg-white rounded-full p-1">
                         <Check size={10} color="black" />
@@ -447,3 +265,5 @@ export default function SignUp() {
     </View>
   );
 }
+
+
