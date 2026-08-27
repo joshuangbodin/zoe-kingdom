@@ -119,7 +119,7 @@ export default function Profile() {
         style: "destructive",
         onPress: async () => {
           await logout();
-          router.replace("/onboarding");
+          router.replace("/(tabs)/home");
         },
       },
     ]);
@@ -140,6 +140,46 @@ export default function Profile() {
     return (
       <View className="flex-1 bg-bg items-center justify-center">
         <ActivityIndicator color="white" />
+      </View>
+    );
+  }
+
+  // Guest mode (no account): show a friendly sign-in prompt instead of the
+  // full profile editor / logout controls.
+  if (!user) {
+    return (
+      <View className="flex-1 bg-bg" style={{ paddingTop: top + 8 }}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+          className="flex-1 px-7"
+        >
+          <View className="items-center">
+            <Avatar index={0} diameter={72} />
+            <Text className="text-white text-xl font-sora-bold mt-5">
+              Browsing as a guest
+            </Text>
+            <Text className="text-zinc-500 text-sm font-sora text-center mt-2 leading-6">
+              Sign in to back up your habits, track your streak and join the
+              community. Until then, feel free to explore.
+            </Text>
+            <Pressable
+              onPress={() => router.push("/(auth)/signin")}
+              className="mt-8 bg-white rounded-xl h-14 w-full items-center justify-center"
+            >
+              <Text className="text-black text-sm font-sora-bold">
+                Sign in with Google
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => router.replace("/(tabs)/home")}
+              className="mt-3 py-2"
+            >
+              <Text className="text-zinc-500 font-sora text-xs underline">
+                Not now — keep browsing
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
       </View>
     );
   }

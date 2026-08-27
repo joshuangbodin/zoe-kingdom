@@ -3,6 +3,7 @@ import { Pressable, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
+import { useApp } from "@/context/app-context";
 
 const man = require("@/assets/images/man.png");
 const woman = require("@/assets/images/woman.png");
@@ -10,6 +11,12 @@ const woman = require("@/assets/images/woman.png");
 export default function Onboarding() {
   const router = useRouter();
   const StyledSafeAreaView = withUniwind(SafeAreaView);
+  const { continueAsGuest } = useApp();
+
+  const handleContinueAsGuest = async () => {
+    await continueAsGuest();
+    router.replace("/(tabs)/home");
+  };
 
   return (
     <StyledSafeAreaView className="flex-1 relative bg-neutral-950 pt-8 px-4 ">
@@ -52,6 +59,15 @@ export default function Onboarding() {
       >
         <Text className="text-white font-semibold text-base">
           Sign in with Google
+        </Text>
+      </Pressable>
+
+      <Pressable
+        onPress={handleContinueAsGuest}
+        className="mt-4 py-2 z-10 items-center"
+      >
+        <Text className="text-muted font-sora text-xs underline">
+          Continue without an account
         </Text>
       </Pressable>
 

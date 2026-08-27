@@ -4,19 +4,20 @@ import React, { useEffect } from "react";
 import { Text, View } from "react-native";
 
 const Index = () => {
-  const { user, initializing } = useApp();
+  const { user, isGuest, initializing } = useApp();
 
-  // The AppProvider subscribes to Firebase auth on mount and hydrated the user
-  // into context. Once bootstrap completes we route accordingly.
+  // The AppProvider subscribes to Firebase auth on mount and hydrates the user
+  // into context. Once bootstrap completes we route accordingly. Guests are
+  // allowed to browse the app without an account.
   useEffect(() => {
     if (initializing) return;
 
-    if (user) {
+    if (user || isGuest) {
       router.replace("/(tabs)/home");
     } else {
       router.replace("/onboarding");
     }
-  }, [initializing, user]);
+  }, [initializing, user, isGuest]);
 
   return (
     <View className="relative justify-center items-center bg-black flex-1">

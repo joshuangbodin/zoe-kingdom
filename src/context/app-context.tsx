@@ -10,7 +10,7 @@ import React, {
   useState,
 } from "react";
 
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/libs/firebase";
 import {
   ensureUserProfile,
@@ -18,11 +18,15 @@ import {
   hasUserProfile,
   updateUserProfile,
 } from "@/libs/firebase/users";
-import { exchangeGoogleResponse, useGoogleAuth } from "@/libs/firebase/google";
+import {
+  signInWithGoogleNative,
+  nativeSignOut,
+} from "@/libs/firebase/google";
 import { useNetworkStatus } from "@/libs/network";
 import { syncOfflineQueue } from "@/libs/offline/sync";
 import { clearQueue, enqueueOp, queueLength } from "@/libs/offline/queue";
 import { clearAllCache, getCache, setCache } from "@/libs/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type PostType = {
   id: string;
@@ -54,11 +58,19 @@ type AppContextType = {
   /** true once the auth bootstrap has completed (user either loaded or not). */
   initializing: boolean;
 
+  /**
+   * Guest mode — lets people use habits / bible / feed (read-only) without an
+   * account. Posting still requires signing in.
+   */
+  isGuest: boolean;
+  /** Enter guest mode so the user can browse the app without signing in. */
+  continueAsGuest: () => Promise<void>;
+
   /** live connectivity status. */
   isOnline: boolean;
   /** number of offline writes waiting to sync. */
   pendingSync: number;
-  /** attempt to flush the offline queue (returns remaining pending). */
+  /** attempt to flush the pending queue (returns remaining pending). */
   flushOfflineQueue: () => Promise<number>;
 
   /** Trigger Google sign-in. Resolves with the outcome to drive navigation. */
@@ -69,6 +81,9 @@ type AppContextType = {
 const AppContext = createContext<AppContextType | null>(null);
 
 const cacheKey = (uid: string) => `user.${uid}`;
+
+/** Persisted inside AsyncStorage so returning guests don't see onboarding again. */
+const GUEST_KEY = "zoe.guest.mode";
 
 type ProviderProps = {
   children: ReactNode;
@@ -108,13 +123,13 @@ function hydrateWithRetry(
 
 export default function AppProvider({ children }: ProviderProps) {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [posts, setPosts] = useState<PostType[]>([]);
   const [initializing, setInitializing] = useState(true);
   const [pendingSync, setPendingSync] = useState(0);
 
   const isOnline = useNetworkStatus();
-  const { request, promptAsync } = useGoogleAuth();
 
   const hydrateUser = useCallback(
     (uid: string) => hydrateWithRetry(uid, setUser)(),
@@ -159,14 +174,22 @@ export default function AppProvider({ children }: ProviderProps) {
     [user, isOnline],
   );
 
-  // Auth bootstrap: hydrate the user (or clear) on auth changes.
+  // Auth bootstrap: hydrate the user (or clear) on auth changes and load the
+  // persisted guest flag so returning guests skip onboarding.
   const bootstrap = useCallback(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
+        setIsGuest(false);
+        await AsyncStorage.removeItem(GUEST_KEY);
         await hydrateUser(fbUser.uid);
       } else {
         setUser(null);
         await clearAllCache();
+        try {
+          setIsGuest((await AsyncStorage.getItem(GUEST_KEY)) === "true");
+        } catch {
+          setIsGuest(false);
+        }
       }
       setInitializing(false);
     });
@@ -195,46 +218,56 @@ export default function AppProvider({ children }: ProviderProps) {
     return remaining;
   }, []);
 
+  /** Enter guest mode so unauthenticated users can browse the app. */
+  const continueAsGuest = useCallback(async () => {
+    setUser(null);
+    setIsGuest(true);
+    try {
+      await AsyncStorage.setItem(GUEST_KEY, "true");
+    } catch {
+      /* persistence is best-effort */
+    }
+  }, []);
+
   const signInWithGoogle = useCallback(
     async (): Promise<GoogleSignInOutcome> => {
-      if (!request) {
-        return {
-          type: "error",
-          error:
-            "Google Sign-In is not configured. Add your Google client IDs to .env.",
-        };
+      const result = await signInWithGoogleNative(hasUserProfile);
+      if (!result.success) {
+        if (result.cancelled) return { type: "cancelled" };
+        return { type: "error", error: result.error || "Google sign-in failed." };
       }
 
-      const result = await promptAsync();
-      if (!result || result.type !== "success") {
-        return { type: "cancelled" };
-      }
+      // A real account supersedes any previous guest session.
+      setIsGuest(false);
+      await AsyncStorage.removeItem(GUEST_KEY).catch(() => {});
 
-      const exchange = await exchangeGoogleResponse(result, hasUserProfile);
-      if (!exchange.success) {
-        return { type: "error", error: exchange.error || "Sign-in failed." };
-      }
-
-      if (exchange.isNewUser) {
+      if (result.isNewUser) {
         // Ensure a minimal profile exists so home has data on first sign-in.
-        await ensureUserProfile(exchange.user.uid, exchange.user.email || "");
-        await hydrateUser(exchange.user.uid);
+        await ensureUserProfile(result.user.uid, result.user.email || "");
+        await hydrateUser(result.user.uid);
         return { type: "needs_profile" };
       }
 
-      await hydrateUser(exchange.user.uid);
+      await hydrateUser(result.user.uid);
       return { type: "success" };
     },
-    [request, promptAsync, hydrateUser],
+    [hydrateUser],
   );
 
   const logout = useCallback(async () => {
     try {
-      await signOut(auth);
+      await nativeSignOut();
     } catch {
       /* ignore */
     }
     setUser(null);
+    // After signing out, keep them in guest mode so they can keep browsing.
+    setIsGuest(true);
+    try {
+      await AsyncStorage.setItem(GUEST_KEY, "true");
+    } catch {
+      /* ignore */
+    }
     await clearAllCache();
   }, []);
 
@@ -249,6 +282,8 @@ export default function AppProvider({ children }: ProviderProps) {
       posts,
       setPosts,
       initializing,
+      isGuest,
+      continueAsGuest,
       isOnline,
       pendingSync,
       flushOfflineQueue,
@@ -262,6 +297,8 @@ export default function AppProvider({ children }: ProviderProps) {
       habits,
       posts,
       initializing,
+      isGuest,
+      continueAsGuest,
       isOnline,
       pendingSync,
       flushOfflineQueue,

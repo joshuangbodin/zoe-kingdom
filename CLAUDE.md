@@ -4,14 +4,15 @@
 - **Framework**: Expo (React Native) with Expo Router
 - **Styling**: TailwindCSS via Uniwind
 - **Database**: SQLite (local) + Firebase Firestore (remote)
-- **Auth**: Firebase Auth via Google Sign-In (`expo-auth-session`) — no email/password
-- **State**: React Context (AppProvider) — single source of truth for user, habits, posts, connectivity & the offline write queue
+- **Auth**: Firebase Auth with Google Sign-In via `@react-native-google-signin/google-signin` (native, with Google Play Services check) — no email/password
+- **Guest mode**: Users can browse habits / bible / feed (read-only) without an account; signing in is only required to post
+- **State**: React Context (AppProvider) — single source of truth for user, guest flag, habits, posts, connectivity & the offline write queue
 - **Offline-first**: Firestore offline persistence + AsyncStorage caches + a pending-write queue (`src/libs/offline/`) replayed when connectivity returns
 
 ## Key Screens
-- `index.tsx` - Splash/Auth redirect (routes off AppProvider bootstrap)
-- `onboarding.tsx` - First-time user onboarding (Google sign-in)
-- `(auth)/signin.tsx` - Google sign-in
+- `index.tsx` - Splash/Auth redirect (routes signed-in users or guests to tabs, else onboarding)
+- `onboarding.tsx` - First-time welcome (Google sign-in or "continue without an account" → guest)
+- `(auth)/signin.tsx` - Google sign-in (native, checks Play Services on Android)
 - `(auth)/signup.tsx` - Post-Google profile completion (avatar / focus / status)
 - `(tabs)/home.tsx` - Dashboard with growth stats
 - `(tabs)/habits.tsx` - Spiritual habit tracking
