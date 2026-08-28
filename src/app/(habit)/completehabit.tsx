@@ -47,7 +47,7 @@ export default function CompleteHabit() {
   const { top } = useSafeAreaInsets();
 
   const [habit, setHabit] = useState<any>(null);
-  const { setHabits } = useApp();
+  const { setHabits, syncHabitLogs } = useApp();
 
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [running, setRunning] = useState(false);
@@ -115,6 +115,9 @@ export default function CompleteHabit() {
     const data = await completeHabit(habit);
     if (data.success) {
       showToast("Habit completed! +" + habit.xpReward + " XP", "success");
+      // Auto-upload the new completion if online; otherwise it flushes via the
+      // reconnect effect in AppProvider. Best-effort, never blocks completion.
+      syncHabitLogs().catch(() => {});
       await loadHabit();
     } else if (data.reason === "already_completed") {
       showToast("Already completed today!", "info");

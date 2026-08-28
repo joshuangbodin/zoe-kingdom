@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import {
   BookPlus,
   CheckSquare,
+  Gamepad2,
   Home,
   Newspaper,
   User,
@@ -85,6 +86,16 @@ export default function TabLayout() {
             title: "Feed",
             tabBarIcon: ({ size, color }) => (
               <Newspaper size={17} color={color} />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="games"
+          options={{
+            title: "Arena",
+            tabBarIcon: ({ size, color }) => (
+              <Gamepad2 size={17} color={color} />
             ),
           }}
         />

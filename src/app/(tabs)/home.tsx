@@ -72,7 +72,7 @@ export default function Home() {
         <View className="flex-row items-center">
           <Avatar index={user?.avatar} diameter={36} />
           <View className="ml-3">
-            <Text className="text-white text-sm font-sora-semibold">
+            <Text className="text-white text-xs max-w-sm  font-sora-semibold">
               {getGreeting()}, {user?.username || "User"}
             </Text>
             <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">Welcome back</Text>

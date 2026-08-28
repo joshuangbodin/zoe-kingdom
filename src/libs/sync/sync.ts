@@ -1,4 +1,5 @@
 import { getYearContributions } from "@/libs/sqlite/contributions";
+import { getChallengeXPRewarded } from "@/libs/sqlite/challenges";
 import { sqlite } from "@/libs/sqlite/db";
 import { getSpiritState, initializeSpirit } from "@/libs/sqlite/spirit";
 
@@ -10,15 +11,19 @@ import {
   uploadLogs,
   uploadProgress,
 } from "@/libs/firebase/progress";
+import { updateUserSeasonXP } from "@/libs/firebase/users";
 import type { ContributionsMap } from "@/libs/firebase/progress";
 
 /**
  * Manual, user-initiated sync between the local SQLite store and Firebase.
  *
  * "Consistency map" = the GitHub-style contribution graph derived from
- * `habit_logs`. "XP / level / status" = the spirit_state totals. All of these
- * are upload + merged with whatever exists in the cloud, and the aggregate
- * snapshot is written to `users/{uid}/meta/progress`.
+ * `habit_logs`. "XP / level / status" = the spirit_state totals, including XP
+ * earned from weekly challenges (the `challenge_logs` table). All of these
+ * are uploaded + merged with whatever exists in the cloud, and the aggregate
+ * snapshot is written to `users/{uid}/meta/progress`. The lifetime XP is also
+ * snapshotted onto `users/{uid}.seasonXP` so the global leaderboard can rank
+ * players.
  *
  * Unlike the offline post queue this is NOT automatic — it only runs when the
  * user explicitly taps "Sync now", as agreed in AGENTS.md.
@@ -95,13 +100,15 @@ export const syncLocalDataToFirebase = async (
 
   // ---- Recompute XP / level deterministically from the merged log set ----
   // Every completion stores its own xpEarned, so the sum equals the accrued XP.
+  // Challenge rewards live in `challenge_logs` and are added on top.
   const mergedLogs: any[] = await sqlite.getAllAsync(
     "SELECT xpEarned FROM habit_logs",
   );
-  const totalXP = mergedLogs.reduce(
-    (sum, l) => sum + (Number(l.xpEarned) || 0),
-    0,
-  );
+  const totalXP =
+    mergedLogs.reduce(
+      (sum, l) => sum + (Number(l.xpEarned) || 0),
+      0,
+    ) + (await getChallengeXPRewarded());
   const level = levelFor(totalXP);
 
   // Keep the existing spiritStage unless local has none and the cloud does.
@@ -125,6 +132,9 @@ export const syncLocalDataToFirebase = async (
 
   // ---- Push aggregate progress to the cloud ----
   await uploadProgress(uid, { totalXP, level, spiritStage, contributions });
+
+  // ---- Snapshot lifetime XP onto the profile for the global leaderboard ----
+  await updateUserSeasonXP(uid, totalXP);
 
   return {
     habitsUploaded: habits.length,

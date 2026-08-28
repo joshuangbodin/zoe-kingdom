@@ -61,6 +61,17 @@ const CREATE_TABLES = `
 
   CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_verse
   ON bible_verses(bookIndex, chapter, verse);
+
+  CREATE TABLE IF NOT EXISTS challenge_logs (
+    id TEXT PRIMARY KEY NOT NULL,
+    challengeId TEXT NOT NULL,
+    period TEXT NOT NULL,
+    xpEarned INTEGER DEFAULT 0,
+    earnedAt TEXT NOT NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_challenge_logs
+  ON challenge_logs(challengeId, period);
 `;
 
 export const initDB = async () => {

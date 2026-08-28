@@ -25,6 +25,7 @@ import {
 import { useNetworkStatus } from "@/libs/network";
 import { syncOfflineQueue } from "@/libs/offline/sync";
 import { clearQueue, enqueueOp, queueLength } from "@/libs/offline/queue";
+import { syncUnsyncedLogsAutomatically } from "@/libs/sync/autosync";
 import { clearAllCache, getCache, setCache } from "@/libs/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -72,6 +73,13 @@ type AppContextType = {
   pendingSync: number;
   /** attempt to flush the pending queue (returns remaining pending). */
   flushOfflineQueue: () => Promise<number>;
+
+  /**
+   * Automatically upload locally-logged (unsynced) habit completions to
+   * Firestore. No-op when offline or signed out — those logs flush next time
+   * connectivity returns.
+   */
+  syncHabitLogs: () => Promise<void>;
 
   /** Trigger Google sign-in. Resolves with the outcome to drive navigation. */
   signInWithGoogle: () => Promise<GoogleSignInOutcome>;
@@ -207,6 +215,10 @@ export default function AppProvider({ children }: ProviderProps) {
       syncOfflineQueue()
         .then(setPendingSync)
         .catch((e) => console.warn("offline sync failed", e));
+      // Flush any habit completions completed while offline (best-effort).
+      if (user?.uid) {
+        syncUnsyncedLogsAutomatically(user.uid).catch(() => {});
+      }
     } else {
       queueLength().then(setPendingSync).catch(() => {});
     }
@@ -217,6 +229,11 @@ export default function AppProvider({ children }: ProviderProps) {
     setPendingSync(remaining);
     return remaining;
   }, []);
+
+  const syncHabitLogs = useCallback(async () => {
+    if (!user?.uid || !isOnline) return;
+    await syncUnsyncedLogsAutomatically(user.uid);
+  }, [user?.uid, isOnline]);
 
   /** Enter guest mode so unauthenticated users can browse the app. */
   const continueAsGuest = useCallback(async () => {
@@ -287,6 +304,7 @@ export default function AppProvider({ children }: ProviderProps) {
       isOnline,
       pendingSync,
       flushOfflineQueue,
+      syncHabitLogs,
       signInWithGoogle,
       logout,
     }),
@@ -302,6 +320,7 @@ export default function AppProvider({ children }: ProviderProps) {
       isOnline,
       pendingSync,
       flushOfflineQueue,
+      syncHabitLogs,
       signInWithGoogle,
       logout,
     ],

@@ -24,6 +24,9 @@ export type UserProfile = {
   level: number;
   xp: number;
 
+  /** Lifetime XP used for the global leaderboard. Snapshotted on manual sync. */
+  seasonXP: number;
+
   spiritStage: string;
 
   avatar: number;
@@ -84,6 +87,8 @@ export const syncUserProfile = async (
 
     level: 1,
     xp: 0,
+
+    seasonXP: 0,
 
     spiritStage: data.userData.spiritStage || "Kindled Flame",
 
@@ -146,6 +151,7 @@ export const ensureUserProfile = async (uid: string, email: string) => {
     email,
     level: 1,
     xp: 0,
+    seasonXP: 0,
     spiritStage: "Kindled Flame",
     avatar: 0,
     statusNote: "",
@@ -220,6 +226,22 @@ export const updateAvatar = async (uid: string, avatar: number) => {
 export const updateXP = async (uid: string, xp: number) => {
   await updateDoc(doc(db, collectionId, uid), {
     xp,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+/* -------------------------------------------------------------------------- */
+/*                        UPDATE SEASON XP (LEADERBOARD)                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Snapshots the user's lifetime XP onto their profile doc. This is the number
+ * the global leaderboard ranks on. It is written during the manual "Sync now"
+ * so the leaderboard always reflects real, locally-earned XP.
+ */
+export const updateUserSeasonXP = async (uid: string, seasonXP: number) => {
+  await updateDoc(doc(db, collectionId, uid), {
+    seasonXP,
     updatedAt: serverTimestamp(),
   });
 };
