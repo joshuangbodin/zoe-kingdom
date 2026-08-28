@@ -11,10 +11,18 @@ import { Pressable, Text, View } from "react-native";
 
 const spark = require("@/assets/lottie/Fire.json");
 const crown = require("@/assets/lottie/Crown.json");
-
 const sparkle = require("@/assets/lottie/Twinkle.json");
 const oil = require("@/assets/lottie/Oil.json");
 
+/**
+ * Premium growth overview.
+ *
+ * A calm, consistent typographic hierarchy:
+ *   micro-label (uppercase, tracked) -> title/big value
+ * All values sit on the same muted-label language so nothing competes for
+ * attention. The flame animation is a compact decorative accent rather than a
+ * full-bleed block, which keeps the page balanced.
+ */
 export default function GrowthStat({
   streak,
   xp,
@@ -28,75 +36,74 @@ export default function GrowthStat({
 
   const nextLevelXP = getXPForNextLevel(levelNumber);
   const progress = getProgressPercentage(xp);
+
+  const lottie =
+    fire.animation === "spark"
+      ? sparkle
+      : fire.animation === "oil"
+        ? oil
+        : fire.animation === "fire"
+          ? spark
+          : crown;
+
   return (
-    <View className="gap-2 mt-10">
-      {/* top part */}
-      <View className="flex-row">
-        {/* animation */}
-        <View className="flex-[.6] relative h-50">
-          <LottieView
-            source={
-              fire.animation === "spark"
-                ? sparkle
-                : fire.animation === "oil"
-                  ? oil
-                  : fire.animation === "fire"
-                    ? spark
-                    : crown
-            }
-            autoPlay
-            loop
-            style={{
-              width: "100%",
-              height: 200,
-            }}
-          />
-
-          <Pressable className="absolute right-2 bottom-2 p-3 bg-card-1/80 rounded-full">
-            <Share2 color={"#fff"} />
-          </Pressable>
-        </View>
-
-        {/* side stats (fire status and current Streak) */}
-        <View className="flex-[.4] h-full gap-2">
-          <View className="p-5 flex-[.4] justify-between rounded-3xl bg-card-1 ">
-            <Text className="font-sora text-xs text-muted">
-              Altar Fire Status
+    <View className="gap-3">
+      {/* HERO — fire status + level + XP progress */}
+      <View className="bg-card-1 rounded-3xl p-6 overflow-hidden">
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1 pr-4">
+            <Text className="text-[10px] font-sora-medium uppercase tracking-[0.2em] text-zinc-500">
+              Altar Fire
             </Text>
-            <Text className="font-sora-semibold text-sm text-white">
+            <Text className="text-white text-xl font-sora-bold mt-2">
               {fire.title}
             </Text>
-          </View>
-          <View className="p-5 flex-[.6] justify-between rounded-3xl bg-card-1 ">
-            <Text className="font-sora text-xs text-muted">Current Streak</Text>
-            <Text className="font-sora-semibold text-xl text-white">
-              {streak}
-              <Text className="text-xs text-muted">/DAYS</Text>
+            <Text className="text-zinc-500 text-xs font-sora mt-1.5">
+              Level {levelNumber}
             </Text>
+          </View>
+
+          {/* decorative flame accent */}
+          <View className="relative">
+            <LottieView
+              source={lottie}
+              autoPlay
+              loop
+              style={{ width: 84, height: 84 }}
+            />
+            <Pressable className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-white/10 items-center justify-center">
+              <Share2 size={13} color="#ffffff80" />
+            </Pressable>
+          </View>
+        </View>
+
+        {/* XP progress */}
+        <View className="mt-6">
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="text-[10px] font-sora-medium uppercase tracking-[0.2em] text-zinc-500">
+              Next level
+            </Text>
+            <Text className="text-zinc-400 text-xs font-sora-medium">
+              {xp} / {nextLevelXP} XP
+            </Text>
+          </View>
+          <View className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <View
+              className="h-full rounded-full bg-amber-400"
+              style={{ width: `${Math.min(progress, 100)}%` }}
+            />
           </View>
         </View>
       </View>
 
-      {/* XP */}
-      <View className="p-6 rounded-3xl bg-card-2 ">
-        <View className="flex-row items-center justify-between">
-          <Text className="font-sora text-xs text-muted">
-            Experience Points(XP)
-          </Text>
-          <Text className="font-sora-semibold text-sm text-white">
-            {xp}xp / {nextLevelXP}xp
-          </Text>
-        </View>
-
-        <View className="relative h-2.5 mt-4 bg-white overflow-hidden rounded-full">
-          <View
-            style={{ width: `${progress}%` }}
-            className="absolute bg-gray-500 rounded-full h-full left-0"
-          ></View>
-        </View>
-
-        <Text className="mt-2 text-white font-sora-semibold">
-          LEVEL {levelNumber}
+      {/* STREAK */}
+      <View className="bg-card-1 rounded-3xl px-6 py-5 flex-row items-center justify-between">
+        <Text className="text-[10px] font-sora-medium uppercase tracking-[0.2em] text-zinc-500">
+          Current streak
+        </Text>
+        <Text className="text-white text-2xl font-sora-bold">
+          {streak}
+          <Text className="text-xs text-zinc-500 font-sora-medium"> days</Text>
         </Text>
       </View>
     </View>

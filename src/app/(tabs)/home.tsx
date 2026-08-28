@@ -1,21 +1,53 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
 import Avatar from "@/components/Avatar";
 import ContributionGraph from "@/components/ContributionGraph";
 import GrowthStat from "@/components/home/GrowthStat";
-import { getGreeting } from "@/constants/time";
+import { getFirstName, getGreeting } from "@/constants/time";
 import { useApp } from "@/context/app-context";
 import { getHabits } from "@/libs/sqlite/habits";
 import { getSpiritState, initializeSpirit } from "@/libs/sqlite/spirit";
 import { getDailyStreak } from "@/libs/sqlite/streak";
 import { router } from "expo-router";
-import { Flame, BookOpen } from "lucide-react-native";
+import { BookOpen, Flame } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const QUICK_ACTIONS: {
+  key: string;
+  label: string;
+  caption: string;
+  route: any;
+  color: string;
+  tileBg: string;
+}[] = [
+  {
+    key: "scripture",
+    label: "Scripture",
+    caption: "Daily devotion",
+    route: "/(tabs)/bible",
+    color: "#fbbf24",
+    tileBg: "bg-amber-500/10",
+  },
+  {
+    key: "habits",
+    label: "Habits",
+    caption: "Build your rhythm",
+    route: "/(tabs)/habits",
+    color: "#34d399",
+    tileBg: "bg-emerald-500/10",
+  },
+];
 
 export default function Home() {
   const [spirit, setSpirit] = useState<any>(null);
-  const { habits, setHabits, user, refreshUser } = useApp();
+  const { setHabits, user, refreshUser } = useApp();
   const [streak, setStreak] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
@@ -50,7 +82,10 @@ export default function Home() {
     };
 
     loadData();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid]);
 
   if (loading) {
@@ -61,62 +96,75 @@ export default function Home() {
     );
   }
 
+  const firstName = getFirstName(user?.username);
+
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      style={{ paddingTop: top + 8 }}
-      className="flex-1 bg-bg px-5"
-    >
-      {/* Header */}
-      <View className="flex-row items-center justify-between mb-5">
-        <View className="flex-row items-center">
-          <Avatar index={user?.avatar} diameter={36} />
-          <View className="ml-3">
-            <Text className="text-white text-xs max-w-sm  font-sora-semibold">
-              {getGreeting()}, {user?.username || "User"}
+    <View className="flex-1 bg-bg">
+      {/* FIXED HEADER — pinned, does not scroll with the page */}
+      <View
+        style={{ paddingTop: top + 8, paddingBottom: 12 }}
+        className="px-5 bg-bg border-b border-white/[0.06]"
+      >
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center flex-1 min-w-0">
+            <Avatar index={user?.avatar} diameter={38} />
+            <View className="ml-3 flex-1 min-w-0">
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                className="text-white text-[15px] font-sora-semibold"
+              >
+                {getGreeting()}, {firstName}
+              </Text>
+              <Text className="text-zinc-500 text-[11px] font-sora mt-0.5">
+                Welcome back
+              </Text>
+            </View>
+          </View>
+
+          <View className="flex-row items-center bg-card-1 rounded-full pl-2.5 pr-3.5 py-2 ml-3">
+            <Flame size={14} color="#f59e0b" />
+            <Text className="text-white text-[13px] font-sora-semibold ml-1.5">
+              {streak || 0}
             </Text>
-            <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">Welcome back</Text>
           </View>
-        </View>
-
-        <View className="flex-row items-center bg-card-1 rounded-xl px-3 py-2">
-          <Flame size={14} color="#facc15" />
-          <Text className="text-white text-sm font-sora-semibold ml-1.5">
-            {streak || 0}
-          </Text>
         </View>
       </View>
 
-      {/* Growth Stats */}
-      <GrowthStat streak={streak} xp={spirit?.totalXP || 0} />
+      {/* SCROLLABLE CONTENT */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        className="flex-1"
+        contentContainerStyle={{ padding: 20, paddingBottom: 130 }}
+      >
+        <GrowthStat streak={streak} xp={spirit?.totalXP || 0} />
 
-      {/* Quick Actions */}
-      <View className="flex-row gap-2 mt-6">
-        <Pressable
-          onPress={() => router.push("/(tabs)/bible")}
-          className="flex-1 bg-card-1 rounded-2xl p-4 flex-row items-center"
-        >
-          <View className="w-9 h-9 rounded-xl bg-amber-500/10 items-center justify-center">
-            <BookOpen size={16} color="#fbbf24" />
-          </View>
-          <Text className="text-white text-sm font-sora-semibold ml-3">Scripture</Text>
-        </Pressable>
+        {/* Quick Actions */}
+        <View className="flex-row gap-3 mt-5">
+          {QUICK_ACTIONS.map((action) => (
+            <Pressable
+              key={action.key}
+              onPress={() => router.push(action.route)}
+              className="flex-1 bg-card-1 rounded-2xl p-4"
+            >
+              <View
+                className={`w-9 h-9 rounded-xl items-center justify-center ${action.tileBg}`}
+              >
+                <BookOpen size={16} color={action.color} />
+              </View>
+              <Text className="text-white text-sm font-sora-semibold mt-3">
+                {action.label}
+              </Text>
+              <Text className="text-zinc-500 text-[11px] font-sora mt-0.5">
+                {action.caption}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
 
-        <Pressable
-          onPress={() => router.push("/(tabs)/habits")}
-          className="flex-1 bg-card-1 rounded-2xl p-4 flex-row items-center"
-        >
-          <View className="w-9 h-9 rounded-xl bg-green-500/10 items-center justify-center">
-            <BookOpen size={16} color="#4ade80" />
-          </View>
-          <Text className="text-white text-sm font-sora-semibold ml-3">Habits</Text>
-        </Pressable>
-      </View>
-
-      {/* Consistency */}
-      <ContributionGraph />
-
-      <View className="h-20" />
-    </ScrollView>
+        {/* Consistency */}
+        <ContributionGraph />
+      </ScrollView>
+    </View>
   );
 }

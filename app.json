@@ -8,7 +8,7 @@
     "scheme": "zoekingdom",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.jo-sh-ie-ee.zoekingdom",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
