@@ -1,3 +1,6 @@
+import { Asset } from "expo-asset";
+import { ungzip } from "pako";
+
 import { sqlite } from "./db";
 
 /* ---------------------------- TYPES ---------------------------- */
@@ -38,14 +41,34 @@ export const flattenBible = (bible: any[]): BibleVerse[] => {
   return rows;
 };
 
+  /* ---------------------------- BUNDLED DATA ---------------------------- */
+
+  /**
+   * Load the full KJV Bible from a compressed asset bundled inside the app.
+   *
+   * We used to fetch `en_kjv.json` from a third-party GitHub URL at runtime, but
+   * that made the reader depend on the network + an external API. Instead the
+   * whole Bible is shipped with the app as a ~1.35 MB gzipped JSON asset
+   * (`assets/bible/kjv.json.gz`) and inflated/parsed locally on the first
+   * open, then cached in SQLite for instant, indexed lookups.
+   */
+  export const loadBundledBible = async (): Promise<any[]> => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const asset = Asset.fromModule(require("@/assets/bible/kjv.json.gz"));
+    await asset.downloadAsync();
+
+    const source = asset.localUri ?? asset.uri;
+    const res = await fetch(source);
+    const buffer = await res.arrayBuffer();
+
+    const json = ungzip(new Uint8Array(buffer), { to: "string" });
+    return JSON.parse(json) as any[];
+  };
+
   /* ---------------------------- SEED ---------------------------- */
 
   export const seedBible = async () => {
-    const BIBLE_URL =
-      "https://raw.githubusercontent.com/thiagobodruk/bible/master/json/en_kjv.json";
-
-    const res = await fetch(BIBLE_URL);
-    const bible = await res.json();
+    const bible = await loadBundledBible();
 
     const rows = flattenBible(bible);
 
@@ -137,4 +160,27 @@ export const getChapter = async (bookIndex: number, chapter: number) => {
   );
 
   return result ?? [];
+};
+
+/* ---------------------------- SINGLE-FLIGHT SEED ---------------------------- */
+
+let seedingPromise: Promise<boolean> | null = null;
+
+/**
+ * Seed the Bible exactly once, deduplicating concurrent callers (the Bible tab
+ * and the Bible modal both fire on first open). Subsequent calls resolve
+ * immediately once the data is available, so reads stay fast.
+ */
+export const ensureBibleSeeded = (): Promise<boolean> => {
+  if (!seedingPromise) {
+    seedingPromise = (async () => {
+      if (await checkBibleExists()) return true;
+      await seedBible();
+      return await checkBibleExists();
+    })().catch((err) => {
+      seedingPromise = null; // allow a retry next time
+      throw err;
+    });
+  }
+  return seedingPromise;
 };

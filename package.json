@@ -37,6 +37,7 @@
     "firebase": "^12.13.0",
     "lottie-react-native": "^7.3.8",
     "lucide-react-native": "^1.16.0",
+    "pako": "^2.2.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.6",
@@ -51,6 +52,7 @@
     "uniwind": "^1.7.0"
   },
   "devDependencies": {
+    "@types/pako": "^2.0.4",
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~55.0.1",

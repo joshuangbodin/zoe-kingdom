@@ -25,7 +25,7 @@ import {
 } from "lucide-react-native";
 
 import { isRedLetterVerse } from "@/constants/red-text";
-import { checkBibleExists, seedBible } from "@/libs/sqlite/bible";
+import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -227,11 +227,7 @@ export default function BibleModal({
     try {
       setLoading(true);
 
-      const exists = await checkBibleExists();
-
-      if (!exists) {
-        await seedBible();
-      }
+      await ensureBibleSeeded();
 
       await loadBooks();
     } finally {

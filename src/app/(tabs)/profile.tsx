@@ -21,6 +21,8 @@ import {
   Info,
   Check,
   X,
+  RefreshCw,
+  CloudUpload,
 } from "lucide-react-native";
 import Avatar from "@/components/Avatar";
 import { Avatars } from "@/constants/avatar";
@@ -34,7 +36,11 @@ import { useApp } from "@/context/app-context";
 import { getDailyStreak } from "@/libs/sqlite/streak";
 import { getTodayCompletedCount } from "@/libs/sqlite/habits";
 import { getSpiritState } from "@/libs/sqlite/spirit";
+import { syncLocalDataToFirebase } from "@/libs/sync/sync";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+
+const LAST_SYNCED_KEY = "zoe.lastSynced";
 
 const SPIRIT_MODES = [
   "Disciplined",
@@ -47,11 +53,13 @@ const SPIRIT_MODES = [
 
 export default function Profile() {
   const { top } = useSafeAreaInsets();
-  const { user, updateUser, logout } = useApp();
+  const { user, updateUser, logout, isOnline } = useApp();
   const [loading, setLoading] = useState(true);
   const [streak, setStreak] = useState(0);
   const [todayCompleted, setTodayCompleted] = useState(0);
   const [spiritState, setSpiritState] = useState<any>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [lastSynced, setLastSynced] = useState<number | null>(null);
 
   const [showSettings, setShowSettings] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -65,6 +73,13 @@ export default function Profile() {
   useEffect(() => {
     loadUserData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
+
+  // Restore last-synced timestamp for this account.
+  useEffect(() => {
+    AsyncStorage.getItem(`${LAST_SYNCED_KEY}.${user?.uid ?? "guest"}`)
+      .then((v) => setLastSynced(v ? Number(v) : null))
+      .catch(() => setLastSynced(null));
   }, [user?.uid]);
 
   const loadUserData = async () => {
@@ -128,6 +143,33 @@ export default function Profile() {
   const handlePickAvatar = async (index: number) => {
     await updateUser({ avatar: index });
     setShowAvatarPicker(false);
+  };
+
+  const handleSync = async () => {
+    if (!user || syncing) return;
+    if (!isOnline) {
+      Alert.alert("Offline", "You're offline. Reconnect and try again.");
+      return;
+    }
+    try {
+      setSyncing(true);
+      const result = await syncLocalDataToFirebase(user.uid);
+      const now = Date.now();
+      setLastSynced(now);
+      await AsyncStorage.setItem(
+        `${LAST_SYNCED_KEY}.${user.uid}`,
+        String(now),
+      );
+      Alert.alert(
+        "Synced",
+        `Uploaded ${result.logsUploaded} habit logs, pulled ${result.pulledLogs} from cloud.\n` +
+          `Level ${result.level} · ${result.totalXP} XP backed up.`,
+      );
+    } catch {
+      Alert.alert("Sync failed", "Could not sync your progress. Try again.");
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const level = user?.level || spiritState?.level || 1;
@@ -246,6 +288,35 @@ export default function Profile() {
             </Text>
           </View>
         </View>
+
+        {/* MANUAL SYNC (back up SQLite habits + XP to the cloud) */}
+        <Pressable
+          onPress={handleSync}
+          disabled={syncing}
+          className="mt-4 bg-card-1 rounded-2xl p-4 flex-row items-center"
+        >
+          <View className="w-10 h-10 rounded-xl bg-emerald-500/10 items-center justify-center">
+            {syncing ? (
+              <ActivityIndicator size="small" color="#34d399" />
+            ) : (
+              <CloudUpload size={18} color="#34d399" />
+            )}
+          </View>
+          <View className="flex-1 ml-3">
+            <Text className="text-white text-sm font-sora-semibold">
+              {syncing ? "Syncing…" : "Sync data to cloud"}
+            </Text>
+            <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+              {!isOnline
+                ? "Go online to back up your progress"
+                : lastSynced
+                  ? `Last synced ${new Date(lastSynced).toLocaleString()}`
+                  : "Back up habits, streak & XP"}
+            </Text>
+          </View>
+          {!syncing && <RefreshCw size={16} color="#34d399" />}
+        </Pressable>
+
         {/* QUICK ACCESS */}
         <Text className="text-zinc-400 text-[11px] font-sora-semibold uppercase tracking-wider mt-8 mb-3">
           Quick Access
