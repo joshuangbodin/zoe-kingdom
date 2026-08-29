@@ -92,7 +92,7 @@ export default function ContributionGraph() {
       {/* HEADER */}
       <View className="flex-row justify-between items-center mb-5">
         <View>
-          <Text className="text-white text-base font-sora-bold">
+          <Text className="text-primary text-base font-sora-bold">
             Consistency Map
           </Text>
         </View>
@@ -106,7 +106,7 @@ export default function ContributionGraph() {
             <ChevronLeft color={"#fff"} />
           </Pressable>
 
-          <Text className="text-white font-sora-semibold mx-2">{year}</Text>
+          <Text className="text-primary font-sora-semibold mx-2">{year}</Text>
 
           <Pressable
             onPress={() => setYear(year + 1)}

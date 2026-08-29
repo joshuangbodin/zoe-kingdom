@@ -10,6 +10,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text, View } from "react-native";
 import { useApp } from "@/context/app-context";
+import { useTheme } from "@/context/theme-context";
 
 function SyncBanner() {
   const { isOnline, pendingSync } = useApp();
@@ -37,6 +38,8 @@ function SyncBanner() {
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { isDark } = useTheme();
+
   return (
     <>
       <Tabs
@@ -44,21 +47,21 @@ export default function TabLayout() {
           headerShown: false,
 
           tabBarStyle: {
-            backgroundColor: "#181818",
+            backgroundColor: isDark ? "#181818" : "#ffffff",
             borderTopWidth: 0,
-            borderTopColor: "#e5e7eb",
+            borderTopColor: isDark ? "#000" : "#e5e7eb",
             height: insets.bottom + 80,
             paddingTop: 8,
             paddingBottom: insets.bottom + 10,
           },
 
-          tabBarInactiveTintColor: "#fff9",
-          tabBarActiveTintColor: "#fff",
+          tabBarInactiveTintColor: isDark ? "#fff9" : "#71717a",
+          tabBarActiveTintColor: isDark ? "#fff" : "#0c0c0c",
 
           tabBarLabelStyle: {
             fontSize: 12,
             marginTop: 4,
-            fontFamily: "Manrope-Regular",
+            fontFamily: "Geist-Regular",
           },
         }}
       >

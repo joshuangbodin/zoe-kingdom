@@ -14,7 +14,7 @@ export default function SearchBar({ placeholder = "Search Scripture, interest or
       <TextInput
         placeholder={placeholder}
         placeholderTextColor="#888"
-        className="ml-4 flex-1 text-white text-sm"
+        className="ml-4 flex-1 text-primary text-sm"
       />
     </View>
   );

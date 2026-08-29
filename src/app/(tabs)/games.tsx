@@ -126,32 +126,32 @@ export default function Games() {
     return (
       <View
         className={`flex-row items-center px-4 py-3 rounded-2xl mb-2 ${
-          item.isYou ? "bg-white/10 border border-white/40" : "bg-card-1"
+          item.isYou ? "bg-overlay border border-primary/40" : "bg-card-1"
         }`}
       >
         <Text
-          className={`w-8 font-sora-bold text-sm ${item.rank <= 3 ? "" : "text-zinc-500"}`}
+          className={`w-8 font-sora-bold text-sm ${item.rank <= 3 ? "" : "text-tertiary"}`}
           style={item.rank <= 3 ? { color: medal } : undefined}
         >
           {item.rank}
         </Text>
         <Avatar index={item.avatar} diameter={34} />
         <View className="flex-1 ml-3">
-          <Text className="text-white text-sm font-sora-semibold">
+          <Text className="text-primary text-sm font-sora-semibold">
             {item.username}
             {item.isYou && (
-              <Text className="text-zinc-400 text-[10px] font-sora ml-1">
+              <Text className="text-secondary text-[10px] font-sora ml-1">
                 (you)
               </Text>
             )}
           </Text>
-          <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+          <Text className="text-tertiary text-[10px] font-sora mt-0.5">
             Level {item.level}
           </Text>
         </View>
         <View className="flex-row items-center">
           <Zap size={13} color="#facc15" />
-          <Text className="text-white text-sm font-sora-bold ml-1">
+          <Text className="text-primary text-sm font-sora-bold ml-1">
             {item.seasonXP}
           </Text>
         </View>
@@ -175,22 +175,22 @@ export default function Games() {
             {iconFor(item.icon, 18, item.color)}
           </View>
           <View className="flex-1 ml-3">
-            <Text className="text-white text-sm font-sora-semibold">
+            <Text className="text-primary text-sm font-sora-semibold">
               {item.title}
             </Text>
-            <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+            <Text className="text-tertiary text-[10px] font-sora mt-0.5">
               {item.description}
             </Text>
           </View>
           <View className="flex-row items-center">
             <Zap size={13} color="#facc15" />
-            <Text className="text-white text-sm font-sora-bold ml-1">
+            <Text className="text-primary text-sm font-sora-bold ml-1">
               +{item.reward}
             </Text>
           </View>
         </View>
 
-        <View className="h-2 bg-white/10 rounded-full mt-4 overflow-hidden">
+        <View className="h-2 bg-overlay rounded-full mt-4 overflow-hidden">
           <View
             style={{
               width: `${pct}%`,
@@ -199,13 +199,13 @@ export default function Games() {
             className="h-full rounded-full"
           />
         </View>
-        <Text className="text-zinc-400 text-[10px] font-sora mt-1.5">
+        <Text className="text-secondary text-[10px] font-sora mt-1.5">
           {item.progress}/{item.target}
         </Text>
 
         {claimed ? (
-          <View className="mt-3 rounded-xl py-3 items-center bg-white/5">
-            <Text className="text-zinc-400 text-xs font-sora-semibold">
+          <View className="mt-3 rounded-xl py-3 items-center bg-overlay">
+            <Text className="text-secondary text-xs font-sora-semibold">
               Claimed ✓
             </Text>
           </View>
@@ -225,7 +225,7 @@ export default function Games() {
           </Pressable>
         ) : (
           <View className="mt-3 rounded-xl py-3 items-center bg-card-2">
-            <Text className="text-zinc-500 text-xs font-sora-semibold">
+            <Text className="text-tertiary text-xs font-sora-semibold">
               Keep going — {item.progress}/{item.target}
             </Text>
           </View>
@@ -260,8 +260,8 @@ export default function Games() {
                 <Gamepad2 size={18} color="#818cf8" />
               </View>
               <View className="ml-3">
-                <Text className="text-white text-xl font-sora-bold">Arena</Text>
-                <Text className="text-zinc-500 text-xs font-sora">
+                <Text className="text-primary text-xl font-sora-bold">Arena</Text>
+                <Text className="text-tertiary text-xs font-sora">
                   Compete, grow, and earn XP
                 </Text>
               </View>
@@ -276,7 +276,7 @@ export default function Games() {
               >
                 <Text
                   className={`text-xs font-sora-semibold ${
-                    section === "challenges" ? "text-black" : "text-zinc-400"
+                    section === "challenges" ? "text-black" : "text-secondary"
                   }`}
                 >
                   Weekly Challenges
@@ -290,7 +290,7 @@ export default function Games() {
               >
                 <Text
                   className={`text-xs font-sora-semibold ${
-                    section === "leaderboard" ? "text-black" : "text-zinc-400"
+                    section === "leaderboard" ? "text-black" : "text-secondary"
                   }`}
                 >
                   Leaderboard
@@ -302,11 +302,11 @@ export default function Games() {
               <View className="flex-row items-center justify-between px-1 mb-2">
                 <View className="flex-row items-center">
                   <Trophy size={14} color="#fbbf24" />
-                  <Text className="text-white text-sm font-sora-semibold ml-2">
+                  <Text className="text-primary text-sm font-sora-semibold ml-2">
                     This Week's Challenges
                   </Text>
                 </View>
-                <Text className="text-zinc-500 text-[10px] font-sora">
+                <Text className="text-tertiary text-[10px] font-sora">
                   {period}
                 </Text>
               </View>
@@ -314,10 +314,10 @@ export default function Games() {
 
             {section === "leaderboard" && (
               <View className="px-1 mb-2">
-                <Text className="text-white text-sm font-sora-semibold">
+                <Text className="text-primary text-sm font-sora-semibold">
                   Global Leaderboard
                 </Text>
-                <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+                <Text className="text-tertiary text-[10px] font-sora mt-0.5">
                   Ranked by lifetime XP. Sync on the Profile tab to update your
                   score.
                 </Text>

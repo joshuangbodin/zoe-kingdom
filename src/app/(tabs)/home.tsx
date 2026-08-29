@@ -103,7 +103,7 @@ export default function Home() {
       {/* FIXED HEADER — pinned, does not scroll with the page */}
       <View
         style={{ paddingTop: top + 8, paddingBottom: 12 }}
-        className="px-5 bg-bg border-b border-white/6"
+        className="px-5 bg-bg border-b border-line"
       >
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center flex-1 min-w-0">
@@ -112,11 +112,11 @@ export default function Home() {
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                className="text-white text-[15px] font-sora-semibold"
+                className="text-primary text-[15px] font-sora-semibold"
               >
                 {getGreeting()}, {firstName}
               </Text>
-              <Text className="text-zinc-500 text-[11px] font-sora mt-0.5">
+              <Text className="text-tertiary text-[11px] font-sora mt-0.5">
                 Welcome back
               </Text>
             </View>
@@ -124,7 +124,7 @@ export default function Home() {
 
           <View className="flex-row items-center bg-card-1 rounded-full pl-2.5 pr-3.5 py-2 ml-3">
             <Flame size={14} color="#f59e0b" />
-            <Text className="text-white text-[13px] font-sora-semibold ml-1.5">
+            <Text className="text-primary text-[13px] font-sora-semibold ml-1.5">
               {streak || 0}
             </Text>
           </View>
@@ -152,10 +152,10 @@ export default function Home() {
               >
                 <BookOpen size={16} color={action.color} />
               </View>
-              <Text className="text-white text-sm font-sora-semibold mt-3">
+              <Text className="text-primary text-sm font-sora-semibold mt-3">
                 {action.label}
               </Text>
-              <Text className="text-zinc-500 text-[11px] font-sora mt-0.5">
+              <Text className="text-tertiary text-[11px] font-sora mt-0.5">
                 {action.caption}
               </Text>
             </Pressable>

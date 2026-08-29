@@ -1,22 +1,35 @@
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider,
+  ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import "../global.css";
 
 import AppProvider from "@/context/app-context";
+import { ThemeProvider, useTheme } from "@/context/theme-context";
 import { ToastProvider } from "@/components/Toast";
 import { initDB } from "@/libs/sqlite/db";
 import { Stack } from "expo-router";
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+/** Bridges our theme preference into React Navigation's theme. */
+function NavigationThemeBridge({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { isDark } = useTheme();
+  const navTheme = isDark ? DarkTheme : DefaultTheme;
+  return (
+    <NavigationThemeProvider value={navTheme}>{children}</NavigationThemeProvider>
+  );
+}
 
+export default function TabLayout() {
   // initialize sqlite database
   useEffect(() => {
     initDB();
@@ -24,10 +37,10 @@ export default function TabLayout() {
 
   // load fonts
   const [loaded, error] = useFonts({
-    "Manrope-Regular": require("@/assets/font/Manrope/Manrope-Regular.ttf"),
-    "Manrope-Medium": require("@/assets/font/Manrope/Manrope-Medium.ttf"),
-    "Manrope-SemiBold": require("@/assets/font/Manrope/Manrope-SemiBold.ttf"),
-    "Manrope-Bold": require("@/assets/font/Manrope/Manrope-Bold.ttf"),
+    "Geist-Regular": require("@/assets/font/Geist/Geist-Regular.ttf"),
+    "Geist-Medium": require("@/assets/font/Geist/Geist-Medium.ttf"),
+    "Geist-SemiBold": require("@/assets/font/Geist/Geist-SemiBold.ttf"),
+    "Geist-Bold": require("@/assets/font/Geist/Geist-Bold.ttf"),
 
     // serif
     "Serif-Regular": require("@/assets/font/Serif/NotoSerif-Regular.ttf"),
@@ -45,12 +58,18 @@ export default function TabLayout() {
   }
 
   return (
-    <AppProvider>
-      <ToastProvider>
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-          <Stack screenOptions={{ headerShown: false }} />
-        </ThemeProvider>
-      </ToastProvider>
-    </AppProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <AppProvider>
+          <ToastProvider>
+            <NavigationThemeBridge>
+              <BottomSheetModalProvider>
+                <Stack screenOptions={{ headerShown: false }} />
+              </BottomSheetModalProvider>
+            </NavigationThemeBridge>
+          </ToastProvider>
+        </AppProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

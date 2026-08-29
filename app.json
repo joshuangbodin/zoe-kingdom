@@ -46,10 +46,10 @@
         "expo-font",
         {
           "fonts": [
-            "./assets/font/Manrope/Manrope-Regular.ttf",
-            "./assets/font/Manrope/Manrope-Medium.ttf",
-            "./assets/font/Manrope/Manrope-SemiBold.ttf",
-            "./assets/font/Manrope/Manrope-Bold.ttf",
+            "./assets/font/Geist/Geist-Regular.ttf",
+            "./assets/font/Geist/Geist-Medium.ttf",
+            "./assets/font/Geist/Geist-SemiBold.ttf",
+            "./assets/font/Geist/Geist-Bold.ttf",
             "./assets/font/Serif/NotoSerif-Regular.ttf",
             "./assets/font/Serif/NotoSerif-Italic.ttf"
           ]

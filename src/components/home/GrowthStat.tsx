@@ -52,13 +52,13 @@ export default function GrowthStat({
       <View className="bg-card-1 rounded-3xl p-6 overflow-hidden">
         <View className="flex-row items-center justify-between">
           <View className="flex-1 pr-4">
-            <Text className="text-[10px] font-sora-medium uppercase tracking-[0.2em] text-zinc-500">
+            <Text className="text-[10px] font-sora-medium uppercase tracking-[0.2em] text-tertiary">
               Altar Fire
             </Text>
-            <Text className="text-white text-xl font-sora-bold mt-2">
+            <Text className="text-primary text-xl font-sora-bold mt-2">
               {fire.title}
             </Text>
-            <Text className="text-zinc-500 text-xs font-sora mt-1.5">
+            <Text className="text-tertiary text-xs font-sora mt-1.5">
               Level {levelNumber}
             </Text>
           </View>
@@ -71,7 +71,7 @@ export default function GrowthStat({
               loop
               style={{ width: 84, height: 84 }}
             />
-            <Pressable className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-white/10 items-center justify-center">
+            <Pressable className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-overlay items-center justify-center">
               <Share2 size={13} color="#ffffff80" />
             </Pressable>
           </View>
@@ -80,14 +80,14 @@ export default function GrowthStat({
         {/* XP progress */}
         <View className="mt-6">
           <View className="flex-row items-center justify-between mb-2">
-            <Text className="text-[10px] font-sora-medium uppercase tracking-[0.2em] text-zinc-500">
+            <Text className="text-[10px] font-sora-medium uppercase tracking-[0.2em] text-tertiary">
               Next level
             </Text>
-            <Text className="text-zinc-400 text-xs font-sora-medium">
+            <Text className="text-secondary text-xs font-sora-medium">
               {xp} / {nextLevelXP} XP
             </Text>
           </View>
-          <View className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <View className="h-1.5 bg-overlay rounded-full overflow-hidden">
             <View
               className="h-full rounded-full bg-amber-400"
               style={{ width: `${Math.min(progress, 100)}%` }}
@@ -98,12 +98,12 @@ export default function GrowthStat({
 
       {/* STREAK */}
       <View className="bg-card-1 rounded-3xl px-6 py-5 flex-row items-center justify-between">
-        <Text className="text-[10px] font-sora-medium uppercase tracking-[0.2em] text-zinc-500">
+        <Text className="text-[10px] font-sora-medium uppercase tracking-[0.2em] text-tertiary">
           Current streak
         </Text>
-        <Text className="text-white text-2xl font-sora-bold">
+        <Text className="text-primary text-2xl font-sora-bold">
           {streak}
-          <Text className="text-xs text-zinc-500 font-sora-medium"> days</Text>
+          <Text className="text-xs text-tertiary font-sora-medium"> days</Text>
         </Text>
       </View>
     </View>

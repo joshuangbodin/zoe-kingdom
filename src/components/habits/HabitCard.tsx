@@ -1,5 +1,6 @@
 import { getCategoryIcon } from "@/constants/habit-data";
 import { useApp } from "@/context/app-context";
+import { useTheme } from "@/context/theme-context";
 import { getHabitStatus } from "@/libs/sqlite/habits";
 import { router } from "expo-router";
 import { CheckCheck, ChevronRight, Moon, Sun } from "lucide-react-native";
@@ -9,6 +10,8 @@ import { PressableScale } from "react-native-pressable-scale";
 
 const HabitCard = ({ item }: { item: any }) => {
   const { habits } = useApp();
+  const { isDark } = useTheme();
+  const inactiveIcon = isDark ? "#555" : "#a1a1aa";
 
   const [habitStatus, setHabitStatus] = useState<any>(null);
 
@@ -46,10 +49,10 @@ const HabitCard = ({ item }: { item: any }) => {
 
           {/* INFO */}
           <View className="flex-1 ml-3">
-            <Text className="text-white text-sm font-sora-semibold">
+            <Text className="text-primary text-sm font-sora-semibold">
               {item.title}
             </Text>
-            <Text className="text-zinc-500 mt-0.5 text-[10px] font-sora">
+            <Text className="text-tertiary mt-0.5 text-[10px] font-sora">
               {item.frequency?.replace("_", " ")} · {item.xpReward}xp
             </Text>
           </View>
@@ -60,8 +63,8 @@ const HabitCard = ({ item }: { item: any }) => {
               <CheckCheck color="#4ade80" size={14} />
             </View>
           ) : (
-            <View className="w-8 h-8 rounded-xl bg-white/5 items-center justify-center">
-              <ChevronRight color="#666" size={14} />
+            <View className="w-8 h-8 rounded-xl bg-overlay items-center justify-center">
+              <ChevronRight color={inactiveIcon} size={14} />
             </View>
           )}
         </View>
@@ -78,7 +81,7 @@ const HabitCard = ({ item }: { item: any }) => {
 
               <Text
                 numberOfLines={1}
-                className={`text-[10px] font-sora-medium ${completed ? "text-green-400/80" : "text-zinc-400"}`}
+                className={`text-[10px] font-sora-medium ${completed ? "text-green-400/80" : "text-secondary"}`}
               >
                 {habitStatus?.message || "Pending"}
               </Text>
@@ -91,12 +94,12 @@ const HabitCard = ({ item }: { item: any }) => {
               <View className="items-center">
                 <View
                   className={`w-6 h-6 rounded-full items-center justify-center ${
-                    habitStatus.progress.morning ? "bg-yellow-500/15" : "bg-white/5"
+                    habitStatus.progress.morning ? "bg-yellow-500/15" : "bg-overlay"
                   }`}
                 >
                   <Sun
                     size={10}
-                    color={habitStatus.progress.morning ? "#facc15" : "#555"}
+                    color={habitStatus.progress.morning ? "#facc15" : inactiveIcon}
                   />
                 </View>
               </View>
@@ -104,12 +107,12 @@ const HabitCard = ({ item }: { item: any }) => {
               <View className="items-center">
                 <View
                   className={`w-6 h-6 rounded-full items-center justify-center ${
-                    habitStatus.progress.evening ? "bg-blue-500/15" : "bg-white/5"
+                    habitStatus.progress.evening ? "bg-blue-500/15" : "bg-overlay"
                   }`}
                 >
                   <Moon
                     size={10}
-                    color={habitStatus.progress.evening ? "#60a5fa" : "#555"}
+                    color={habitStatus.progress.evening ? "#60a5fa" : inactiveIcon}
                   />
                 </View>
               </View>

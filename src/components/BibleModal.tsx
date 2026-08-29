@@ -94,7 +94,7 @@ const VerseRow = memo(
               ? "text-amber-300"
               : isRed
                 ? "text-red-400"
-                : "text-white"
+                : "text-primary"
           }`}
         >
           {item.text}
@@ -103,7 +103,7 @@ const VerseRow = memo(
         {selectionMode && (
           <View
             className={`ml-2 w-5 h-5 rounded-full border-2 items-center justify-center mt-1 ${
-              selected ? "border-amber-400 bg-amber-400/20" : "border-zinc-600"
+              selected ? "border-amber-400 bg-amber-400/20" : "border-line"
             }`}
           >
             {selected && <View className="w-2.5 h-2.5 rounded-full bg-amber-400" />}
@@ -466,7 +466,7 @@ export default function BibleModal({
             }}
             className="px-5 py-5 flex-row justify-between"
           >
-            <Text className="text-white font-sora-semibold">
+            <Text className="text-primary font-sora-semibold">
               {item.book}
             </Text>
 
@@ -498,7 +498,7 @@ export default function BibleModal({
                   }}
                   className="w-10 h-10 bg-bg m-2 rounded-xl items-center justify-center"
                 >
-                  <Text className="text-white">{ch}</Text>
+                  <Text className="text-primary">{ch}</Text>
                 </Pressable>
               )}
               removeClippedSubviews
@@ -533,10 +533,10 @@ export default function BibleModal({
               onPress={() => setOpen(true)}
               className="bg-card-1 px-3 py-2 rounded-xl"
             >
-              <Text className="text-white text-sm font-sora-semibold">
+              <Text className="text-primary text-sm font-sora-semibold">
                 {books.find((b) => b.bookIndex === selectedBookIndex)?.book ??
                   "Bible"}{" "}
-                <Text className="text-zinc-400">{selectedChapter}</Text>
+                <Text className="text-secondary">{selectedChapter}</Text>
               </Text>
             </Pressable>
 
@@ -551,7 +551,7 @@ export default function BibleModal({
           {loading ? (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator color="white" />
-              <Text className="text-white mt-4">Loading Bible...</Text>
+              <Text className="text-primary mt-4">Loading Bible...</Text>
             </View>
           ) : (
             <>
@@ -578,7 +578,7 @@ export default function BibleModal({
                 }}
                 ListEmptyComponent={
                   <View className="items-center mt-16">
-                    <Text className="text-zinc-400 text-sm font-sora">
+                    <Text className="text-secondary text-sm font-sora">
                       Select a book and chapter to begin reading
                     </Text>
                   </View>
@@ -597,7 +597,7 @@ export default function BibleModal({
                         }}
                         className="flex-1 bg-card-1 rounded-xl py-3.5 items-center"
                       >
-                        <Text className="text-white/70 text-sm font-sora-semibold">
+                        <Text className="text-primary/70 text-sm font-sora-semibold">
                           Cancel
                         </Text>
                       </Pressable>
@@ -616,7 +616,7 @@ export default function BibleModal({
                           className={`text-sm font-sora-semibold ${
                             Object.keys(selectedVerses).length > 0
                               ? "text-black"
-                              : "text-zinc-500"
+                              : "text-tertiary"
                           }`}
                         >
                           Add ({Object.keys(selectedVerses).length})
@@ -631,7 +631,7 @@ export default function BibleModal({
                         className="flex-1 bg-card-1 rounded-xl py-3.5 items-center flex-row justify-center"
                       >
                         <ChevronLeft color="white" size={16} />
-                        <Text className="text-white text-sm font-sora-semibold ml-1">
+                        <Text className="text-primary text-sm font-sora-semibold ml-1">
                           Prev
                         </Text>
                       </Pressable>
@@ -639,7 +639,7 @@ export default function BibleModal({
                         onPress={goNext}
                         className="flex-1 bg-card-1 rounded-xl py-3.5 items-center flex-row justify-center"
                       >
-                        <Text className="text-white text-sm font-sora-semibold mr-1">
+                        <Text className="text-primary text-sm font-sora-semibold mr-1">
                           Next
                         </Text>
                         <ChevronRight color="white" size={16} />
@@ -654,9 +654,9 @@ export default function BibleModal({
           {/* BOOK SELECTION MODAL */}
           <Modal visible={open} transparent animationType="slide">
             <View className="flex-1 justify-end bg-black/60">
-              <View className="bg-[#111] rounded-t-[32px] h-[80%]">
-                <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-white/5">
-                  <Text className="text-white text-sm font-sora-semibold">
+              <View className="bg-card-2 rounded-t-[32px] h-[80%]">
+                <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-line">
+                  <Text className="text-primary text-sm font-sora-semibold">
                     Books of the Bible
                   </Text>
                   <Pressable
@@ -668,7 +668,7 @@ export default function BibleModal({
                 </View>
 
                 {/* SEARCH */}
-                <View className="px-5 py-3 border-b border-white/5">
+                <View className="px-5 py-3 border-b border-line">
                   <View className="flex-row items-center bg-card-1 px-3 py-2.5 rounded-xl">
                     <Search color="#555" size={15} />
                     <TextInput
@@ -676,7 +676,7 @@ export default function BibleModal({
                       onChangeText={setSearch}
                       placeholder="Search book..."
                       placeholderTextColor="#555"
-                      className="flex-1 text-white/80 text-xs ml-2.5 font-sora"
+                      className="flex-1 text-primary/80 text-xs ml-2.5 font-sora"
                     />
                   </View>
                 </View>

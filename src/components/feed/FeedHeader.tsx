@@ -16,7 +16,7 @@ export default function FeedHeader({ username }: FeedHeaderProps) {
           <View className="w-4 h-4 rounded-full bg-green-500 absolute bottom-0 right-0 border-[2px] border-bg" />
         </View>
 
-        <Text className="text-white text-lg font-sora-bold">
+        <Text className="text-primary text-lg font-sora-bold">
           The Zoe Network
         </Text>
 

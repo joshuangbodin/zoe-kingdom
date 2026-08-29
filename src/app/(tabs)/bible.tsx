@@ -51,7 +51,7 @@ const VerseRow = memo(
 
         <Text
           className={`flex-1 text-base leading-8 font-serif ${
-            selected ? "text-amber-300" : isRed ? "text-red-400" : "text-white"
+            selected ? "text-amber-300" : isRed ? "text-red-400" : "text-primary"
           }`}
         >
           {item.text}
@@ -377,7 +377,7 @@ export default function Bible() {
             }}
             className="px-5 py-5 flex-row justify-between"
           >
-            <Text className="text-white font-sora-semibold">{item.book}</Text>
+            <Text className="text-primary font-sora-semibold">{item.book}</Text>
 
             <Pressable
               onPress={() =>
@@ -407,7 +407,7 @@ export default function Bible() {
                   }}
                   className="w-10 h-10 bg-bg m-2 rounded-xl items-center justify-center"
                 >
-                  <Text className="text-white">{ch}</Text>
+                  <Text className="text-primary">{ch}</Text>
                 </Pressable>
               )}
               removeClippedSubviews
@@ -427,7 +427,7 @@ export default function Bible() {
     return (
       <View className="flex-1 bg-bg items-center justify-center">
         <ActivityIndicator color="white" />
-        <Text className="text-white mt-4">Loading Bible...</Text>
+        <Text className="text-primary mt-4">Loading Bible...</Text>
       </View>
     );
   }
@@ -449,10 +449,10 @@ export default function Bible() {
           onPress={() => setOpen(true)}
           className="bg-card-1 px-3 py-2 rounded-xl"
         >
-          <Text className="text-white text-sm font-sora-semibold">
+          <Text className="text-primary text-sm font-sora-semibold">
             {books.find((b) => b.bookIndex === selectedBookIndex)?.book ??
               "Bible"}{" "}
-            <Text className="text-zinc-400">{selectedChapter}</Text>
+            <Text className="text-secondary">{selectedChapter}</Text>
           </Text>
         </Pressable>
 
@@ -496,7 +496,7 @@ export default function Bible() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
         ListEmptyComponent={
           <View className="items-center mt-16">
-            <Text className="text-zinc-400 text-sm font-sora">
+            <Text className="text-secondary text-sm font-sora">
               Select a book and chapter to begin reading
             </Text>
           </View>
@@ -506,9 +506,9 @@ export default function Bible() {
       {/* MODAL */}
       <Modal visible={open} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/60">
-          <View className="bg-[#111] rounded-t-[32px] h-[80%]">
-            <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-white/5">
-              <Text className="text-white text-sm font-sora-semibold">
+          <View className="bg-card-2 rounded-t-[32px] h-[80%]">
+            <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-line">
+              <Text className="text-primary text-sm font-sora-semibold">
                 Books of the Bible
               </Text>
               <Pressable onPress={() => setOpen(false)} className="p-1.5">
@@ -516,7 +516,7 @@ export default function Bible() {
               </Pressable>
             </View>
             {/* SEARCH */}
-            <View className="px-5 py-3 border-b border-white/5">
+            <View className="px-5 py-3 border-b border-line">
               <View className="flex-row items-center bg-card-1 px-3 py-2.5 rounded-xl">
                 <Search color="#555" size={15} />
                 <TextInput
@@ -524,7 +524,7 @@ export default function Bible() {
                   onChangeText={setSearch}
                   placeholder="Search book..."
                   placeholderTextColor="#555"
-                  className="flex-1 text-white/80 text-xs ml-2.5 font-sora"
+                  className="flex-1 text-primary/80 text-xs ml-2.5 font-sora"
                 />
               </View>
             </View>

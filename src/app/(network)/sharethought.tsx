@@ -110,14 +110,14 @@ export default function ShareThought() {
     >
       <View style={{ paddingTop: top + 10 }} className="flex-1">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-5 pb-4 border-b border-white/5">
+        <View className="flex-row items-center justify-between px-5 pb-4 border-b border-line">
           <Pressable
             onPress={() => router.back()}
             className="w-9 h-9 rounded-xl bg-card-2 items-center justify-center"
           >
             <ChevronLeft color="white" size={17} />
           </Pressable>
-          <Text className="text-white text-base font-sora-semibold">
+          <Text className="text-primary text-base font-sora-semibold">
             New Post
           </Text>
           <Pressable
@@ -132,7 +132,7 @@ export default function ShareThought() {
             ) : (
               <Text
                 className={`text-sm font-sora-semibold ${
-                  canPost ? "text-black" : "text-zinc-500"
+                  canPost ? "text-black" : "text-tertiary"
                 }`}
               >
                 Share
@@ -149,10 +149,10 @@ export default function ShareThought() {
           <View className="flex-row items-center px-5 pt-5 pb-4">
             <Avatar index={user?.avatar} diameter={36} />
             <View className="ml-3">
-              <Text className="text-white text-sm font-sora-semibold">
+              <Text className="text-primary text-sm font-sora-semibold">
                 {user?.username || "You"}
               </Text>
-              <Text className="text-zinc-500 text-[10px] font-sora">
+              <Text className="text-tertiary text-[10px] font-sora">
                 {user?.spiritStage || "Kindled Flame"}
               </Text>
             </View>
@@ -170,7 +170,7 @@ export default function ShareThought() {
               }
               placeholderTextColor="#555"
               multiline
-              className="text-white/90 font-sora text-[15px] leading-7 min-h-[120px]"
+              className="text-primary/90 font-sora text-[15px] leading-7 min-h-[120px]"
               textAlignVertical="top"
             />
           </View>
@@ -189,22 +189,22 @@ export default function ShareThought() {
                       Scripture
                     </Text>
                   </View>
-                  <Text className="text-white text-lg font-serif mb-2">
+                  <Text className="text-primary text-lg font-serif mb-2">
                     {selectedVerse.reference}
                   </Text>
-                  <Text className="text-zinc-300 text-[14px] leading-7 font-serif">
+                  <Text className="text-primary/80 text-[14px] leading-7 font-serif">
                     "{selectedVerse.text}"
                   </Text>
                 </View>
 
                 {/* Actions bar */}
-                <View className="flex-row border-t border-white/5">
+                <View className="flex-row border-t border-line">
                   <Pressable
                     onPress={() => setShowBibleModal(true)}
-                    className="flex-1 flex-row items-center justify-center py-3 border-r border-white/5"
+                    className="flex-1 flex-row items-center justify-center py-3 border-r border-line"
                   >
                     <BookOpen size={13} color="#888" />
-                    <Text className="text-zinc-500 text-[10px] font-sora-medium ml-1.5">
+                    <Text className="text-tertiary text-[10px] font-sora-medium ml-1.5">
                       Read
                     </Text>
                   </Pressable>
@@ -228,10 +228,10 @@ export default function ShareThought() {
                   <BookOpen size={16} color="#fbbf24" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-white text-sm font-sora-semibold">
+                  <Text className="text-primary text-sm font-sora-semibold">
                     Add a Bible verse
                   </Text>
-                  <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+                  <Text className="text-tertiary text-[10px] font-sora mt-0.5">
                     Include scripture in your post
                   </Text>
                 </View>
@@ -242,19 +242,19 @@ export default function ShareThought() {
           {/* Post extras */}
           <View className="px-5 mt-6">
             <View className="bg-card-1 rounded-[20px] px-5 py-4 flex-row items-center">
-              <View className="w-8 h-8 rounded-full bg-white/5 items-center justify-center mr-3">
+              <View className="w-8 h-8 rounded-full bg-overlay items-center justify-center mr-3">
                 <Hash size={14} color="#666" />
               </View>
-              <Text className="text-zinc-500 text-sm font-sora-medium flex-1">
+              <Text className="text-tertiary text-sm font-sora-medium flex-1">
                 Add topics (coming soon)
               </Text>
             </View>
 
             <View className="bg-card-1 rounded-[20px] px-5 py-4 flex-row items-center mt-2 opacity-50">
-              <View className="w-8 h-8 rounded-full bg-white/5 items-center justify-center mr-3">
+              <View className="w-8 h-8 rounded-full bg-overlay items-center justify-center mr-3">
                 <Image size={14} color="#666" />
               </View>
-              <Text className="text-zinc-500 text-sm font-sora-medium flex-1">
+              <Text className="text-tertiary text-sm font-sora-medium flex-1">
                 Add image (coming soon)
               </Text>
             </View>

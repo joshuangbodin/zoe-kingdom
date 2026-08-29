@@ -25,6 +25,7 @@ import {
 
 import { getCategoryIcon } from "@/constants/habit-data";
 import { useApp } from "@/context/app-context";
+import { useTheme } from "@/context/theme-context";
 import { useToast } from "@/components/Toast";
 import {
   completeHabit,
@@ -48,6 +49,8 @@ export default function CompleteHabit() {
 
   const [habit, setHabit] = useState<any>(null);
   const { setHabits, syncHabitLogs } = useApp();
+  const { isDark } = useTheme();
+  const inactiveIcon = isDark ? "#555" : "#a1a1aa";
 
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [running, setRunning] = useState(false);
@@ -142,7 +145,7 @@ export default function CompleteHabit() {
   if (!habit) {
     return (
       <View className="flex-1 items-center justify-center bg-bg">
-        <Text className="text-zinc-400 text-sm font-sora">Loading...</Text>
+        <Text className="text-secondary text-sm font-sora">Loading...</Text>
       </View>
     );
   }
@@ -179,10 +182,10 @@ export default function CompleteHabit() {
               </View>
 
               <View className="ml-3 flex-1">
-                <Text className="text-white text-base font-sora-semibold">
+                <Text className="text-primary text-base font-sora-semibold">
                   {habit.title}
                 </Text>
-                <Text className="text-zinc-500 text-[10px] font-sora mt-0.5 capitalize">
+                <Text className="text-tertiary text-[10px] font-sora mt-0.5 capitalize">
                   {habit.category} · {habit.duration} mins · {habit.xpReward}xp
                 </Text>
               </View>
@@ -212,7 +215,7 @@ export default function CompleteHabit() {
             {/* STATUS MESSAGE */}
             {!!completed?.message && (
               <View className="mt-4">
-                <Text className="text-zinc-400 text-xs font-sora leading-5">
+                <Text className="text-secondary text-xs font-sora leading-5">
                   {completed.message}
                 </Text>
               </View>
@@ -229,16 +232,16 @@ export default function CompleteHabit() {
                   <View className="flex-row items-center justify-between">
                     <Sun
                       size={14}
-                      color={completed.progress.morning ? "#facc15" : "#555"}
+                      color={completed.progress.morning ? "#facc15" : inactiveIcon}
                     />
                     {completed.progress.morning && (
                       <Check size={12} color="#facc15" />
                     )}
                   </View>
-                  <Text className="text-white text-sm font-sora-semibold mt-2">
+                  <Text className="text-primary text-sm font-sora-semibold mt-2">
                     Morning
                   </Text>
-                  <Text className="text-zinc-500 text-[10px] mt-0.5">
+                  <Text className="text-tertiary text-[10px] mt-0.5">
                     {completed.progress.morning ? "Done" : "Remaining"}
                   </Text>
                 </View>
@@ -251,16 +254,16 @@ export default function CompleteHabit() {
                   <View className="flex-row items-center justify-between">
                     <Moon
                       size={14}
-                      color={completed.progress.evening ? "#60a5fa" : "#555"}
+                      color={completed.progress.evening ? "#60a5fa" : inactiveIcon}
                     />
                     {completed.progress.evening && (
                       <Check size={12} color="#60a5fa" />
                     )}
                   </View>
-                  <Text className="text-white text-sm font-sora-semibold mt-2">
+                  <Text className="text-primary text-sm font-sora-semibold mt-2">
                     Evening
                   </Text>
-                  <Text className="text-zinc-500 text-[10px] mt-0.5">
+                  <Text className="text-tertiary text-[10px] mt-0.5">
                     {completed.progress.evening ? "Done" : "Remaining"}
                   </Text>
                 </View>
@@ -276,7 +279,7 @@ export default function CompleteHabit() {
                 >
                   {formatTime(secondsLeft)}
                 </Text>
-                <Text className="text-zinc-500 text-[10px] mt-1 font-sora-medium">
+                <Text className="text-tertiary text-[10px] mt-1 font-sora-medium">
                   Focus Session
                 </Text>
               </View>
@@ -299,7 +302,7 @@ export default function CompleteHabit() {
                   >
                     <View className="flex-row items-center">
                       <Play fill="white" color="white" size={16} />
-                      <Text className="text-white ml-2 text-sm font-sora-semibold">
+                      <Text className="text-primary ml-2 text-sm font-sora-semibold">
                         {secondsLeft === habit.duration * 60
                           ? "Begin"
                           : "Resume"}
@@ -313,7 +316,7 @@ export default function CompleteHabit() {
                   >
                     <View className="flex-row items-center">
                       <Square color="white" size={14} />
-                      <Text className="text-white ml-2 text-sm font-sora-semibold">
+                      <Text className="text-primary ml-2 text-sm font-sora-semibold">
                         Pause
                       </Text>
                     </View>
@@ -337,10 +340,10 @@ export default function CompleteHabit() {
           {/* PRAYER */}
           {category === "prayer" && (
             <View className="mt-4 bg-card-1 rounded-2xl p-5">
-              <Text className="text-white text-sm font-sora-semibold">
+              <Text className="text-primary text-sm font-sora-semibold">
                 Prayer Points
               </Text>
-              <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+              <Text className="text-tertiary text-[10px] font-sora mt-1">
                 Write what you want to pray about.
               </Text>
               <View className="mt-4 gap-3">
@@ -355,7 +358,7 @@ export default function CompleteHabit() {
                     }}
                     placeholder={`Point ${index + 1}`}
                     placeholderTextColor="#555"
-                    className="bg-card-2 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora"
+                    className="bg-card-2 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora"
                   />
                 ))}
               </View>
@@ -363,7 +366,7 @@ export default function CompleteHabit() {
                 onPress={() => setPrayerPoints((prev) => [...prev, ""])}
                 className="bg-card-2 mt-3 rounded-xl py-3.5 items-center"
               >
-                <Text className="text-white/70 text-sm font-sora-semibold">
+                <Text className="text-primary/70 text-sm font-sora-semibold">
                   + Add Point
                 </Text>
               </Pressable>
@@ -373,10 +376,10 @@ export default function CompleteHabit() {
           {/* BIBLE */}
           {category === "bible" && (
             <View className="mt-4 bg-card-1 rounded-2xl p-5">
-              <Text className="text-white text-sm font-sora-semibold">
+              <Text className="text-primary text-sm font-sora-semibold">
                 Bible Study Notes
               </Text>
-              <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+              <Text className="text-tertiary text-[10px] font-sora mt-1">
                 Record what you studied.
               </Text>
               <TextInput
@@ -384,7 +387,7 @@ export default function CompleteHabit() {
                 onChangeText={setChapter}
                 placeholder="John 3"
                 placeholderTextColor="#555"
-                className="bg-card-2 mt-4 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora"
+                className="bg-card-2 mt-4 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora"
               />
               <TextInput
                 value={reflection}
@@ -392,7 +395,7 @@ export default function CompleteHabit() {
                 multiline
                 placeholder="Write your reflections..."
                 placeholderTextColor="#555"
-                className="bg-card-2 mt-3 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora min-h-[80px]"
+                className="bg-card-2 mt-3 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-[80px]"
                 textAlignVertical="top"
               />
             </View>
@@ -401,10 +404,10 @@ export default function CompleteHabit() {
           {/* EVANGELISM */}
           {category === "evangelism" && (
             <View className="mt-4 bg-card-1 rounded-2xl p-5">
-              <Text className="text-white text-sm font-sora-semibold">
+              <Text className="text-primary text-sm font-sora-semibold">
                 Souls Reached
               </Text>
-              <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+              <Text className="text-tertiary text-[10px] font-sora mt-1">
                 Track people you spoke to today.
               </Text>
               <View className="items-center mt-6">
@@ -414,7 +417,7 @@ export default function CompleteHabit() {
                 >
                   {soulsReached}
                 </Text>
-                <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+                <Text className="text-tertiary text-[10px] font-sora mt-1">
                   people reached
                 </Text>
               </View>
@@ -423,14 +426,14 @@ export default function CompleteHabit() {
                   onPress={() => setSoulsReached((prev) => Math.max(0, prev - 1))}
                   className="flex-1 bg-card-2 rounded-xl py-4 items-center"
                 >
-                  <Text className="text-white text-xl">−</Text>
+                  <Text className="text-primary text-xl">−</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => setSoulsReached((prev) => prev + 1)}
                   className="flex-1 rounded-xl py-4 items-center"
                   style={{ backgroundColor: color }}
                 >
-                  <Text className="text-white text-xl">+</Text>
+                  <Text className="text-primary text-xl">+</Text>
                 </Pressable>
               </View>
             </View>
@@ -439,10 +442,10 @@ export default function CompleteHabit() {
           {/* DEFAULT */}
           {!["prayer", "bible", "evangelism"].includes(category) && (
             <View className="mt-4 bg-card-1 rounded-2xl p-5">
-              <Text className="text-white text-sm font-sora-semibold">
+              <Text className="text-primary text-sm font-sora-semibold">
                 Completion
               </Text>
-              <Text className="text-zinc-500 text-[10px] font-sora mt-1">
+              <Text className="text-tertiary text-[10px] font-sora mt-1">
                 Mark as complete after the timer finishes.
               </Text>
               <Pressable
@@ -450,10 +453,10 @@ export default function CompleteHabit() {
                 className="bg-card-2 mt-4 rounded-xl p-4 flex-row items-center justify-between"
               >
                 <View>
-                  <Text className="text-white text-sm font-sora-semibold">
+                  <Text className="text-primary text-sm font-sora-semibold">
                     I completed this habit
                   </Text>
-                  <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+                  <Text className="text-tertiary text-[10px] font-sora mt-0.5">
                     Mark your progress
                   </Text>
                 </View>
@@ -477,7 +480,7 @@ export default function CompleteHabit() {
           >
             <Text
               className={`text-sm font-sora-semibold ${
-                sessionFinished ? "text-black" : "text-zinc-500"
+                sessionFinished ? "text-black" : "text-tertiary"
               }`}
             >
               {running

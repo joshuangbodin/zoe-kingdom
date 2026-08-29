@@ -195,16 +195,16 @@ export default function PostDetail() {
       <Avatar index={item.avatar} diameter={28} />
       <View className="ml-3 flex-1">
         <View className="flex-row items-center mb-1">
-          <Text className="text-white text-xs font-sora-semibold">
+          <Text className="text-primary text-xs font-sora-semibold">
             {item.username}
           </Text>
-          <Text className="text-zinc-600 text-[10px] font-sora ml-2">
+          <Text className="text-quaternary text-[10px] font-sora ml-2">
             {item.createdAt?.toDate
               ? new Date(item.createdAt.toDate()).toLocaleDateString()
               : ""}
           </Text>
         </View>
-        <Text className="text-zinc-300 text-sm font-sora leading-5">
+        <Text className="text-primary/80 text-sm font-sora leading-5">
           {item.text}
         </Text>
       </View>
@@ -218,14 +218,14 @@ export default function PostDetail() {
     >
       <View style={{ paddingTop: top + 10 }} className="flex-1">
         {/* Header */}
-        <View className="flex-row items-center px-5 pb-3 border-b border-white/5">
+        <View className="flex-row items-center px-5 pb-3 border-b border-line">
           <Pressable
             onPress={() => router.back()}
             className="w-9 h-9 rounded-xl bg-card-2 items-center justify-center mr-3"
           >
             <ChevronLeft color="white" size={17} />
           </Pressable>
-          <Text className="text-white text-base font-sora-semibold">Post</Text>
+          <Text className="text-primary text-base font-sora-semibold">Post</Text>
         </View>
 
         <FlatList
@@ -241,10 +241,10 @@ export default function PostDetail() {
                 <View className="flex-row items-center mb-3">
                   <Avatar index={author?.avatar} diameter={32} />
                   <View className="ml-2.5 flex-1">
-                    <Text className="text-white text-sm font-sora-semibold">
+                    <Text className="text-primary text-sm font-sora-semibold">
                       {author?.username || "Loading..."}
                     </Text>
-                    <Text className="text-zinc-500 text-[10px] font-sora">
+                    <Text className="text-tertiary text-[10px] font-sora">
                       @{author?.username?.toLowerCase() || "..."}
                     </Text>
                   </View>
@@ -257,7 +257,7 @@ export default function PostDetail() {
 
                 {/* Thought */}
                 {thought && (
-                  <Text className="text-white/85 text-sm leading-6 font-sora mb-3">
+                  <Text className="text-primary/85 text-sm leading-6 font-sora mb-3">
                     {thought}
                   </Text>
                 )}
@@ -275,10 +275,10 @@ export default function PostDetail() {
                           Scripture
                         </Text>
                       </View>
-                      <Text className="text-white text-sm font-serif mb-1.5">
+                      <Text className="text-primary text-sm font-serif mb-1.5">
                         {verseReference}
                       </Text>
-                      <Text className="text-zinc-400 text-[12px] leading-6 font-serif">
+                      <Text className="text-secondary text-[12px] leading-6 font-serif">
                         {verseText}
                       </Text>
                     </View>
@@ -286,7 +286,7 @@ export default function PostDetail() {
                 )}
 
                 {/* Like */}
-                <View className="flex-row items-center border-t border-white/5 pt-3">
+                <View className="flex-row items-center border-t border-line pt-3">
                   <Pressable
                     onPress={handleLike}
                     className="flex-row items-center"
@@ -297,7 +297,7 @@ export default function PostDetail() {
                       fill={isLiked ? "#ef4444" : "transparent"}
                     />
                     {parseInt(likesCount || "0") > 0 && (
-                      <Text className="text-zinc-500 text-xs ml-1.5 font-sora">
+                      <Text className="text-tertiary text-xs ml-1.5 font-sora">
                         {likesCount}
                       </Text>
                     )}
@@ -306,14 +306,14 @@ export default function PostDetail() {
               </View>
 
               {/* Comments Header */}
-              <Text className="text-white text-sm font-sora-semibold mb-4">
+              <Text className="text-primary text-sm font-sora-semibold mb-4">
                 Comments ({comments.length})
               </Text>
             </>
           }
           ListEmptyComponent={
             <View className="items-center pt-8">
-              <Text className="text-zinc-500 text-xs font-sora">
+              <Text className="text-tertiary text-xs font-sora">
                 No comments yet. Be the first to share your thoughts.
               </Text>
             </View>
@@ -321,14 +321,14 @@ export default function PostDetail() {
         />
 
         {/* Comment Input */}
-        <View className="px-5 pb-8 pt-3 border-t border-white/5 bg-bg">
+        <View className="px-5 pb-8 pt-3 border-t border-line bg-bg">
           <View className="flex-row items-center bg-card-1 rounded-xl px-4 py-2.5">
             <TextInput
               value={commentText}
               onChangeText={setCommentText}
               placeholder="Write a comment..."
               placeholderTextColor="#555"
-              className="flex-1 text-white/80 text-xs font-sora"
+              className="flex-1 text-primary/80 text-xs font-sora"
             />
             <Pressable
               onPress={handleComment}
@@ -350,9 +350,9 @@ export default function PostDetail() {
       {/* EDIT POST MODAL */}
       <Modal visible={editVisible} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-[#111] rounded-t-[32px] px-5 pt-6 pb-10">
+          <View className="bg-card-2 rounded-t-[32px] px-5 pt-6 pb-10">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-white text-base font-sora-semibold">Edit Post</Text>
+              <Text className="text-primary text-base font-sora-semibold">Edit Post</Text>
               <Pressable onPress={() => setEditVisible(false)} className="p-1.5">
                 <X size={18} color="#fff" />
               </Pressable>
@@ -363,7 +363,7 @@ export default function PostDetail() {
               multiline
               placeholder="Edit your post..."
               placeholderTextColor="#555"
-              className="bg-card-1 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora min-h-[120px]"
+              className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-[120px]"
             />
             <Pressable onPress={saveEdit} className="bg-white rounded-xl py-3.5 items-center mt-4">
               <Text className="text-black text-sm font-sora-semibold">Save Changes</Text>

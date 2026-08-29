@@ -2,19 +2,64 @@
 @import "uniwind";
 
 @theme {
-  /* Manrope */
-  --font-sora: "Manrope-Regular";
-  --font-sora-medium: "Manrope-Medium";
-  --font-sora-semibold: "Manrope-SemiBold";
-  --font-sora-bold: "Manrope-Bold";
+  /* Geist */
+  --font-sora: "Geist-Regular";
+  --font-sora-medium: "Geist-Medium";
+  --font-sora-semibold: "Geist-SemiBold";
+  --font-sora-bold: "Geist-Bold";
 
   /* Serif */
   --font-serif: "NotoSerif-Regular";
   --font-serif-italic: "NotoSerif-Italic";
 
-  --color-muted:#C7C7C7;
-  --color-bg: #141414;
-  --color-card-1: #1E1D1D;
-  --color-card-2: #2E2C2C
+  /* Dark (default) palette */
+  --color-bg: #0c0c0c;
+  --color-card-1: #121111;
+  --color-card-2: #1c1a1a;
 
+  --color-muted: #c7c7c7; /* secondary text */
+  --color-primary: #ffffff; /* main text */
+  --color-secondary: #9ca3af; /* zinc-400 */
+  --color-tertiary: #71717a; /* zinc-500 */
+  --color-quaternary: #52525b; /* zinc-600 */
+
+  --color-line: rgba(255, 255, 255, 0.08); /* hairline borders */
+  --color-overlay: rgba(255, 255, 255, 0.08); /* subtle fills (bg-white/10) */
 }
+
+/* ------------------------------ Light theme ------------------------------ */
+@layer theme {
+  :root {
+    @variant light {
+      --color-bg: #f5f5f7;
+      --color-card-1: #ffffff;
+      --color-card-2: #ececf0;
+
+      --color-muted: #71717a;
+      --color-primary: #0c0c0c;
+      --color-secondary: #52525b;
+      --color-tertiary: #7d7d85;
+      --color-quaternary: #a1a1aa;
+
+      --color-line: rgba(0, 0, 0, 0.08);
+      --color-overlay: rgba(0, 0, 0, 0.06);
+    }
+
+    @variant dark {
+      --color-bg: #0c0c0c;
+      --color-card-1: #121111;
+      --color-card-2: #1c1a1a;
+
+      --color-muted: #c7c7c7;
+      --color-primary: #ffffff;
+      --color-secondary: #9ca3af;
+      --color-tertiary: #71717a;
+      --color-quaternary: #52525b;
+
+      --color-line: rgba(255, 255, 255, 0.08);
+      --color-overlay: rgba(255, 255, 255, 0.08);
+    }
+  }
+}
+
+

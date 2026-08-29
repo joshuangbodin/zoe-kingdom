@@ -111,12 +111,12 @@ function ToastItem({
         className="flex-row items-center rounded-2xl px-5 py-4 shadow-lg"
         style={{ backgroundColor: color + "E6" }}
       >
-        <View className="w-2 h-2 rounded-full bg-white/60 mr-3" />
-        <Text className="text-white text-xs font-sora-semibold flex-1 leading-5">
+        <View className="w-2 h-2 rounded-full bg-primary/60 mr-3" />
+        <Text className="text-primary text-xs font-sora-semibold flex-1 leading-5">
           {toast.text}
         </Text>
         <Pressable onPress={onDismiss} className="ml-2">
-          <Text className="text-white/60 text-[10px] font-sora">Dismiss</Text>
+          <Text className="text-primary/60 text-[10px] font-sora">Dismiss</Text>
         </Pressable>
       </Pressable>
     </Animated.View>

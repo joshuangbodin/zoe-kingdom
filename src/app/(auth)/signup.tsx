@@ -88,7 +88,7 @@ export default function SignUp() {
           <ChevronLeft color="white" size={18} />
         </Pressable>
 
-        <Text className="text-white text-xs font-sora-medium">{step}/3</Text>
+        <Text className="text-primary text-xs font-sora-medium">{step}/3</Text>
 
         <View className="w-10 h-10" />
       </View>
@@ -99,7 +99,7 @@ export default function SignUp() {
       >
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }}>
           <Text className="text-muted text-lg font-sora-bold">
-            Finish your <Text className="text-white">profile</Text>
+            Finish your <Text className="text-primary">profile</Text>
           </Text>
           <Text className="text-muted text-sm mt-2 leading-5">
             Signed in as {user?.email || "your Google account"}. Tell the
@@ -109,7 +109,7 @@ export default function SignUp() {
           {/* STEP 1 — AVATAR + USERNAME */}
           {step === 1 && (
             <View className="mt-10">
-              <Text className="text-white text-sm font-sora-semibold">Avatar</Text>
+              <Text className="text-primary text-sm font-sora-semibold">Avatar</Text>
               <Text className="text-muted font-sora text-xs mt-1">
                 Choose your identity
               </Text>
@@ -121,7 +121,7 @@ export default function SignUp() {
                 >
                   <Avatar diameter={90} index={avatar} />
                 </Pressable>
-                <Text className="text-white mt-3 text-sm font-sora-semibold">
+                <Text className="text-primary mt-3 text-sm font-sora-semibold">
                   @{username || "zoe"}
                 </Text>
                 <Pressable onPress={() => setAvatarModal(true)} className="mt-2">
@@ -134,7 +134,7 @@ export default function SignUp() {
                   placeholder="Choose a username"
                   placeholderTextColor="#666"
                   autoCapitalize="none"
-                  className="mt-8 bg-card-1 text-white font-sora rounded-2xl px-4 py-4 w-full text-sm"
+                  className="mt-8 bg-card-1 text-primary font-sora rounded-2xl px-4 py-4 w-full text-sm"
                 />
               </View>
             </View>
@@ -143,7 +143,7 @@ export default function SignUp() {
           {/* STEP 2 — SPIRITUAL FOCUS */}
           {step === 2 && (
             <View className="mt-10">
-              <Text className="text-white text-sm font-sora-semibold">Spiritual Focus</Text>
+              <Text className="text-primary text-sm font-sora-semibold">Spiritual Focus</Text>
               <Text className="text-muted text-xs mt-1">Pick what describes your walk</Text>
 
               <View className="mt-6">
@@ -157,7 +157,7 @@ export default function SignUp() {
                         selected ? "bg-white" : "bg-card-1"
                       }`}
                     >
-                      <Text className={`text-xs font-sora-medium ${selected ? "text-black" : "text-white"}`}>
+                      <Text className={`text-xs font-sora-medium ${selected ? "text-black" : "text-primary"}`}>
                         {mode}
                       </Text>
                     </Pressable>
@@ -169,7 +169,7 @@ export default function SignUp() {
           {/* STEP 3 — STATUS NOTE */}
           {step === 3 && (
             <View className="mt-10">
-              <Text className="text-white text-sm font-sora-semibold">Status Note</Text>
+              <Text className="text-primary text-sm font-sora-semibold">Status Note</Text>
               <Text className="text-muted text-xs mt-1">Share a thought or scripture</Text>
 
               <TextInput
@@ -178,20 +178,20 @@ export default function SignUp() {
                 placeholder="e.g. Trusting God's timing today ✨"
                 placeholderTextColor="#666"
                 multiline
-                className="bg-card-1 text-white font-sora rounded-2xl px-4 py-4 mt-4 min-h-32 text-sm"
+                className="bg-card-1 text-primary font-sora rounded-2xl px-4 py-4 mt-4 min-h-32 text-sm"
               />
 
               <View className="bg-card-1 rounded-2xl p-4 mt-5">
                 <View className="flex-row items-center">
                   <Avatar index={avatar} />
                   <View className="ml-3">
-                    <Text className="text-white font-sora text-sm">
+                    <Text className="text-primary font-sora text-sm">
                       {username || "username"}
                     </Text>
                     <Text className="text-muted text-xs">{spiritMode}</Text>
                   </View>
                 </View>
-                <Text className="text-white font-sora text-sm mt-4">
+                <Text className="text-primary font-sora text-sm mt-4">
                   {statusNote || "Your status will appear here..."}
                 </Text>
               </View>
@@ -232,9 +232,9 @@ export default function SignUp() {
       <Modal visible={avatarModal} animationType="slide">
         <View style={{ paddingTop: top + 8 }} className="flex-1 bg-bg px-5">
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-white text-sm font-sora-semibold">Select Avatar</Text>
+            <Text className="text-primary text-sm font-sora-semibold">Select Avatar</Text>
             <Pressable onPress={() => setAvatarModal(false)}>
-              <Text className="text-white font-sora text-xs">Done</Text>
+              <Text className="text-primary font-sora text-xs">Done</Text>
             </Pressable>
           </View>
           <ScrollView>
@@ -246,7 +246,7 @@ export default function SignUp() {
                     key={index}
                     onPress={() => setAvatar(index)}
                     className={`w-[22%] aspect-square mb-4 rounded-xl items-center justify-center bg-card-1 border ${
-                      selected ? "border-white" : "border-transparent"
+                      selected ? "border-primary" : "border-transparent"
                     }`}
                   >
                     <Avatar index={index} diameter={55} />

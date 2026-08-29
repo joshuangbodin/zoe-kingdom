@@ -33,6 +33,7 @@ import {
   getProgressPercentage,
 } from "@/constants/levels";
 import { useApp } from "@/context/app-context";
+import { useTheme, ThemePreference } from "@/context/theme-context";
 import { getDailyStreak } from "@/libs/sqlite/streak";
 import { getTodayCompletedCount } from "@/libs/sqlite/habits";
 import { getSpiritState } from "@/libs/sqlite/spirit";
@@ -54,6 +55,12 @@ const SPIRIT_MODES = [
 export default function Profile() {
   const { top } = useSafeAreaInsets();
   const { user, updateUser, logout, isOnline } = useApp();
+  const { preference, setPreference } = useTheme();
+  const THEME_OPTIONS: { id: ThemePreference; label: string }[] = [
+    { id: "light", label: "Light" },
+    { id: "dark", label: "Dark" },
+    { id: "system", label: "System" },
+  ];
   const [loading, setLoading] = useState(true);
   const [streak, setStreak] = useState(0);
   const [todayCompleted, setTodayCompleted] = useState(0);
@@ -197,10 +204,10 @@ export default function Profile() {
         >
           <View className="items-center">
             <Avatar index={0} diameter={72} />
-            <Text className="text-white text-xl font-sora-bold mt-5">
+            <Text className="text-primary text-xl font-sora-bold mt-5">
               Browsing as a guest
             </Text>
-            <Text className="text-zinc-500 text-sm font-sora text-center mt-2 leading-6">
+            <Text className="text-tertiary text-sm font-sora text-center mt-2 leading-6">
               Sign in to back up your habits, track your streak and join the
               community. Until then, feel free to explore.
             </Text>
@@ -216,7 +223,7 @@ export default function Profile() {
               onPress={() => router.replace("/(tabs)/home")}
               className="mt-3 py-2"
             >
-              <Text className="text-zinc-500 font-sora text-xs underline">
+              <Text className="text-tertiary font-sora text-xs underline">
                 Not now — keep browsing
               </Text>
             </Pressable>
@@ -234,10 +241,10 @@ export default function Profile() {
           <View className="flex-row items-center">
             <Avatar index={user?.avatar} diameter={48} />
             <View className="ml-3">
-              <Text className="text-white text-base font-sora-semibold">
+              <Text className="text-primary text-base font-sora-semibold">
                 {user?.username || "User"}
               </Text>
-              <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+              <Text className="text-tertiary text-[10px] font-sora mt-0.5">
                 {user?.email || "Zoe Kingdom"}
               </Text>
             </View>
@@ -253,20 +260,20 @@ export default function Profile() {
         {/* LEVEL CARD */}
         <View className="bg-card-1 rounded-3xl p-5">
           <View className="flex-row items-center justify-between">
-            <Text className="text-white text-sm font-sora-semibold">
+            <Text className="text-primary text-sm font-sora-semibold">
               {fireStatus.title}
             </Text>
             <Text className="text-amber-400 text-[10px] font-sora-semibold uppercase tracking-wider">
               Lv {level}
             </Text>
           </View>
-          <View className="mt-4 h-2 bg-white/10 rounded-full overflow-hidden">
+          <View className="mt-4 h-2 bg-overlay rounded-full overflow-hidden">
             <View
-              className="h-full rounded-full bg-white/80"
+              className="h-full rounded-full bg-primary/80"
               style={{ width: `${Math.min(progress, 100)}%` }}
             />
           </View>
-          <Text className="text-zinc-500 text-[10px] font-sora mt-2">
+          <Text className="text-tertiary text-[10px] font-sora mt-2">
             {xp} / {nextLevelXP} XP
           </Text>
         </View>
@@ -274,17 +281,17 @@ export default function Profile() {
         {/* DAILY STATS */}
         <View className="flex-row gap-3 mt-4">
           <View className="flex-1 bg-card-1 rounded-2xl p-4">
-            <Text className="text-zinc-500 text-[10px] font-sora-semibold uppercase">Streak</Text>
-            <Text className="text-white text-xl font-sora-bold mt-1">
+            <Text className="text-tertiary text-[10px] font-sora-semibold uppercase">Streak</Text>
+            <Text className="text-primary text-xl font-sora-bold mt-1">
               {streak}
-              <Text className="text-xs text-zinc-500"> days</Text>
+              <Text className="text-xs text-tertiary"> days</Text>
             </Text>
           </View>
           <View className="flex-1 bg-card-1 rounded-2xl p-4">
-            <Text className="text-zinc-500 text-[10px] font-sora-semibold uppercase">Today</Text>
-            <Text className="text-white text-xl font-sora-bold mt-1">
+            <Text className="text-tertiary text-[10px] font-sora-semibold uppercase">Today</Text>
+            <Text className="text-primary text-xl font-sora-bold mt-1">
               {todayCompleted}
-              <Text className="text-xs text-zinc-500"> habits</Text>
+              <Text className="text-xs text-tertiary"> habits</Text>
             </Text>
           </View>
         </View>
@@ -303,10 +310,10 @@ export default function Profile() {
             )}
           </View>
           <View className="flex-1 ml-3">
-            <Text className="text-white text-sm font-sora-semibold">
+            <Text className="text-primary text-sm font-sora-semibold">
               {syncing ? "Syncing…" : "Sync data to cloud"}
             </Text>
-            <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+            <Text className="text-tertiary text-[10px] font-sora mt-0.5">
               {!isOnline
                 ? "Go online to back up your progress"
                 : lastSynced
@@ -318,7 +325,7 @@ export default function Profile() {
         </Pressable>
 
         {/* QUICK ACCESS */}
-        <Text className="text-zinc-400 text-[11px] font-sora-semibold uppercase tracking-wider mt-8 mb-3">
+        <Text className="text-secondary text-[11px] font-sora-semibold uppercase tracking-wider mt-8 mb-3">
           Quick Access
         </Text>
         <View className="gap-2">
@@ -354,8 +361,8 @@ export default function Profile() {
                 {item.icon}
               </View>
               <View className="flex-1 ml-3">
-                <Text className="text-white text-sm font-sora-semibold">{item.label}</Text>
-                <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">{item.desc}</Text>
+                <Text className="text-primary text-sm font-sora-semibold">{item.label}</Text>
+                <Text className="text-tertiary text-[10px] font-sora mt-0.5">{item.desc}</Text>
               </View>
               <ChevronRight size={16} color="#444" />
             </Pressable>
@@ -365,7 +372,7 @@ export default function Profile() {
         {/* LOGOUT */}
         <Pressable
           onPress={handleLogout}
-          className="mt-8 mb-10 rounded-2xl py-3.5 items-center border border-white/5"
+          className="mt-8 mb-10 rounded-2xl py-3.5 items-center border border-line"
         >
           <View className="flex-row items-center">
             <LogOut size={14} color="#ef4444" />
@@ -377,9 +384,9 @@ export default function Profile() {
       {/* SETTINGS MODAL */}
       <Modal visible={showSettings} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-[#111] rounded-t-[32px] max-h-[80%]">
-            <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-white/5">
-              <Text className="text-white text-base font-sora-semibold">Settings</Text>
+          <View className="bg-card-2 rounded-t-[32px] max-h-[80%]">
+            <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-line">
+              <Text className="text-primary text-base font-sora-semibold">Settings</Text>
               <Pressable onPress={() => setShowSettings(false)} className="p-1.5">
                 <X size={18} color="#fff" />
               </Pressable>
@@ -411,16 +418,47 @@ export default function Profile() {
                       item.action();
                     }}
                     className={`flex-row items-center px-4 py-3.5 ${
-                      index < 1 ? "border-b border-white/5" : ""
+                      index < 1 ? "border-b border-line" : ""
                     }`}
                   >
-                    <View className="w-7 h-7 rounded-lg items-center justify-center bg-white/5">
+                    <View className="w-7 h-7 rounded-lg items-center justify-center bg-overlay">
                       {item.icon}
                     </View>
-                    <Text className="flex-1 ml-3 font-sora text-sm text-white">{item.label}</Text>
+                    <Text className="flex-1 ml-3 font-sora text-sm text-primary">{item.label}</Text>
                     <ChevronRight size={14} color="#444" />
                   </Pressable>
                 ))}
+              </View>
+
+              {/* APPEARANCE */}
+              <Text className="text-secondary text-[11px] font-sora-semibold uppercase tracking-wider mb-3">
+                Appearance
+              </Text>
+              <View className="bg-card-1 rounded-xl overflow-hidden mb-8">
+                {THEME_OPTIONS.map((option, index) => {
+                  const active = preference === option.id;
+                  return (
+                    <Pressable
+                      key={option.id}
+                      onPress={() => setPreference(option.id)}
+                      className={`flex-row items-center px-4 py-3.5 ${
+                        index < THEME_OPTIONS.length - 1 ? "border-b border-line" : ""
+                      }`}
+                    >
+                      <View className="w-7 h-7 rounded-lg items-center justify-center bg-overlay">
+                        <View
+                          className={`w-3.5 h-3.5 rounded-full border-2 ${
+                            active ? "border-amber-400 bg-amber-400" : "border-tertiary"
+                          }`}
+                        />
+                      </View>
+                      <Text className="flex-1 ml-3 font-sora text-sm text-primary">
+                        {option.label}
+                      </Text>
+                      {active && <Check size={16} color="#fbbf24" />}
+                    </Pressable>
+                  );
+                })}
               </View>
               <View className="h-8" />
             </ScrollView>
@@ -430,15 +468,15 @@ export default function Profile() {
       {/* EDIT PROFILE MODAL */}
       <Modal visible={showEditProfile} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-[#111] rounded-t-[32px] px-5 pt-6 pb-10 max-h-[88%]">
+          <View className="bg-card-2 rounded-t-[32px] px-5 pt-6 pb-10 max-h-[88%]">
             <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-white text-base font-sora-semibold">Edit Profile</Text>
+              <Text className="text-primary text-base font-sora-semibold">Edit Profile</Text>
               <Pressable onPress={() => setShowEditProfile(false)} className="p-1.5">
                 <X size={18} color="#fff" />
               </Pressable>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text className="text-zinc-400 text-[10px] font-sora-semibold uppercase tracking-wider mb-1.5">
+              <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-1.5">
                 Username
               </Text>
               <TextInput
@@ -446,9 +484,9 @@ export default function Profile() {
                 onChangeText={setEditUsername}
                 placeholder="Your username"
                 placeholderTextColor="#555"
-                className="bg-card-1 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora mb-4"
+                className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora mb-4"
               />
-              <Text className="text-zinc-400 text-[10px] font-sora-semibold uppercase tracking-wider mb-1.5">
+              <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-1.5">
                 Status
               </Text>
               <TextInput
@@ -457,9 +495,9 @@ export default function Profile() {
                 placeholder="Share a thought..."
                 placeholderTextColor="#555"
                 multiline
-                className="bg-card-1 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora min-h-[60px] mb-4"
+                className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-[60px] mb-4"
               />
-              <Text className="text-zinc-400 text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
+              <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
                 Spiritual Focus
               </Text>
               <View className="flex-row flex-wrap gap-2 mb-6">
@@ -471,7 +509,7 @@ export default function Profile() {
                       onPress={() => setEditSpiritMode(mode)}
                       className={`px-4 py-2.5 rounded-xl ${active ? "bg-white" : "bg-card-1"}`}
                     >
-                      <Text className={`text-xs font-sora-medium ${active ? "text-black" : "text-white/70"}`}>
+                      <Text className={`text-xs font-sora-medium ${active ? "text-black" : "text-primary/70"}`}>
                         {mode}
                       </Text>
                     </Pressable>
@@ -482,7 +520,7 @@ export default function Profile() {
                 onPress={() => setShowAvatarPicker(true)}
                 className="bg-card-1 rounded-xl py-3 mb-4 items-center"
               >
-                <Text className="text-white/80 text-xs font-sora-semibold">Change Avatar</Text>
+                <Text className="text-primary/80 text-xs font-sora-semibold">Change Avatar</Text>
               </Pressable>
               <Pressable onPress={handleSaveProfile} disabled={saving} className="bg-white rounded-xl py-3.5 items-center">
                 {saving ? (
@@ -499,9 +537,9 @@ export default function Profile() {
       {/* AVATAR PICKER MODAL */}
       <Modal visible={showAvatarPicker} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-[#111] rounded-t-[32px] px-5 pt-6 pb-10 max-h-[85%]">
+          <View className="bg-card-2 rounded-t-[32px] px-5 pt-6 pb-10 max-h-[85%]">
             <View className="flex-row items-center justify-between mb-5">
-              <Text className="text-white text-base font-sora-semibold">Choose Avatar</Text>
+              <Text className="text-primary text-base font-sora-semibold">Choose Avatar</Text>
               <Pressable onPress={() => setShowAvatarPicker(false)} className="p-1.5">
                 <X size={18} color="#fff" />
               </Pressable>
@@ -515,7 +553,7 @@ export default function Profile() {
                       key={index}
                       onPress={() => handlePickAvatar(index)}
                       className={`w-[22%] aspect-square mb-4 rounded-xl items-center justify-center bg-card-1 border ${
-                        selected ? "border-white" : "border-transparent"
+                        selected ? "border-primary" : "border-transparent"
                       }`}
                     >
                       <Avatar index={index} diameter={55} />

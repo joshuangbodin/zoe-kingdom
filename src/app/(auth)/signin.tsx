@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 function GoogleMark() {
   return (
     <View className="w-6 h-6 bg-white rounded-full items-center justify-center">
-      <Text className="text-sm" style={{ fontFamily: "Manrope-Bold", lineHeight: 18 }}>
+      <Text className="text-sm" style={{ fontFamily: "Geist-Bold", lineHeight: 18 }}>
         <Text style={{ color: "#4285F4" }}>G</Text>
         <Text style={{ color: "#EA4335" }}>o</Text>
         <Text style={{ color: "#FBBC05" }}>o</Text>
@@ -68,7 +68,7 @@ export default function SignIn() {
 
       {/* HEADER */}
       <View className="mb-10">
-        <Text className="text-white text-lg font-sora-bold">Welcome Back</Text>
+        <Text className="text-primary text-lg font-sora-bold">Welcome Back</Text>
         <Text className="text-muted text-sm font-sora mt-2 leading-5">
           Sign in to continue your spiritual journey
         </Text>

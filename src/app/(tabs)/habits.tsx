@@ -27,6 +27,7 @@ import {
   getCategoryIcon,
 } from "@/constants/habit-data";
 import { useApp } from "@/context/app-context";
+import { useTheme } from "@/context/theme-context";
 
 const getDailyVerse = () => {
   const now = new Date();
@@ -43,6 +44,7 @@ export default function Habits() {
   const { top } = useSafeAreaInsets();
 
   const { habits, setHabits } = useApp();
+  const { isDark } = useTheme();
   const [loading, setLoading] = useState(false);
 
   const [open, setOpen] = useState(false);
@@ -131,10 +133,10 @@ export default function Habits() {
       {/* HEADER */}
       <View className="px-5 flex-row items-center justify-between mb-2">
         <View>
-          <Text className="text-white text-base font-sora-semibold">
+          <Text className="text-primary text-base font-sora-semibold">
             Habits
           </Text>
-          <Text className="text-zinc-500 text-[10px] font-sora mt-0.5">
+          <Text className="text-tertiary text-[10px] font-sora mt-0.5">
             Spiritual disciplines
           </Text>
         </View>
@@ -142,7 +144,7 @@ export default function Habits() {
         <PressableScale
           activeScale={0.9}
           onPress={() => setOpen(true)}
-          className="w-9 h-9 rounded-full items-center justify-center bg-white/10"
+          className="w-9 h-9 rounded-full items-center justify-center bg-overlay"
         >
           <Plus color={"white"} size={18} />
         </PressableScale>
@@ -167,10 +169,10 @@ export default function Habits() {
               const dailyVerse = getDailyVerse();
               return (
                 <View className="bg-card-1 rounded-2xl p-5 pb-12 overflow-hidden mb-6">
-                  <Text className="text-zinc-500 text-[10px] font-sora uppercase tracking-wider">
+                  <Text className="text-tertiary text-[10px] font-sora uppercase tracking-wider">
                     {dailyVerse.ref}
                   </Text>
-                  <Text className="text-white/80 text-sm font-serif leading-7 mt-2">
+                  <Text className="text-primary/80 text-sm font-serif leading-7 mt-2">
                     {dailyVerse.text}
                   </Text>
                   <Pressable
@@ -182,9 +184,9 @@ export default function Habits() {
                       });
                       setShowBibleModal(true);
                     }}
-                    className="absolute bottom-0 right-0 bg-white/10 px-4 py-2 rounded-tl-2xl"
+                    className="absolute bottom-0 right-0 bg-overlay px-4 py-2 rounded-tl-2xl"
                   >
-                    <Text className="text-white/60 text-[10px] font-sora">
+                    <Text className="text-primary/60 text-[10px] font-sora">
                       Read full
                     </Text>
                   </Pressable>
@@ -215,7 +217,7 @@ export default function Habits() {
                       >
                         <Text
                           className={`text-[11px] font-sora-medium ${
-                            active ? "text-black" : "text-zinc-400"
+                            active ? "text-black" : "text-secondary"
                           }`}
                         >
                           {item.label}
@@ -230,10 +232,10 @@ export default function Habits() {
         }
         ListEmptyComponent={
           <View className="items-center mt-24">
-              <Text className="text-white/60 text-sm font-sora-semibold">
+              <Text className="text-primary/60 text-sm font-sora-semibold">
                 No Habits Yet
               </Text>
-              <Text className="text-zinc-500 text-center mt-2 px-10 text-xs font-sora leading-5">
+              <Text className="text-tertiary text-center mt-2 px-10 text-xs font-sora leading-5">
                 Create your first spiritual habit and begin growing consistently.
               </Text>
           </View>
@@ -258,13 +260,13 @@ export default function Habits() {
       {/* Create Modal */}
       <Modal visible={open} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/60">
-          <View className="bg-[#111] rounded-t-4xl px-5 pt-6 pb-10">
-            <Text className="text-white text-base font-sora-semibold mb-6">
+          <View className="bg-card-2 rounded-t-4xl px-5 pt-6 pb-10">
+            <Text className="text-primary text-base font-sora-semibold mb-6">
               Create Habit
             </Text>
 
             {/* Title */}
-            <Text className="text-zinc-400 text-[10px] font-sora-semibold uppercase tracking-wider mb-1.5">
+            <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-1.5">
               Title
             </Text>
             <TextInput
@@ -272,11 +274,11 @@ export default function Habits() {
               placeholderTextColor="#555"
               value={title}
               onChangeText={setTitle}
-              className="bg-card-1 rounded-xl px-4 py-3.5 text-white/90 text-sm font-sora mb-5"
+              className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora mb-5"
             />
 
             {/* Category */}
-            <Text className="text-zinc-400 text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
+            <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
               Category
             </Text>
             <View className="flex-row flex-wrap gap-2 mb-5">
@@ -286,17 +288,23 @@ export default function Habits() {
                   <Pressable
                     key={cat.id}
                     onPress={() => setSelectedCategory(cat)}
-                    className="px-4 py-3 rounded-xl flex-row items-center"
+                    className={`px-4 py-3 rounded-xl flex-row items-center ${
+                      active ? "" : "bg-card-1"
+                    }`}
                     style={{
-                      backgroundColor: active ? cat.color + "30" : "#1A1A1A",
+                      backgroundColor: active ? cat.color + "30" : undefined,
                       borderWidth: 1,
                       borderColor: active ? cat.color : "transparent",
                     }}
                   >
                     <View className="mr-2">
-                      {getCategoryIcon(cat.id, 14, active ? cat.color : "#888")}
+                      {getCategoryIcon(
+                        cat.id,
+                        14,
+                        active ? cat.color : isDark ? "#71717a" : "#9ca3af",
+                      )}
                     </View>
-                    <Text className="text-white/80 text-xs font-sora-medium">
+                    <Text className="text-primary/80 text-xs font-sora-medium">
                       {cat.label}
                     </Text>
                   </Pressable>
@@ -305,7 +313,7 @@ export default function Habits() {
             </View>
 
             {/* Frequency */}
-            <Text className="text-zinc-400 text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
+            <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
               Frequency
             </Text>
             <View className="flex-row flex-wrap gap-2 mb-5">
@@ -321,7 +329,7 @@ export default function Habits() {
                   >
                     <Text
                       className={`text-xs font-sora-medium ${
-                        active ? "text-black" : "text-white/70"
+                        active ? "text-black" : "text-primary/70"
                       }`}
                     >
                       {f.label}
@@ -332,7 +340,7 @@ export default function Habits() {
             </View>
 
             {/* Duration */}
-            <Text className="text-zinc-400 text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
+            <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
               Duration (minutes)
             </Text>
             <View className="flex-row flex-wrap gap-2 mb-6">
@@ -348,7 +356,7 @@ export default function Habits() {
                   >
                     <Text
                       className={`text-xs font-sora-medium ${
-                        active ? "text-black" : "text-white/70"
+                        active ? "text-black" : "text-primary/70"
                       }`}
                     >
                       {min}m
@@ -364,7 +372,7 @@ export default function Habits() {
                 onPress={() => setOpen(false)}
                 className="flex-1 bg-card-1 rounded-xl py-3.5 items-center"
               >
-                <Text className="text-white/70 text-sm font-sora-semibold">
+                <Text className="text-primary/70 text-sm font-sora-semibold">
                   Cancel
                 </Text>
               </Pressable>
