@@ -16,7 +16,7 @@ import { getHabits } from "@/libs/sqlite/habits";
 import { getSpiritState, initializeSpirit } from "@/libs/sqlite/spirit";
 import { getDailyStreak } from "@/libs/sqlite/streak";
 import { router } from "expo-router";
-import { BookOpen, Flame } from "lucide-react-native";
+import { BookOpen, Flame, Target } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const QUICK_ACTIONS: {
@@ -140,24 +140,30 @@ export default function Home() {
         <GrowthStat streak={streak} xp={spirit?.totalXP || 0} />
 
         {/* Quick Actions */}
-        <View className="flex-row gap-3 mt-5">
-          {QUICK_ACTIONS.map((action) => (
+        <View className="flex-row gap-3 mt-2.5">
+          {QUICK_ACTIONS.map((action, index) => (
             <Pressable
               key={action.key}
               onPress={() => router.push(action.route)}
-              className="flex-1 bg-card-1 rounded-2xl p-4"
+              className="flex-1 flex-row bg-card-1 items-center rounded-lg p-2.5 gap-2"
             >
               <View
-                className={`w-9 h-9 rounded-xl items-center justify-center ${action.tileBg}`}
+                className={`w-9 h-9 rounded-md items-center justify-center ${action.tileBg}`}
               >
-                <BookOpen size={16} color={action.color} />
+                {index == 0 ? (
+                  <BookOpen size={16} color={action.color} />
+                ) : (
+                  <Target size={16} color={action.color} />
+                )}
               </View>
-              <Text className="text-primary text-sm font-sora-semibold mt-3">
-                {action.label}
-              </Text>
-              <Text className="text-tertiary text-[11px] font-sora mt-0.5">
-                {action.caption}
-              </Text>
+              <View>
+                <Text className="text-primary text-xs font-sora-semibold ">
+                  {action.label}
+                </Text>
+                <Text className="text-tertiary text-[10px] font-sora ">
+                  {action.caption}
+                </Text>
+              </View>
             </Pressable>
           ))}
         </View>
