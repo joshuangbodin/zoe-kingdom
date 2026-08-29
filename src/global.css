@@ -2,11 +2,11 @@
 @import "uniwind";
 
 @theme {
-  /* Sora */
-  --font-sora: "Sora-Regular";
-  --font-sora-medium: "Sora-Medium";
-  --font-sora-semibold: "Sora-SemiBold";
-  --font-sora-bold: "Sora-Bold";
+  /* Manrope */
+  --font-sora: "Manrope-Regular";
+  --font-sora-medium: "Manrope-Medium";
+  --font-sora-semibold: "Manrope-SemiBold";
+  --font-sora-bold: "Manrope-Bold";
 
   /* Serif */
   --font-serif: "NotoSerif-Regular";

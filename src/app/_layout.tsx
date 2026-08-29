@@ -24,10 +24,10 @@ export default function TabLayout() {
 
   // load fonts
   const [loaded, error] = useFonts({
-    "Sora-Regular": require("@/assets/font/Sora/Sora-Regular.ttf"),
-    "Sora-Medium": require("@/assets/font/Sora/Sora-Medium.ttf"),
-    "Sora-SemiBold": require("@/assets/font/Sora/Sora-SemiBold.ttf"),
-    "Sora-Bold": require("@/assets/font/Sora/Sora-Bold.ttf"),
+    "Manrope-Regular": require("@/assets/font/Manrope/Manrope-Regular.ttf"),
+    "Manrope-Medium": require("@/assets/font/Manrope/Manrope-Medium.ttf"),
+    "Manrope-SemiBold": require("@/assets/font/Manrope/Manrope-SemiBold.ttf"),
+    "Manrope-Bold": require("@/assets/font/Manrope/Manrope-Bold.ttf"),
 
     // serif
     "Serif-Regular": require("@/assets/font/Serif/NotoSerif-Regular.ttf"),

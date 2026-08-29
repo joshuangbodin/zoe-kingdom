@@ -23,8 +23,8 @@ const COLORS: any = {
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const CELL_SIZE = 24;
-const CELL_GAP = 4;
+const CELL_SIZE = 20;
+const CELL_GAP = 1;
 const WEEK_WIDTH = CELL_SIZE + CELL_GAP;
 
 export default function ContributionGraph() {
@@ -155,7 +155,7 @@ export default function ContributionGraph() {
                       width: CELL_SIZE,
                       height: CELL_SIZE,
                       marginBottom: CELL_GAP,
-                      borderRadius: 5,
+                      borderRadius: 5000,
                       backgroundColor: COLORS[day.level || 0],
                     }}
                   />

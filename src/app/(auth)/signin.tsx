@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 function GoogleMark() {
   return (
     <View className="w-6 h-6 bg-white rounded-full items-center justify-center">
-      <Text className="text-sm" style={{ fontFamily: "Sora-Bold", lineHeight: 18 }}>
+      <Text className="text-sm" style={{ fontFamily: "Manrope-Bold", lineHeight: 18 }}>
         <Text style={{ color: "#4285F4" }}>G</Text>
         <Text style={{ color: "#EA4335" }}>o</Text>
         <Text style={{ color: "#FBBC05" }}>o</Text>

@@ -103,7 +103,7 @@ export default function Home() {
       {/* FIXED HEADER — pinned, does not scroll with the page */}
       <View
         style={{ paddingTop: top + 8, paddingBottom: 12 }}
-        className="px-5 bg-bg border-b border-white/[0.06]"
+        className="px-5 bg-bg border-b border-white/6"
       >
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center flex-1 min-w-0">

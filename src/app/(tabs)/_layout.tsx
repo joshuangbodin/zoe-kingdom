@@ -58,7 +58,7 @@ export default function TabLayout() {
           tabBarLabelStyle: {
             fontSize: 12,
             marginTop: 4,
-            fontFamily: "Sora-Regular",
+            fontFamily: "Manrope-Regular",
           },
         }}
       >
