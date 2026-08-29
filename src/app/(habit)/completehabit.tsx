@@ -395,7 +395,7 @@ export default function CompleteHabit() {
                 multiline
                 placeholder="Write your reflections..."
                 placeholderTextColor="#555"
-                className="bg-card-2 mt-3 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-[80px]"
+                className="bg-card-2 mt-3 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-20"
                 textAlignVertical="top"
               />
             </View>

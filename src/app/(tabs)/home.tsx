@@ -114,10 +114,10 @@ export default function Home() {
                 ellipsizeMode="tail"
                 className="text-primary text-[15px] font-sora-semibold"
               >
-                {getGreeting()}, {firstName}
+                {getGreeting()}
               </Text>
               <Text className="text-tertiary text-[11px] font-sora mt-0.5">
-                Welcome back
+                {firstName}
               </Text>
             </View>
           </View>

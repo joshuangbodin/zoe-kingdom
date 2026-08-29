@@ -27,30 +27,32 @@ export const getProgressPercentage = (xp: number) => {
   return Math.min(progress, 100);
 };
 
+
 export const getFireStatus = (level: number) => {
   if (level < 5) {
     return {
-      title: "Kindled Flame ✨",
+      title: "Kindled",
       animation: "spark",
     };
   }
 
   if (level < 10) {
     return {
-      title: "Ignited Fire 🔥",
+      title: "Ignited",
       animation: "oil",
     };
   }
 
   if (level < 20) {
     return {
-      title: "Burning Altar 🔥",
+      title: "Burning",
       animation: "fire",
     };
   }
 
   return {
-    title: "Crowned Flame 👑",
+    title: "Crowned",
     animation: "crown",
   };
 };
+

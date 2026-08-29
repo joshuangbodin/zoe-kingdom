@@ -3,32 +3,42 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
+import { useTheme } from "@/context/theme-context";
 import { getYearContributions } from "../libs/sqlite/contributions";
 
-// const COLORS: any = {
-//   0: "#1f1f1f",
-//   1: "#3b2f1d",
-//   2: "#8b5e34",
-//   3: "#d4a373",
-//   4: "#ffd700",
-// };
+/**
+ * Snapchat-yellow intensity scale, tuned per theme so every level reads
+ * clearly (intensity increases toward level 4) while the empty cell stays a
+ * subtle, visible tint on the current background.
+ */
+const LIGHT_COLORS: Record<number, string> = {
+  0: "rgba(0,0,0,0.05)", // inactive
+  1: "#d8c363", // low
+  2: "#bfa62f", // medium
+  3: "#9e8509", // high
+  4: "#7a6300", // peak
+};
 
-const COLORS: any = {
-  0: "#1f1f1f",
-  1: "#ffffff40",
-  2: "#ffffff60",
-  3: "#ffffff80",
-  4: "#ffffff",
+const DARK_COLORS: Record<number, string> = {
+  0: "rgba(255,252,0,0.07)", // inactive
+  1: "#5c4a10", // low
+  2: "#8a6d10", // medium
+  3: "#c2a21e", // high
+  4: "#fffc00", // peak — Snapchat yellow
 };
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const CELL_SIZE = 20;
+const CELL_SIZE = 25;
 const CELL_GAP = 1;
 const WEEK_WIDTH = CELL_SIZE + CELL_GAP;
 
 export default function ContributionGraph() {
   const scrollRef = useRef<ScrollView>(null);
+  const { isDark } = useTheme();
+
+  const COLORS = isDark ? DARK_COLORS : LIGHT_COLORS;
+  const chevronColor = isDark ? "#ffffff" : "#0c0c0c";
 
   const [year, setYear] = useState(new Date().getFullYear());
 
@@ -46,14 +56,68 @@ export default function ContributionGraph() {
    * Split into week columns
    */
   const weeks = useMemo(() => {
-    const grouped: any[][] = [];
+    if (!data.length) return [];
 
-    for (let i = 0; i < data.length; i += 7) {
-      grouped.push(data.slice(i, i + 7));
+    const contributionMap: Record<string, any> = {};
+
+    data.forEach((item) => {
+      contributionMap[item.date] = item;
+    });
+
+    const result: any[][] = [];
+
+    const firstDate = new Date(`${year}-01-01T00:00:00`);
+    const lastDate = new Date(`${year}-12-31T00:00:00`);
+
+    // Convert JS weekday:
+    // Sunday = 0
+    // Monday = 1
+    // ...
+    //
+    // Into:
+    // Monday = 0
+    // ...
+    // Sunday = 6
+    const getDayIndex = (date: Date) => {
+      return (date.getDay() + 6) % 7;
+    };
+
+    // Find Monday containing Jan 1
+    const calendarStart = new Date(firstDate);
+    calendarStart.setDate(firstDate.getDate() - getDayIndex(firstDate));
+
+    // Find Sunday containing Dec 31
+    const calendarEnd = new Date(lastDate);
+    calendarEnd.setDate(lastDate.getDate() + (6 - getDayIndex(lastDate)));
+
+    let current = new Date(calendarStart);
+
+    while (current <= calendarEnd) {
+      const week: any[] = [];
+
+      for (let i = 0; i < 7; i++) {
+        const date = [
+          current.getFullYear(),
+          String(current.getMonth() + 1).padStart(2, "0"),
+          String(current.getDate()).padStart(2, "0"),
+        ].join("-");
+
+        week.push(
+          contributionMap[date] || {
+            date,
+            count: 0,
+            level: 0,
+          },
+        );
+
+        current.setDate(current.getDate() + 1);
+      }
+
+      result.push(week);
     }
 
-    return grouped;
-  }, [data]);
+    return result;
+  }, [data, year]);
 
   /**
    * Auto-scroll to latest week
@@ -103,7 +167,7 @@ export default function ContributionGraph() {
             onPress={() => setYear(year - 1)}
             className="w-8 h-8 items-center justify-center"
           >
-            <ChevronLeft color={"#fff"} />
+            <ChevronLeft color={chevronColor} />
           </Pressable>
 
           <Text className="text-primary font-sora-semibold mx-2">{year}</Text>
@@ -112,7 +176,7 @@ export default function ContributionGraph() {
             onPress={() => setYear(year + 1)}
             className="w-8 h-8 items-center justify-center"
           >
-            <ChevronRight color={"#fff"} />
+            <ChevronRight color={chevronColor} />
           </Pressable>
         </View>
       </View>
@@ -155,7 +219,7 @@ export default function ContributionGraph() {
                       width: CELL_SIZE,
                       height: CELL_SIZE,
                       marginBottom: CELL_GAP,
-                      borderRadius: 5000,
+                      borderRadius: 3,
                       backgroundColor: COLORS[day.level || 0],
                     }}
                   />
@@ -168,7 +232,7 @@ export default function ContributionGraph() {
 
       {/* LEGEND */}
       <View className="flex-row items-center justify-end mt-5">
-        <Text className="text-gray-500 text-xs mr-2">Less</Text>
+        <Text className="text-secondary text-xs mr-2">Less</Text>
 
         {[0, 1, 2, 3, 4].map((level) => (
           <View
@@ -183,7 +247,7 @@ export default function ContributionGraph() {
           />
         ))}
 
-        <Text className="text-gray-500 text-xs ml-2">More</Text>
+        <Text className="text-secondary text-xs ml-2">More</Text>
       </View>
     </View>
   );
