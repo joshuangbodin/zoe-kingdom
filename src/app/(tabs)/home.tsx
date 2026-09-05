@@ -37,7 +37,7 @@ const QUICK_ACTIONS: {
     caption: "Daily devotion",
     route: "/(tabs)/bible",
     color: "#fbbf24",
-    tileBg: "bg-amber-500/10",
+    tileBg: "bg-amber-500",
   },
   {
     key: "habits",
@@ -45,7 +45,7 @@ const QUICK_ACTIONS: {
     caption: "Build your rhythm",
     route: "/(tabs)/habits",
     color: "#34d399",
-    tileBg: "bg-emerald-500/10",
+    tileBg: "bg-emerald-500",
   },
 ];
 
@@ -161,12 +161,12 @@ export default function Home() {
               className="flex-1 flex-row bg-card-1 items-center rounded-lg p-2.5 gap-2"
             >
               <View
-                className={`w-9 h-9 rounded-md items-center justify-center ${action.tileBg}`}
+                className={`w-7 h-7 rounded-3xl items-center justify-center ${action.tileBg}`}
               >
                 {index == 0 ? (
-                  <BookOpen size={16} color={action.color} />
+                  <BookOpen size={16} color={'#fff'} />
                 ) : (
-                  <Target size={16} color={action.color} />
+                  <Target size={16} color={'#fff'} />
                 )}
               </View>
               <View>

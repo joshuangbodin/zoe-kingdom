@@ -2,13 +2,13 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
+  Image,
   Modal,
   Pressable,
   ScrollView,
   Text,
   TextInput,
   View,
-  Image
 } from "react-native";
 
 import { Plus } from "lucide-react-native";
@@ -29,7 +29,6 @@ import {
 } from "@/constants/habit-data";
 import { useApp } from "@/context/app-context";
 import { useTheme } from "@/context/theme-context";
-
 
 const getDailyVerse = () => {
   const now = new Date();
@@ -145,7 +144,7 @@ export default function Habits() {
           onPress={() => setOpen(true)}
           className="w-9 h-9 rounded-full items-center justify-center bg-overlay"
         >
-          <Plus color={"white"} size={18} />
+          <Plus color={isDark ? "white" : "black"} size={18} />
         </PressableScale>
       </View>
 
@@ -273,8 +272,8 @@ export default function Habits() {
       {/* Create Modal */}
       <Modal visible={open} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/60">
-          <View className="bg-card-2 rounded-t-4xl px-5 pt-6 pb-10">
-            <Text className="text-primary text-base font-sora-semibold mb-6">
+          <View className="bg-bg rounded-t-4xl px-5 pt-6 pb-10">
+            <Text className="text-primary text-sm font-sora-semibold mb-6">
               Create Habit
             </Text>
 
@@ -287,7 +286,7 @@ export default function Habits() {
               placeholderTextColor="#555"
               value={title}
               onChangeText={setTitle}
-              className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora mb-5"
+              className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora border border-line mb-5"
             />
 
             {/* Category */}
@@ -301,13 +300,17 @@ export default function Habits() {
                   <Pressable
                     key={cat.id}
                     onPress={() => setSelectedCategory(cat)}
-                    className={`px-4 py-3 rounded-xl flex-row items-center ${
-                      active ? "" : "bg-card-1"
+                    className={`px-4 py-3  rounded-xl  flex-row items-center ${
+                      active ? "" : "bg-card-1 "
                     }`}
                     style={{
                       backgroundColor: active ? cat.color + "30" : undefined,
                       borderWidth: 1,
-                      borderColor: active ? cat.color : "transparent",
+                      borderColor: active
+                        ? cat.color
+                        : isDark
+                          ? "#71717a"
+                          : "#e5e7eb",
                     }}
                   >
                     <View className="mr-2">
@@ -337,12 +340,12 @@ export default function Habits() {
                     key={f.id}
                     onPress={() => setFrequency(f.id as any)}
                     className={`px-4 py-2.5 rounded-xl ${
-                      active ? "bg-white" : "bg-card-1"
+                      active ? "bg-accent" : "bg-card-1"
                     }`}
                   >
                     <Text
                       className={`text-xs font-sora-medium ${
-                        active ? "text-black" : "text-primary/70"
+                        active ? "text-bg" : "text-primary/70"
                       }`}
                     >
                       {f.label}
@@ -364,12 +367,12 @@ export default function Habits() {
                     key={min}
                     onPress={() => setDuration(min)}
                     className={`px-4 py-2.5 rounded-xl ${
-                      active ? "bg-white" : "bg-card-1"
+                      active ? "bg-accent" : "bg-card-1"
                     }`}
                   >
                     <Text
                       className={`text-xs font-sora-medium ${
-                        active ? "text-black" : "text-primary/70"
+                        active ? "text-bg" : "text-primary/70"
                       }`}
                     >
                       {min}m
@@ -383,7 +386,7 @@ export default function Habits() {
             <View className="flex-row gap-3">
               <Pressable
                 onPress={() => setOpen(false)}
-                className="flex-1 bg-card-1 rounded-xl py-3.5 items-center"
+                className="flex-1 bg-card-2 rounded-xl py-3.5 items-center"
               >
                 <Text className="text-primary/70 text-sm font-sora-semibold">
                   Cancel
@@ -392,9 +395,9 @@ export default function Habits() {
               <Pressable
                 disabled={loading}
                 onPress={handleCreateHabit}
-                className="flex-1 bg-white rounded-xl py-3.5 items-center"
+                className="flex-1 bg-accent rounded-xl py-3.5 items-center"
               >
-                <Text className="text-black text-sm font-sora-semibold">
+                <Text className="text-bg text-sm font-sora-semibold">
                   {loading ? "Creating..." : "Create"}
                 </Text>
               </Pressable>

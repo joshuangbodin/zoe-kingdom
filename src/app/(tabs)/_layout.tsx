@@ -47,7 +47,7 @@ export default function TabLayout() {
           headerShown: false,
 
           tabBarStyle: {
-            backgroundColor: isDark ? "#181818" : "#ffffff",
+            backgroundColor: isDark ? "#181818" : "#fdfdf6",
             borderTopWidth: 0,
             borderTopColor: isDark ? "#000" : "#e5e7eb",
             height: insets.bottom + 80,
@@ -59,8 +59,8 @@ export default function TabLayout() {
           tabBarActiveTintColor: isDark ? "#fff" : "#0c0c0c",
 
           tabBarLabelStyle: {
-            fontSize: 12,
-            marginTop: 4,
+            fontSize: 10,
+            marginTop: 1,
             fontFamily: "Geist-Regular",
           },
         }}

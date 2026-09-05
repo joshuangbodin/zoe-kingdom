@@ -32,9 +32,9 @@
 @layer theme {
   :root {
     @variant light {
-      --color-bg: #f5f5f7;
-      --color-card-1: #ffffff;
-      --color-card-2: #ececf0;
+      --color-bg: #f4f4eb;
+      --color-card-1: #fdfdf6;
+      --color-card-2: #ffffff;
 
       --color-muted: #71717a;
       --color-primary: #0c0c0c;
@@ -63,4 +63,8 @@
       --color-accent: #fff
     }
   }
+}
+
+test{
+  color: #fdfdf6;
 }
