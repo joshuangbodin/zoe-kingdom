@@ -1,15 +1,9 @@
+import { Heart, MessageCircle, MoreVertical } from "lucide-react-native";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
-import {
-  BookOpen,
-  Heart,
-  MessageCircle,
-  MoreHorizontal,
-} from "lucide-react-native";
+import { Image, Pressable, Text, View } from "react-native";
 
 import Avatar from "@/components/Avatar";
-
-const ACTION_COLOR = "#666";
+import { useTheme } from "@/context/theme-context";
 
 export type PostCardData = {
   id: string;
@@ -43,13 +37,16 @@ export default function PostCard({
   onOpenVerse,
   onOpenComments,
 }: PostCardProps) {
+  const { isDark } = useTheme();
+  const ACTION_COLOR = isDark ? "#fff" : "#0c0c0c";
+
   return (
-    <View className="mb-4 mx-4 bg-card-1 p-3 rounded-lg">
+    <View className="mb-4 mx-4 bg-card-1 p-3 rounded-3xl">
       {/* Author header */}
       <View className="flex-row items-center mb-3 px-0.5">
         <Avatar index={avatar} diameter={32} />
         <View className="ml-2.5 flex-1">
-          <Text className="text-primary text-sm font-sora-semibold leading-5">
+          <Text className="text-primary text-xs font-sora-semibold leading-5">
             {username}
           </Text>
           <Text className="text-tertiary text-[10px] font-sora">
@@ -57,13 +54,13 @@ export default function PostCard({
           </Text>
         </View>
         <Pressable onPress={onOpenMenu} className="p-1.5">
-          <MoreHorizontal size={16} color={ACTION_COLOR} />
+          <MoreVertical size={16} color={ACTION_COLOR} />
         </Pressable>
       </View>
 
       {/* Thought */}
       {item.thought && (
-        <Text className="text-primary/85 text-sm leading-6 font-sora mb-3">
+        <Text className="text-primary/85 text-xs leading-6 font-sora mb-3">
           {item.thought}
         </Text>
       )}
@@ -72,19 +69,19 @@ export default function PostCard({
       {!!item.verseReference && (
         <Pressable
           onPress={() => onOpenVerse(item.verseReference!)}
-          className="bg-card-2 rounded-xl overflow-hidden active:opacity-80 mb-3"
+          className="bg-card-2 rounded-3xl overflow-hidden active:opacity-80 mb-3"
         >
+          <Image
+            source={require("@/assets/images/pattern.jpg")}
+            className="absolute inset-0 opacity-5  w-full h-full"
+            style={{ borderRadius: 24 }}
+            resizeMode="cover"
+          />
           <View className="p-4">
-            <View className="flex-row items-center mb-2">
-              <BookOpen size={12} color="#fbbf24" />
-              <Text className="text-amber-400/70 text-[10px] font-sora-semibold ml-1.5 uppercase tracking-widest">
-                Scripture
-              </Text>
-            </View>
-            <Text className="text-primary text-sm font-serif mb-1.5">
+            <Text className="text-primary text-xs font-sora mb-1.5">
               {item.verseReference}
             </Text>
-            <Text className="text-secondary text-[12px] leading-6 font-serif">
+            <Text className="text-secondary text-xs leading-5 font-serif">
               {item.verseText}
             </Text>
           </View>
@@ -97,7 +94,7 @@ export default function PostCard({
       )}
 
       {/* Actions */}
-      <View className="flex-row items-center border-t border-line pt-3">
+      <View className="flex-row items-center  pt-3">
         <Pressable onPress={onLike} className="flex-row items-center mr-5">
           <Heart
             color={isLiked ? "#ef4444" : ACTION_COLOR}
@@ -105,13 +102,16 @@ export default function PostCard({
             fill={isLiked ? "#ef4444" : "transparent"}
           />
           {(item.likesCount ?? 0) > 0 && (
-            <Text className="text-tertiary text-xs ml-1.5 font-sora">
+            <Text className="text-primary text-xs ml-1.5 font-sora">
               {item.likesCount}
             </Text>
           )}
         </Pressable>
 
-        <Pressable onPress={onOpenComments} className="flex-row items-center mr-5">
+        <Pressable
+          onPress={onOpenComments}
+          className="flex-row items-center mr-5"
+        >
           <MessageCircle color={ACTION_COLOR} size={17} />
           {(item.commentsCount ?? 0) > 0 && (
             <Text className="text-tertiary text-xs ml-1.5 font-sora">

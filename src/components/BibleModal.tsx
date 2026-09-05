@@ -28,6 +28,7 @@ import { isRedLetterVerse } from "@/constants/red-text";
 import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/context/theme-context";
 
 /* ---------------------------- TYPES ---------------------------- */
 
@@ -91,9 +92,9 @@ const VerseRow = memo(
         <Text
           className={`flex-1 text-base leading-8 font-serif ${
             selected
-              ? "text-amber-300"
+              ? "text-amber-500"
               : isRed
-                ? "text-red-400"
+                ? "text-red-500"
                 : "text-primary"
           }`}
         >
@@ -132,6 +133,7 @@ export default function BibleModal({
   initialVerse,
 }: BibleModalProps) {
   const { top } = useSafeAreaInsets();
+  const { isDark } = useTheme();
   const [loading, setLoading] = useState(true);
 
   const [books, setBooks] = useState<any[]>([]);
@@ -478,9 +480,9 @@ export default function BibleModal({
               }
             >
               {expandedBook === item.bookIndex ? (
-                <ChevronDown color="white" />
+                <ChevronDown color={isDark ? "#fff" : "#0c0c0c"} />
               ) : (
-                <ChevronRight color="white" />
+                <ChevronRight color={isDark ? "#fff" : "#0c0c0c"} />
               )}
             </Pressable>
           </Pressable>
@@ -526,7 +528,7 @@ export default function BibleModal({
               onPress={onClose}
               className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center"
             >
-              <X color="white" size={18} />
+              <X color={isDark ? "#fff" : "#0c0c0c"} size={18} />
             </Pressable>
 
             <Pressable
@@ -544,13 +546,13 @@ export default function BibleModal({
               onPress={() => setOpen(true)}
               className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center"
             >
-              <Search color="white" size={15} />
+              <Search color={isDark ? "#fff" : "#0c0c0c"} size={15} />
             </Pressable>
           </View>
 
           {loading ? (
             <View className="flex-1 items-center justify-center">
-              <ActivityIndicator color="white" />
+              <ActivityIndicator color={isDark ? "#fff" : "#0c0c0c"} />
               <Text className="text-primary mt-4">Loading Bible...</Text>
             </View>
           ) : (
@@ -630,7 +632,7 @@ export default function BibleModal({
                         onPress={goPrev}
                         className="flex-1 bg-card-1 rounded-xl py-3.5 items-center flex-row justify-center"
                       >
-                        <ChevronLeft color="white" size={16} />
+                        <ChevronLeft color={isDark ? "#fff" : "#0c0c0c"} size={16} />
                         <Text className="text-primary text-sm font-sora-semibold ml-1">
                           Prev
                         </Text>
@@ -642,7 +644,7 @@ export default function BibleModal({
                         <Text className="text-primary text-sm font-sora-semibold mr-1">
                           Next
                         </Text>
-                        <ChevronRight color="white" size={16} />
+                        <ChevronRight color={isDark ? "#fff" : "#0c0c0c"} size={16} />
                       </Pressable>
                     </View>
                   )}
@@ -653,29 +655,36 @@ export default function BibleModal({
 
           {/* BOOK SELECTION MODAL */}
           <Modal visible={open} transparent animationType="slide">
-            <View className="flex-1 justify-end bg-black/60">
-              <View className="bg-card-2 rounded-t-[32px] h-[80%]">
-                <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-line">
+            <Pressable
+              onPress={() => setOpen(false)}
+              className="flex-1 justify-end bg-black/60"
+            >
+              <Pressable onPress={() => {}} className="bg-card-1 rounded-t-[32px]" style={{ maxHeight: "80%" }}>
+                {/* Handle */}
+                <View className="items-center pt-3 pb-1">
+                  <View className="w-10 h-1.5 rounded-full bg-line" />
+                </View>
+                <View className="flex-row items-center justify-between px-5 pt-2 pb-3 border-b border-line">
                   <Text className="text-primary text-sm font-sora-semibold">
                     Books of the Bible
                   </Text>
                   <Pressable
                     onPress={() => setOpen(false)}
-                    className="p-1.5"
+                    className="w-9 h-9 bg-card-2 rounded-xl items-center justify-center"
                   >
-                    <X color="white" size={18} />
+                    <X color={isDark ? "#fff" : "#0c0c0c"} size={18} />
                   </Pressable>
                 </View>
 
                 {/* SEARCH */}
                 <View className="px-5 py-3 border-b border-line">
-                  <View className="flex-row items-center bg-card-1 px-3 py-2.5 rounded-xl">
-                    <Search color="#555" size={15} />
+                  <View className="flex-row items-center bg-card-2 px-3 py-2.5 rounded-xl">
+                    <Search color={isDark ? "#9ca3af" : "#71717a"} size={15} />
                     <TextInput
                       value={search}
                       onChangeText={setSearch}
                       placeholder="Search book..."
-                      placeholderTextColor="#555"
+                      placeholderTextColor={isDark ? "#555" : "#9ca3af"}
                       className="flex-1 text-primary/80 text-xs ml-2.5 font-sora"
                     />
                   </View>
@@ -691,8 +700,8 @@ export default function BibleModal({
                   windowSize={6}
                   contentContainerStyle={{ padding: 16 }}
                 />
-              </View>
-            </View>
+              </Pressable>
+            </Pressable>
           </Modal>
         </View>
       </View>

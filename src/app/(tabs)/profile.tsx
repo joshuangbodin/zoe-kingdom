@@ -55,7 +55,7 @@ const SPIRIT_MODES = [
 export default function Profile() {
   const { top } = useSafeAreaInsets();
   const { user, updateUser, logout, isOnline } = useApp();
-  const { preference, setPreference } = useTheme();
+  const { preference, setPreference, isDark } = useTheme();
   const THEME_OPTIONS: { id: ThemePreference; label: string }[] = [
     { id: "light", label: "Light" },
     { id: "dark", label: "Dark" },
@@ -188,7 +188,7 @@ export default function Profile() {
   if (loading) {
     return (
       <View className="flex-1 bg-bg items-center justify-center">
-        <ActivityIndicator color="white" />
+        <ActivityIndicator color={isDark ? "#fff" : "#0c0c0c"} />
       </View>
     );
   }
@@ -253,7 +253,7 @@ export default function Profile() {
             onPress={() => setShowSettings(true)}
             className="w-9 h-9 rounded-xl bg-card-1 items-center justify-center"
           >
-            <Settings size={16} color="#fff" />
+            <Settings size={16} color={isDark ? "#fff" : "#0c0c0c"} />
           </Pressable>
         </View>
 
@@ -388,7 +388,7 @@ export default function Profile() {
             <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-line">
               <Text className="text-primary text-base font-sora-semibold">Settings</Text>
               <Pressable onPress={() => setShowSettings(false)} className="p-1.5">
-                <X size={18} color="#fff" />
+                <X size={18} color={isDark ? "#fff" : "#0c0c0c"} />
               </Pressable>
             </View>
             <ScrollView className="px-5 pt-4">
@@ -397,13 +397,13 @@ export default function Profile() {
                   {
                     id: "edit-profile",
                     label: "Edit Profile",
-                    icon: <Edit3 size={16} color="#fff" />,
+                    icon: <Edit3 size={16} color={isDark ? "#fff" : "#0c0c0c"} />,
                     action: () => setShowEditProfile(true),
                   },
                   {
                     id: "about",
                     label: "About Zoe Kingdom",
-                    icon: <Info size={16} color="#fff" />,
+                    icon: <Info size={16} color={isDark ? "#fff" : "#0c0c0c"} />,
                     action: () =>
                       Alert.alert(
                         "Zoe Kingdom",
@@ -472,7 +472,7 @@ export default function Profile() {
             <View className="flex-row items-center justify-between mb-6">
               <Text className="text-primary text-base font-sora-semibold">Edit Profile</Text>
               <Pressable onPress={() => setShowEditProfile(false)} className="p-1.5">
-                <X size={18} color="#fff" />
+                <X size={18} color={isDark ? "#fff" : "#0c0c0c"} />
               </Pressable>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -541,7 +541,7 @@ export default function Profile() {
             <View className="flex-row items-center justify-between mb-5">
               <Text className="text-primary text-base font-sora-semibold">Choose Avatar</Text>
               <Pressable onPress={() => setShowAvatarPicker(false)} className="p-1.5">
-                <X size={18} color="#fff" />
+                <X size={18} color={isDark ? "#fff" : "#0c0c0c"} />
               </Pressable>
             </View>
             <ScrollView>

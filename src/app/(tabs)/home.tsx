@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -10,8 +10,12 @@ import {
 import Avatar from "@/components/Avatar";
 import ContributionGraph from "@/components/ContributionGraph";
 import GrowthStat from "@/components/home/GrowthStat";
+import StreakProgressModal, {
+  StreakProgressModalHandle,
+} from "@/components/home/StreakProgressModal";
 import { getFirstName, getGreeting } from "@/constants/time";
 import { useApp } from "@/context/app-context";
+import { useTheme } from "@/context/theme-context";
 import { getHabits } from "@/libs/sqlite/habits";
 import { getSpiritState, initializeSpirit } from "@/libs/sqlite/spirit";
 import { getDailyStreak } from "@/libs/sqlite/streak";
@@ -49,7 +53,9 @@ export default function Home() {
   const [spirit, setSpirit] = useState<any>(null);
   const { setHabits, user, refreshUser } = useApp();
   const [streak, setStreak] = useState<number>(0);
+  const streakModalRef = useRef<StreakProgressModalHandle>(null);
   const [loading, setLoading] = useState(true);
+  const { isDark } = useTheme();
 
   const { top } = useSafeAreaInsets();
 
@@ -91,7 +97,7 @@ export default function Home() {
   if (loading) {
     return (
       <View className="flex-1 bg-bg items-center justify-center">
-        <ActivityIndicator color="white" size="small" />
+        <ActivityIndicator color={isDark ? "#fff" : "#0c0c0c"} size="small" />
       </View>
     );
   }
@@ -122,12 +128,15 @@ export default function Home() {
             </View>
           </View>
 
-          <View className="flex-row items-center bg-card-1 rounded-full pl-2.5 pr-3.5 py-2 ml-3">
+          <Pressable
+            onPress={() => streakModalRef.current?.present()}
+            className="flex-row items-center bg-card-1 rounded-full pl-2.5 pr-3.5 py-2 ml-3"
+          >
             <Flame size={14} color="#f59e0b" />
             <Text className="text-primary text-[13px] font-sora-semibold ml-1.5">
               {streak || 0}
             </Text>
-          </View>
+          </Pressable>
         </View>
       </View>
 
@@ -137,7 +146,11 @@ export default function Home() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: 130 }}
       >
-        <GrowthStat streak={streak} xp={spirit?.totalXP || 0} />
+        <GrowthStat
+          streak={streak}
+          xp={spirit?.totalXP || 0}
+          onStreakPress={() => streakModalRef.current?.present()}
+        />
 
         {/* Quick Actions */}
         <View className="flex-row gap-3 mt-2.5">
@@ -171,6 +184,11 @@ export default function Home() {
         {/* Consistency */}
         <ContributionGraph />
       </ScrollView>
+
+      <StreakProgressModal
+        ref={streakModalRef}
+        streak={streak || 0}
+      />
     </View>
   );
 }

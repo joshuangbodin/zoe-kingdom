@@ -42,9 +42,9 @@ const HabitCard = ({ item }: { item: any }) => {
           {/* ICON */}
           <View
             className="w-10 h-10 rounded-xl items-center justify-center"
-            style={{ backgroundColor: item.color + "30" }}
+            style={{ backgroundColor: item.color }}
           >
-            {getCategoryIcon(item.category, 16, item.color)}
+            {getCategoryIcon(item.category, 16, "#fff")}
           </View>
 
           {/* INFO */}

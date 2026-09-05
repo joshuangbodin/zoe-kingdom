@@ -31,11 +31,11 @@ export default function StoryAvatar({ user, index = 0, onPress }: StoryAvatarPro
     >
       <View className="relative">
         {hasNote && statusNote && (
-          <View className="absolute -top-2 self-center z-10 bg-bg px-1.5 pb-0.5">
-            <View className="bg-card-2 rounded-full px-2 py-0.5 border border-line">
+          <View className="absolute -top-2 self-center z-10  px-1.5 pb-0.5">
+            <View className="bg-card-2 rounded-full px-2 py-1 border border-line">
               <Text
                 numberOfLines={1}
-                className="text-primary/70 text-[8px] font-sora-medium max-w-[60px]"
+                className="text-primary/70 text-[8px] font-sora-medium max-w-15"
               >
                 {statusNote.length > 10
                   ? statusNote.slice(0, 10) + "…"
@@ -47,11 +47,11 @@ export default function StoryAvatar({ user, index = 0, onPress }: StoryAvatarPro
 
         {/* Colored ring wraps the avatar for a colourful, vibrant look */}
         <View
-          className="w-[58px] h-[58px] rounded-full items-center justify-center"
+          className="w-18 h-18 rounded-full items-center justify-end"
           style={{ backgroundColor: color }}
         >
-          <View className="w-[52px] h-[52px] rounded-full bg-bg p-[2px]">
-            <Avatar index={user.avatar ?? index} diameter={48} />
+          <View className="">
+            <Avatar index={user.avatar ?? index} diameter={60} />
           </View>
         </View>
       </View>

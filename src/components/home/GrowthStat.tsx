@@ -8,7 +8,7 @@ import LottieView from "lottie-react-native";
 import { Flame, Share2 } from "lucide-react-native";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
-import { useUniwind } from "uniwind";
+import { useTheme } from "@/context/theme-context";
 
 const spark = require("@/assets/lottie/Fire.json");
 const crown = require("@/assets/lottie/Crown.json");
@@ -19,18 +19,21 @@ const oil = require("@/assets/lottie/Oil.json");
 export default function GrowthStat({
   streak,
   xp,
+  onStreakPress,
 }: {
   streak: number;
   xp: number;
+  onStreakPress?: () => void;
 }) {
+  const { isDark } = useTheme();
   const levelNumber = getLevelFromXP(xp);
-
-  const iconColor = useUniwind().theme == "dark" ? "#fff" : "#000";
 
   const fire = getFireStatus(levelNumber);
 
   const nextLevelXP = getXPForNextLevel(levelNumber);
   const progress = getProgressPercentage(xp);
+
+  const iconColor = isDark ? "#fff" : "#0c0c0c";
   return (
     <View className="gap-2 ">
       {/* top part */}
@@ -56,7 +59,7 @@ export default function GrowthStat({
           />
 
           <Pressable className="absolute right-2 bottom-2 p-3 px-4 bg-card-1/80 rounded-full">
-            <Share2 size={14} color={"#fff"} />
+            <Share2 size={14} color={iconColor} />
           </Pressable>
         </View>
 
@@ -66,16 +69,19 @@ export default function GrowthStat({
             <Text className="font-sora text-[10px] text-muted">
               Altar Fire Status
             </Text>
-            <Text className="font-sora-bold text-xs text-white">
+            <Text className="font-sora-bold text-xs text-primary">
               {fire.title}
             </Text>
           </View>
-          <View className="p-3 h-16 flex-row flex-[.6] items-end justify-between rounded-2xl bg-card-2 ">
+          <Pressable
+            onPress={onStreakPress}
+            className="p-3 h-16 flex-row flex-[.6] items-end justify-between rounded-2xl bg-card-2 "
+          >
             <View className="h-full justify-between">
               <Text className="font-sora text-[10px] text-muted">
                 Current Streak
               </Text>
-              <Text className="font-sora-bold text-2xl text-white">
+              <Text className="font-sora-bold text-2xl text-primary">
                 {streak}
                 <Text className="text-[10px] font-sora-medium text-muted">
                   {" "}
@@ -85,7 +91,7 @@ export default function GrowthStat({
             </View>
 
             <Flame size={20} color={iconColor} />
-          </View>
+          </Pressable>
         </View>
       </View>
 
@@ -95,19 +101,19 @@ export default function GrowthStat({
           <Text className="font-sora text-[10px] text-muted">
             Experience Points(XP)
           </Text>
-          <Text className="font-sora-bold text-xs text-white">
+          <Text className="font-sora-bold text-xs text-primary">
             {xp}xp / {nextLevelXP}xp
           </Text>
         </View>
 
-        <View className="relative h-1.5 mt-4 bg-white overflow-hidden rounded-full">
+        <View className="relative h-1.5 mt-4 bg-overlay overflow-hidden rounded-full">
           <View
             style={{ width: `${progress}%` }}
-            className="absolute bg-gray-500 rounded-full h-full left-0"
+            className="absolute bg-amber-500 rounded-full h-full left-0"
           ></View>
         </View>
 
-        <Text className="mt-2 text-white text-xs font-sora-semibold">
+        <Text className="mt-2 text-primary text-xs font-sora-semibold">
           LEVEL {levelNumber}
         </Text>
       </View>

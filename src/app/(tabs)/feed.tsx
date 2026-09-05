@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { Alert, FlatList, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Pressable, Text, View } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -12,6 +12,7 @@ import { db } from "@/libs/firebase";
 
 import Avatar from "@/components/Avatar";
 import { useToast } from "@/components/Toast";
+import { useTheme } from "@/context/theme-context";
 import {
   deletePostSmart,
   hasUserLikedPost,
@@ -86,7 +87,9 @@ export default function Feed() {
   const [selectedTag, setSelectedTag] = useState("All");
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
+  const { isDark } = useTheme();
 
   // Creator edit/delete state
   const [editPost, setEditPost] = useState<any>(null);
@@ -132,6 +135,7 @@ export default function Feed() {
   useEffect(() => {
     const unsubscribe = subscribeToFeed((newPosts) => {
       setPosts(newPosts);
+      setLoading(false);
       const user = auth.currentUser;
       if (user) {
         newPosts.forEach(async (post: any) => {
@@ -303,7 +307,7 @@ export default function Feed() {
             onPress={() => router.push("/(network)/sharethought")}
             className="w-8 h-8 rounded-full bg-overlay items-center justify-center"
           >
-            <Plus color="white" size={16} />
+            <Plus color={isDark ? "#fff" : "#0c0c0c"} size={16} />
           </Pressable>
         </View>
       </View>
@@ -322,7 +326,18 @@ export default function Feed() {
             paddingBottom: 140,
             flexGrow: 1,
           }}
-          ListEmptyComponent={FeedEmptyState}
+          ListEmptyComponent={
+            loading ? (
+              <View className="flex-1 items-center justify-center py-24">
+                <ActivityIndicator color="#888" size="small" />
+                <Text className="text-tertiary text-xs font-sora mt-3">
+                  Loading feed...
+                </Text>
+              </View>
+            ) : (
+              <FeedEmptyState />
+            )
+          }
         />
       </View>
 

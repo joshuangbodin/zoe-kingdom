@@ -8,6 +8,7 @@ import {
   Text,
   TextInput,
   View,
+  Image
 } from "react-native";
 
 import { Plus } from "lucide-react-native";
@@ -17,8 +18,8 @@ import { PressableScale } from "react-native-pressable-scale";
 
 import { createHabit, getHabits } from "@/libs/sqlite/habits";
 
-import HabitCard from "@/components/habits/HabitCard";
 import BibleModal from "@/components/BibleModal";
+import HabitCard from "@/components/habits/HabitCard";
 import { useToast } from "@/components/Toast";
 import { DAILY_VERSES } from "@/constants/dailyverse";
 import {
@@ -28,6 +29,7 @@ import {
 } from "@/constants/habit-data";
 import { useApp } from "@/context/app-context";
 import { useTheme } from "@/context/theme-context";
+
 
 const getDailyVerse = () => {
   const now = new Date();
@@ -134,10 +136,7 @@ export default function Habits() {
       <View className="px-5 flex-row items-center justify-between mb-2">
         <View>
           <Text className="text-primary text-base font-sora-semibold">
-            Habits
-          </Text>
-          <Text className="text-tertiary text-[10px] font-sora mt-0.5">
-            Spiritual disciplines
+            Your Spiritual Habits
           </Text>
         </View>
 
@@ -168,13 +167,27 @@ export default function Habits() {
             {(() => {
               const dailyVerse = getDailyVerse();
               return (
-                <View className="bg-card-1 rounded-2xl p-5 pb-12 overflow-hidden mb-6">
-                  <Text className="text-tertiary text-[10px] font-sora uppercase tracking-wider">
-                    {dailyVerse.ref}
-                  </Text>
-                  <Text className="text-primary/80 text-sm font-serif leading-7 mt-2">
-                    {dailyVerse.text}
-                  </Text>
+                <View className="rounded-3xl overflow-hidden mb-6">
+                  {/* Absolute pattern fills the card; content sits above it */}
+                  <Image
+                    source={require("@/assets/images/pattern.jpg")}
+                    className="absolute inset-0 opacity-40  w-full h-full"
+                    style={{ borderRadius: 24 }}
+                    resizeMode="cover"
+                  />
+
+                  {/* Pattern overlaid with the card surface color so text stays readable */}
+                  <View className="bg-card-2/80 p-5 pb-12">
+                    <Text className="text-tertiary text-[10px] font-sora ">
+                      {dailyVerse.ref}
+                    </Text>
+                    <Text
+                      numberOfLines={3}
+                      className="text-primary/80 text-xs font-serif leading-5 mt-2"
+                    >
+                      {dailyVerse.text}
+                    </Text>
+                  </View>
                   <Pressable
                     onPress={() => {
                       setBibleModalVerse({
@@ -184,9 +197,9 @@ export default function Habits() {
                       });
                       setShowBibleModal(true);
                     }}
-                    className="absolute bottom-0 right-0 bg-overlay px-4 py-2 rounded-tl-2xl"
+                    className="absolute bottom-0 right-0 bg-accent px-4 py-2 rounded-tl-2xl"
                   >
-                    <Text className="text-primary/60 text-[10px] font-sora">
+                    <Text className="text-bg text-[10px] font-sora-semibold">
                       Read full
                     </Text>
                   </Pressable>
@@ -232,12 +245,12 @@ export default function Habits() {
         }
         ListEmptyComponent={
           <View className="items-center mt-24">
-              <Text className="text-primary/60 text-sm font-sora-semibold">
-                No Habits Yet
-              </Text>
-              <Text className="text-tertiary text-center mt-2 px-10 text-xs font-sora leading-5">
-                Create your first spiritual habit and begin growing consistently.
-              </Text>
+            <Text className="text-primary/60 text-sm font-sora-semibold">
+              No Habits Yet
+            </Text>
+            <Text className="text-tertiary text-center mt-2 px-10 text-xs font-sora leading-5">
+              Create your first spiritual habit and begin growing consistently.
+            </Text>
           </View>
         }
         renderItem={({ item }: any) => <HabitCard item={item} />}

@@ -12,6 +12,7 @@ import {
   FlatList,
   Modal,
   Pressable,
+  SectionList,
   Text,
   TextInput,
   View,
@@ -30,6 +31,7 @@ import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/context/theme-context";
 
 /* ---------------------------- PURE ROW ---------------------------- */
 
@@ -51,7 +53,7 @@ const VerseRow = memo(
 
         <Text
           className={`flex-1 text-base leading-8 font-serif ${
-            selected ? "text-amber-300" : isRed ? "text-red-400" : "text-primary"
+            selected ? "text-amber-500" : isRed ? "text-red-500" : "text-primary"
           }`}
         >
           {item.text}
@@ -68,7 +70,8 @@ const VerseRow = memo(
 /* ---------------------------- MAIN ---------------------------- */
 
 export default function Bible() {
-  const { top } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
+  const { isDark } = useTheme();
   const params = useLocalSearchParams<{
     book?: string;
     chapter?: string;
@@ -348,6 +351,16 @@ export default function Bible() {
     return books.filter((b) => b.book.toLowerCase().includes(lower));
   }, [search, books]);
 
+  // Books grouped by Old / New Testament for the picker bottom sheet.
+  const bookSections = useMemo(() => {
+    const ot = filteredBooks.filter((b: any) => b.bookIndex < 40);
+    const nt = filteredBooks.filter((b: any) => b.bookIndex >= 40);
+    return [
+      { title: "Old Testament", data: ot },
+      { title: "New Testament", data: nt },
+    ].filter((s) => s.data.length > 0);
+  }, [filteredBooks]);
+
   /* ---------------------------- RENDER ITEM (STABLE) ---------------------------- */
 
   const renderVerse = useCallback(
@@ -366,6 +379,7 @@ export default function Bible() {
 
   const renderBook = useCallback(
     ({ item }: any) => {
+      const isSelected = selectedBookIndex === item.bookIndex;
       return (
         <View className="mb-3 rounded-3xl bg-card-1 overflow-hidden">
           <Pressable
@@ -375,9 +389,22 @@ export default function Bible() {
                 prev === item.bookIndex ? null : item.bookIndex,
               );
             }}
-            className="px-5 py-5 flex-row justify-between"
+            className={`px-5 py-4 flex-row items-center justify-between border-l-[3px] ${
+              isSelected ? "border-amber-400" : "border-transparent"
+            }`}
           >
-            <Text className="text-primary font-sora-semibold">{item.book}</Text>
+            <View className="flex-row items-center flex-1">
+              <Text className="text-quaternary text-[10px] font-sora-semibold w-8">
+                {item.bookIndex}
+              </Text>
+              <Text
+                className={`font-sora-semibold ${
+                  isSelected ? "text-amber-500" : "text-primary"
+                }`}
+              >
+                {item.book}
+              </Text>
+            </View>
 
             <Pressable
               onPress={() =>
@@ -385,40 +412,39 @@ export default function Bible() {
                   prev === item.bookIndex ? null : item.bookIndex,
                 )
               }
+              className="p-1"
             >
               {expandedBook === item.bookIndex ? (
-                <ChevronDown color="white" />
+                <ChevronDown color={isDark ? "#fff" : "#0c0c0c"} size={16} />
               ) : (
-                <ChevronRight color="white" />
+                <ChevronRight
+                  color={isDark ? "#fff" : "#0c0c0c"}
+                  size={16}
+                />
               )}
             </Pressable>
           </Pressable>
 
           {expandedBook === item.bookIndex ? (
-            <FlatList
-              horizontal
-              data={chapters}
-              keyExtractor={(i) => i.toString()}
-              renderItem={({ item: ch }) => (
+            <View className="px-5 pb-4 flex-row flex-wrap">
+              {chapters.map((ch) => (
                 <Pressable
+                  key={ch}
                   onPress={() => {
                     selectBook(item.bookIndex);
                     selectChapter(ch);
                   }}
-                  className="w-10 h-10 bg-bg m-2 rounded-xl items-center justify-center"
+                  className="w-10 h-10 bg-bg m-1 rounded-xl items-center justify-center"
                 >
-                  <Text className="text-primary">{ch}</Text>
+                  <Text className="text-primary text-xs">{ch}</Text>
                 </Pressable>
-              )}
-              removeClippedSubviews
-              maxToRenderPerBatch={8}
-              windowSize={5}
-            />
+              ))}
+            </View>
           ) : null}
         </View>
       );
     },
-    [expandedBook, chapters, selectBook, selectChapter],
+    [expandedBook, chapters, selectBook, selectChapter, selectedBookIndex, isDark],
   );
 
   /* ---------------------------- LOADING ---------------------------- */
@@ -503,44 +529,69 @@ export default function Bible() {
         }
       />
 
-      {/* MODAL */}
+      {/* MODAL — Book picker bottom sheet */}
       <Modal visible={open} transparent animationType="slide">
-        <View className="flex-1 justify-end bg-black/60">
-          <View className="bg-card-2 rounded-t-[32px] h-[80%]">
-            <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-line">
-              <Text className="text-primary text-sm font-sora-semibold">
-                Books of the Bible
-              </Text>
-              <Pressable onPress={() => setOpen(false)} className="p-1.5">
-                <X color="white" size={18} />
+        <Pressable
+          onPress={() => setOpen(false)}
+          className="flex-1 justify-end bg-black/60"
+        >
+          <Pressable onPress={() => {}} className="bg-card-1 rounded-t-[32px]" style={{ maxHeight: "85%", paddingBottom: bottom + 12 }}>
+            {/* Handle */}
+            <View className="items-center pt-3 pb-1">
+              <View className="w-10 h-1.5 rounded-full bg-line" />
+            </View>
+
+            {/* Header */}
+            <View className="flex-row items-center justify-between px-5 pt-2 pb-3">
+              <View>
+                <Text className="text-primary text-base font-sora-bold">
+                  Books of the Bible
+                </Text>
+                <Text className="text-tertiary text-[11px] font-sora">
+                  Tap a book to read, expand for chapters
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setOpen(false)}
+                className="w-9 h-9 bg-card-2 rounded-xl items-center justify-center"
+              >
+                <X color={isDark ? "#fff" : "#0c0c0c"} size={18} />
               </Pressable>
             </View>
+
             {/* SEARCH */}
             <View className="px-5 py-3 border-b border-line">
-              <View className="flex-row items-center bg-card-1 px-3 py-2.5 rounded-xl">
-                <Search color="#555" size={15} />
+              <View className="flex-row items-center bg-card-2 px-3 py-2.5 rounded-xl">
+                <Search color={isDark ? "#9ca3af" : "#71717a"} size={15} />
                 <TextInput
                   value={search}
                   onChangeText={setSearch}
                   placeholder="Search book..."
-                  placeholderTextColor="#555"
+                  placeholderTextColor={isDark ? "#555" : "#9ca3af"}
                   className="flex-1 text-primary/80 text-xs ml-2.5 font-sora"
                 />
               </View>
             </View>
 
-            {/* BOOK LIST */}
-            <FlatList
-              data={filteredBooks}
+            {/* BOOK LIST — grouped OT / NT */}
+            <SectionList
+              sections={bookSections}
+              keyExtractor={(i: any) => i.bookIndex.toString()}
               renderItem={renderBook}
-              keyExtractor={(i) => i.bookIndex.toString()}
+              renderSectionHeader={({ section }) => (
+                <Text className="px-6 pt-4 pb-1 text-secondary text-[11px] font-sora-semibold uppercase tracking-wider">
+                  {section.title}
+                </Text>
+              )}
+              stickySectionHeadersEnabled={false}
               removeClippedSubviews
               maxToRenderPerBatch={10}
               windowSize={6}
-              contentContainerStyle={{ padding: 16 }}
+              contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+              keyboardShouldPersistTaps="handled"
             />
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );

@@ -214,6 +214,7 @@ export default function PostDetail() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top + 10}
       className="flex-1 bg-bg"
     >
       <View style={{ paddingTop: top + 10 }} className="flex-1">
@@ -223,11 +224,12 @@ export default function PostDetail() {
             onPress={() => router.back()}
             className="w-9 h-9 rounded-xl bg-card-2 items-center justify-center mr-3"
           >
-            <ChevronLeft color="white" size={17} />
+            <ChevronLeft color="#888" size={17} />
           </Pressable>
           <Text className="text-primary text-base font-sora-semibold">Post</Text>
         </View>
 
+        <View className="flex-1">
         <FlatList
           data={comments}
           keyExtractor={(item) => item.id}
@@ -320,6 +322,8 @@ export default function PostDetail() {
           }
         />
 
+        </View>
+
         {/* Comment Input */}
         <View className="px-5 pb-8 pt-3 border-t border-line bg-bg">
           <View className="flex-row items-center bg-card-1 rounded-xl px-4 py-2.5">
@@ -354,7 +358,7 @@ export default function PostDetail() {
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-primary text-base font-sora-semibold">Edit Post</Text>
               <Pressable onPress={() => setEditVisible(false)} className="p-1.5">
-                <X size={18} color="#fff" />
+                <X size={18} color="#888" />
               </Pressable>
             </View>
             <TextInput

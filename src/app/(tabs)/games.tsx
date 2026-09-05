@@ -14,12 +14,12 @@ import {
   Calendar,
   Check,
   Flame,
-  Gamepad2,
   Trophy,
   Zap,
 } from "lucide-react-native";
 
 import Avatar from "@/components/Avatar";
+import { useTheme } from "@/context/theme-context";
 import { useToast } from "@/components/Toast";
 import { getChallengePeriod } from "@/constants/challenges";
 import type { ChallengeProgress } from "@/libs/sqlite/challenges";
@@ -48,6 +48,7 @@ export default function Games() {
   const { top } = useSafeAreaInsets();
   const { user, refreshUser } = useApp();
   const { showToast } = useToast();
+  const { isDark } = useTheme();
 
   const [section, setSection] = useState<Section>("challenges");
   const [challenges, setChallenges] = useState<ChallengeProgress[]>([]);
@@ -107,7 +108,7 @@ export default function Games() {
   if (loading) {
     return (
       <View className="flex-1 bg-bg items-center justify-center">
-        <ActivityIndicator color="white" size="small" />
+        <ActivityIndicator color={isDark ? "#fff" : "#0c0c0c"} size="small" />
       </View>
     );
   }
@@ -213,12 +214,18 @@ export default function Games() {
           <Pressable
             disabled={claimingId === item.id}
             onPress={() => handleClaim(item)}
-            className="mt-3 bg-white rounded-xl py-3 items-center"
+            className={`mt-3 rounded-xl py-3 items-center ${
+              isDark ? "bg-white" : "bg-accent"
+            }`}
           >
             {claimingId === item.id ? (
-              <ActivityIndicator color="black" size="small" />
+              <ActivityIndicator color={isDark ? "black" : "#0c0c0c"} size="small" />
             ) : (
-              <Text className="text-black text-xs font-sora-semibold">
+              <Text
+                className={`text-xs font-sora-semibold ${
+                  isDark ? "text-black" : "text-bg"
+                }`}
+              >
                 Claim +{item.reward} XP
               </Text>
             )}
@@ -250,19 +257,30 @@ export default function Games() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#fff"
+            tintColor={isDark ? "#fff" : "#0c0c0c"}
           />
         }
         ListHeaderComponent={
           <View className="px-5 mb-4">
-            <View className="flex-row items-center mb-4">
-              <View className="w-10 h-10 rounded-2xl bg-indigo-500/20 items-center justify-center">
-                <Gamepad2 size={18} color="#818cf8" />
+            {/* Hero header */}
+            <View className="mb-5 flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <View className="w-11 h-11 rounded-2xl bg-indigo-500/15 items-center justify-center">
+                  <Trophy size={20} color="#818cf8" />
+                </View>
+                <View className="ml-3">
+                  <Text className="text-primary text-xl font-sora-bold tracking-tight">
+                    Arena
+                  </Text>
+                  <Text className="text-tertiary text-xs font-sora">
+                    Compete, grow, and earn XP
+                  </Text>
+                </View>
               </View>
-              <View className="ml-3">
-                <Text className="text-primary text-xl font-sora-bold">Arena</Text>
-                <Text className="text-tertiary text-xs font-sora">
-                  Compete, grow, and earn XP
+              <View className="bg-card-1 rounded-full px-3 py-1.5 flex-row items-center">
+                <Zap size={12} color="#facc15" />
+                <Text className="text-primary text-xs font-sora-semibold ml-1">
+                  Season
                 </Text>
               </View>
             </View>
@@ -271,12 +289,20 @@ export default function Games() {
               <Pressable
                 onPress={() => setSection("challenges")}
                 className={`flex-1 py-3 rounded-xl items-center ${
-                  section === "challenges" ? "bg-white" : ""
+                  section === "challenges"
+                    ? isDark
+                      ? "bg-white"
+                      : "bg-bg"
+                    : ""
                 }`}
               >
                 <Text
                   className={`text-xs font-sora-semibold ${
-                    section === "challenges" ? "text-black" : "text-secondary"
+                    section === "challenges"
+                      ? isDark
+                        ? "text-black"
+                        : "text-primary"
+                      : "text-secondary"
                   }`}
                 >
                   Weekly Challenges
@@ -285,12 +311,20 @@ export default function Games() {
               <Pressable
                 onPress={() => setSection("leaderboard")}
                 className={`flex-1 py-3 rounded-xl items-center ${
-                  section === "leaderboard" ? "bg-white" : ""
+                  section === "leaderboard"
+                    ? isDark
+                      ? "bg-white"
+                      : "bg-bg"
+                    : ""
                 }`}
               >
                 <Text
                   className={`text-xs font-sora-semibold ${
-                    section === "leaderboard" ? "text-black" : "text-secondary"
+                    section === "leaderboard"
+                      ? isDark
+                        ? "text-black"
+                        : "text-primary"
+                      : "text-secondary"
                   }`}
                 >
                   Leaderboard
@@ -306,9 +340,11 @@ export default function Games() {
                     This Week's Challenges
                   </Text>
                 </View>
-                <Text className="text-tertiary text-[10px] font-sora">
-                  {period}
-                </Text>
+                <View className="bg-card-1 rounded-full px-2.5 py-1">
+                  <Text className="text-tertiary text-[10px] font-sora">
+                    {period}
+                  </Text>
+                </View>
               </View>
             )}
 

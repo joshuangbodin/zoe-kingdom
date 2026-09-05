@@ -158,10 +158,10 @@ export default function CompleteHabit() {
           onPress={() => router.back()}
           className="w-9 h-9 rounded-xl bg-card-1 items-center justify-center"
         >
-          <ChevronLeft color="#fff" size={18} />
+          <ChevronLeft color={isDark ? "#fff" : "#0c0c0c"} size={18} />
         </Pressable>
         <Pressable className="w-9 h-9 rounded-xl bg-card-1 items-center justify-center">
-          <Music color="#fff" size={16} />
+          <Music color={isDark ? "#fff" : "#0c0c0c"} size={16} />
         </Pressable>
       </View>
 
