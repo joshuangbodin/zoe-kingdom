@@ -22,6 +22,7 @@ import Avatar from "@/components/Avatar";
 import { useTheme } from "@/context/theme-context";
 import { useToast } from "@/components/Toast";
 import { getChallengePeriod } from "@/constants/challenges";
+import { getLevelFromXP, getProgressPercentage } from "@/constants/levels";
 import type { ChallengeProgress } from "@/libs/sqlite/challenges";
 import {
   claimChallenge,
@@ -114,45 +115,52 @@ export default function Games() {
   }
 
   const period = getChallengePeriod();
+  const userRank = leaderboard.find((r: any) => r.isYou)?.rank ?? null;
+  const userLevel = getLevelFromXP(user?.xp ?? 0);
+  const userXpProgress = getProgressPercentage(user?.xp ?? 0);
   /* ------------------------------ Leaderboard row ------------------------------ */
   const renderLeaderboardItem = ({ item }: { item: any }) => {
     const medal =
-      item.rank === 1
-        ? "#fbbf24"
-        : item.rank === 2
-          ? "#c0c0c0"
-          : item.rank === 3
-            ? "#d97706"
-            : "#666";
+      item.rank === 1 ? "#f59e0b" : item.rank === 2 ? "#94a3b8" : item.rank === 3 ? "#d97706" : null;
     return (
       <View
-        className={`flex-row items-center px-4 py-3 rounded-2xl mb-2 ${
-          item.isYou ? "bg-overlay border border-primary/40" : "bg-card-1"
+        className={`flex-row items-center px-4 py-3.5 rounded-2xl mb-2 ${
+          item.isYou ? "bg-amber-500/10 border border-amber-500/30" : "bg-card-1"
         }`}
       >
-        <Text
-          className={`w-8 font-sora-bold text-sm ${item.rank <= 3 ? "" : "text-tertiary"}`}
-          style={item.rank <= 3 ? { color: medal } : undefined}
-        >
-          {item.rank}
-        </Text>
+        {medal ? (
+          <View
+            className="w-8 h-8 rounded-full items-center justify-center"
+            style={{ backgroundColor: medal + "26" }}
+          >
+            <Trophy size={14} color={medal} />
+          </View>
+        ) : (
+          <Text className="w-8 text-center font-sora-bold text-sm text-tertiary">
+            {item.rank}
+          </Text>
+        )}
         <Avatar index={item.avatar} diameter={34} />
         <View className="flex-1 ml-3">
-          <Text className="text-primary text-sm font-sora-semibold">
-            {item.username}
+          <View className="flex-row items-center">
+            <Text className="text-primary text-sm font-sora-semibold">
+              {item.username}
+            </Text>
             {item.isYou && (
-              <Text className="text-secondary text-[10px] font-sora ml-1">
-                (you)
-              </Text>
+              <View className="ml-2 bg-amber-500/15 rounded-full px-2 py-0.5">
+                <Text className="text-amber-500 text-[10px] font-sora-semibold">
+                  You
+                </Text>
+              </View>
             )}
-          </Text>
+          </View>
           <Text className="text-tertiary text-[10px] font-sora mt-0.5">
-            Level {item.level}
+            Level {item.level} · {item.seasonXP} XP
           </Text>
         </View>
         <View className="flex-row items-center">
-          <Zap size={13} color="#facc15" />
-          <Text className="text-primary text-sm font-sora-bold ml-1">
+          <Zap size={13} color={item.isYou ? "#f59e0b" : "#a3a3a3"} />
+          <Text className={`text-sm font-sora-bold ml-1 ${item.isYou ? "text-amber-500" : "text-primary"}`}>
             {item.seasonXP}
           </Text>
         </View>
@@ -183,15 +191,29 @@ export default function Games() {
               {item.description}
             </Text>
           </View>
-          <View className="flex-row items-center">
-            <Zap size={13} color="#facc15" />
-            <Text className="text-primary text-sm font-sora-bold ml-1">
+          <View
+            className="px-2.5 py-1.5 rounded-full flex-row items-center"
+            style={{ backgroundColor: item.color + "1f" }}
+          >
+            <Zap size={12} color={item.color} />
+            <Text
+              className="text-sm font-sora-bold ml-1"
+              style={{ color: item.color }}
+            >
               +{item.reward}
             </Text>
           </View>
         </View>
 
-        <View className="h-2 bg-overlay rounded-full mt-4 overflow-hidden">
+        <View className="flex-row items-center justify-between mt-4 mb-1.5">
+          <Text className="text-secondary text-[10px] font-sora">
+            Progress
+          </Text>
+          <Text className="text-secondary text-[10px] font-sora-semibold">
+            {item.progress}/{item.target}
+          </Text>
+        </View>
+        <View className="h-2 bg-overlay rounded-full overflow-hidden">
           <View
             style={{
               width: `${pct}%`,
@@ -200,13 +222,10 @@ export default function Games() {
             className="h-full rounded-full"
           />
         </View>
-        <Text className="text-secondary text-[10px] font-sora mt-1.5">
-          {item.progress}/{item.target}
-        </Text>
 
         {claimed ? (
-          <View className="mt-3 rounded-xl py-3 items-center bg-overlay">
-            <Text className="text-secondary text-xs font-sora-semibold">
+          <View className="mt-4 rounded-xl py-3 items-center bg-emerald-500/15 border border-emerald-500/20">
+            <Text className="text-emerald-500 text-xs font-sora-semibold">
               Claimed ✓
             </Text>
           </View>
@@ -214,7 +233,7 @@ export default function Games() {
           <Pressable
             disabled={claimingId === item.id}
             onPress={() => handleClaim(item)}
-            className={`mt-3 rounded-xl py-3 items-center ${
+            className={`mt-4 rounded-xl py-3 items-center ${
               isDark ? "bg-white" : "bg-accent"
             }`}
           >
@@ -231,7 +250,7 @@ export default function Games() {
             )}
           </Pressable>
         ) : (
-          <View className="mt-3 rounded-xl py-3 items-center bg-card-2">
+          <View className="mt-4 rounded-xl py-3 items-center bg-card-2">
             <Text className="text-tertiary text-xs font-sora-semibold">
               Keep going — {item.progress}/{item.target}
             </Text>
@@ -263,46 +282,67 @@ export default function Games() {
         ListHeaderComponent={
           <View className="px-5 mb-4">
             {/* Hero header */}
-            <View className="mb-5 flex-row items-center justify-between">
-              <View className="flex-row items-center">
-                <View className="w-11 h-11 rounded-2xl bg-indigo-500/15 items-center justify-center">
-                  <Trophy size={20} color="#818cf8" />
+            <View className="rounded-3xl p-5 mb-5 bg-card-1 border border-line overflow-hidden">
+              <View
+                className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-amber-500/10"
+                pointerEvents="none"
+              />
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center flex-1 min-w-0">
+                  <View className="w-12 h-12 rounded-2xl bg-amber-500/15 items-center justify-center">
+                    <Trophy size={22} color="#f59e0b" />
+                  </View>
+                  <View className="ml-3 flex-1 min-w-0">
+                    <Text className="text-primary text-lg font-sora-bold tracking-tight">
+                      Arena
+                    </Text>
+                    <Text className="text-tertiary text-xs font-sora">
+                      Compete, grow, and earn XP
+                    </Text>
+                  </View>
                 </View>
-                <View className="ml-3">
-                  <Text className="text-primary text-xl font-sora-bold tracking-tight">
-                    Arena
-                  </Text>
-                  <Text className="text-tertiary text-xs font-sora">
-                    Compete, grow, and earn XP
-                  </Text>
-                </View>
+                {userRank ? (
+                  <View className="items-end">
+                    <Text className="text-tertiary text-[10px] font-sora-semibold uppercase tracking-widest">
+                      Your rank
+                    </Text>
+                    <Text className="text-amber-500 text-2xl font-sora-bold">
+                      #{userRank}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
-              <View className="bg-card-1 rounded-full px-3 py-1.5 flex-row items-center">
-                <Zap size={12} color="#facc15" />
-                <Text className="text-primary text-xs font-sora-semibold ml-1">
-                  Season
-                </Text>
+
+              {/* User progress */}
+              <View className="mt-5">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-primary text-xs font-sora-semibold">
+                    Level {userLevel}
+                  </Text>
+                  <Text className="text-tertiary text-[10px] font-sora">
+                    {user?.xp ?? 0} XP
+                  </Text>
+                </View>
+                <View className="h-2 bg-overlay rounded-full overflow-hidden">
+                  <View
+                    style={{ width: `${userXpProgress}%` }}
+                    className="h-full rounded-full bg-amber-500"
+                  />
+                </View>
               </View>
             </View>
 
+            {/* Segmented control */}
             <View className="flex-row bg-card-1 rounded-2xl p-1 mb-4">
               <Pressable
                 onPress={() => setSection("challenges")}
                 className={`flex-1 py-3 rounded-xl items-center ${
-                  section === "challenges"
-                    ? isDark
-                      ? "bg-white"
-                      : "bg-bg"
-                    : ""
+                  section === "challenges" ? "bg-card-2" : ""
                 }`}
               >
                 <Text
                   className={`text-xs font-sora-semibold ${
-                    section === "challenges"
-                      ? isDark
-                        ? "text-black"
-                        : "text-primary"
-                      : "text-secondary"
+                    section === "challenges" ? "text-primary" : "text-secondary"
                   }`}
                 >
                   Weekly Challenges
@@ -311,20 +351,12 @@ export default function Games() {
               <Pressable
                 onPress={() => setSection("leaderboard")}
                 className={`flex-1 py-3 rounded-xl items-center ${
-                  section === "leaderboard"
-                    ? isDark
-                      ? "bg-white"
-                      : "bg-bg"
-                    : ""
+                  section === "leaderboard" ? "bg-card-2" : ""
                 }`}
               >
                 <Text
                   className={`text-xs font-sora-semibold ${
-                    section === "leaderboard"
-                      ? isDark
-                        ? "text-black"
-                        : "text-primary"
-                      : "text-secondary"
+                    section === "leaderboard" ? "text-primary" : "text-secondary"
                   }`}
                 >
                   Leaderboard
@@ -337,7 +369,7 @@ export default function Games() {
                 <View className="flex-row items-center">
                   <Trophy size={14} color="#fbbf24" />
                   <Text className="text-primary text-sm font-sora-semibold ml-2">
-                    This Week's Challenges
+                    {`This Week's Challenges`}
                   </Text>
                 </View>
                 <View className="bg-card-1 rounded-full px-2.5 py-1">
