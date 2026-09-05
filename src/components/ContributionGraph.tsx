@@ -7,24 +7,23 @@ import { useTheme } from "@/context/theme-context";
 import { getYearContributions } from "../libs/sqlite/contributions";
 
 /**
- * Snapchat-yellow intensity scale, tuned per theme so every level reads
- * clearly (intensity increases toward level 4) while the empty cell stays a
+ * Simple monochrome intensity scale. Fewer colors, matched to the active
+ * theme: on dark, cells step up through white opacities toward solid white;
+ * on light they step through neutral grays toward near-black. Level 0 stays a
  * subtle, visible tint on the current background.
  */
 const LIGHT_COLORS: Record<number, string> = {
   0: "rgba(0,0,0,0.05)", // inactive
-  1: "#d8c363", // low
-  2: "#bfa62f", // medium
-  3: "#9e8509", // high
-  4: "#7a6300", // peak
+  1: "rgba(0,0,0,0.35)", // low — zinc-300
+  2: "rgba(0,0,0,0.65)", // medium — zinc-400
+  3: "rgba(0,0,0,1)", // peak — primary / near-black
 };
 
 const DARK_COLORS: Record<number, string> = {
-  0: "rgba(255,252,0,0.07)", // inactive
-  1: "#5c4a10", // low
-  2: "#8a6d10", // medium
-  3: "#c2a21e", // high
-  4: "#fffc00", // peak — Snapchat yellow
+  0: "rgba(255,255,255,0.05)", // inactive
+  1: "rgba(255,255,255,0.35)", // low
+  2: "rgba(255,255,255,0.65)", // medium
+  3: "#ffffff", // peak — white
 };
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -165,7 +164,7 @@ export default function ContributionGraph() {
         <View className="flex-row items-center">
           <Pressable
             onPress={() => setYear(year - 1)}
-            className="w-8 h-8 items-center justify-center"
+            className="w-8 h-8 items-center bg-card-1 rounded-l-3xl justify-center"
           >
             <ChevronLeft color={chevronColor} />
           </Pressable>
@@ -174,7 +173,7 @@ export default function ContributionGraph() {
 
           <Pressable
             onPress={() => setYear(year + 1)}
-            className="w-8 h-8 items-center justify-center"
+            className="w-8 h-8 items-center bg-card-1 rounded-r-3xl justify-center"
           >
             <ChevronRight color={chevronColor} />
           </Pressable>
@@ -234,7 +233,9 @@ export default function ContributionGraph() {
       <View className="flex-row items-center justify-end mt-5">
         <Text className="text-secondary text-xs mr-2">Less</Text>
 
-        {[0, 1, 2, 3, 4].map((level) => (
+        {[
+          0, 1, 2, 3,
+        ].map((level) => (
           <View
             key={level}
             style={{

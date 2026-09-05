@@ -3,7 +3,7 @@ import { sqlite } from "./db";
 export type ContributionDay = {
   date: string; // YYYY-MM-DD
   count: number;
-  level: 0 | 1 | 2 | 3 | 4;
+  level: 0 | 1 | 2 | 3;
 };
 
 // normalize date
@@ -34,13 +34,12 @@ export const getYearContributions = async (year: number) => {
 
     const count = map[key] || 0;
 
-    let level: 0 | 1 | 2 | 3 | 4 = 0;
+    let level: 0 | 1 | 2 | 3 = 0;
 
     if (count === 0) level = 0;
     else if (count === 1) level = 1;
     else if (count <= 2) level = 2;
-    else if (count <= 4) level = 3;
-    else level = 4;
+    else level = 3;
 
     result.push({ date: key, count, level });
   }

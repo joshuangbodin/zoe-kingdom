@@ -452,7 +452,7 @@ export default function Bible() {
   if (loading) {
     return (
       <View className="flex-1 bg-bg items-center justify-center">
-        <ActivityIndicator color="white" />
+        <ActivityIndicator color={isDark ? "#fff" : "#0c0c0c"} />
         <Text className="text-primary mt-4">Loading Bible...</Text>
       </View>
     );
@@ -468,7 +468,7 @@ export default function Bible() {
           onPress={goPrev}
           className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center"
         >
-          <ChevronLeft color="white" size={18} />
+          <ChevronLeft color={isDark ? "#fff" : "#0c0c0c"} size={18} />
         </Pressable>
 
         <Pressable
@@ -486,7 +486,7 @@ export default function Bible() {
           onPress={goNext}
           className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center"
         >
-          <ChevronRight color="white" size={18} />
+          <ChevronRight color={isDark ? "#fff" : "#0c0c0c"} size={18} />
         </Pressable>
       </View>
 

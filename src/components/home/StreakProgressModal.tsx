@@ -34,11 +34,7 @@ const TIPS = [
   {
     title: "One miss stays as long as you restart",
     body: "Missed a day? Getting back on track today still builds a fresh streak.",
-  },
-  {
-    title: "Small habits beat big plans",
-    body: "A tiny daily habit is easier to keep alive than an ambitious weekly one.",
-  },
+  }
 ];
 
 const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
@@ -46,7 +42,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
     const { isDark } = useTheme();
     const sheetRef = useRef<BottomSheetModal>(null);
 
-    const snapPoints = useMemo(() => ["62%", "80%"], []);
+    const snapPoints = useMemo(() => ["62%", "90%"], []);
 
     const dismiss = useCallback(() => {
       sheetRef.current?.dismiss();
@@ -105,7 +101,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
                 onTouchEnd={dismiss}
                 className="w-8 h-8 rounded-full bg-overlay items-center justify-center"
               >
-                <X size={16} color={isDark ? "#888" : "#52525b"} />
+                <X size={16} color={iconColor} />
               </View>
             </View>
 
