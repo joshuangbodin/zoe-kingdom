@@ -535,7 +535,7 @@ export default function Bible() {
           onPress={() => setOpen(false)}
           className="flex-1 justify-end bg-black/60"
         >
-          <Pressable onPress={() => {}} className="bg-card-1 rounded-t-[32px]" style={{ maxHeight: "85%", paddingBottom: bottom + 12 }}>
+          <Pressable onPress={() => {}} className="bg-card-1 rounded-t-4xl" style={{ maxHeight: "85%", paddingBottom: bottom + 12 }}>
             {/* Handle */}
             <View className="items-center pt-3 pb-1">
               <View className="w-10 h-1.5 rounded-full bg-line" />
