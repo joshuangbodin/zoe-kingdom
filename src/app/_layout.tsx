@@ -13,6 +13,7 @@ import "../global.css";
 import AppProvider from "@/context/app-context";
 import { ThemeProvider, useTheme } from "@/context/theme-context";
 import { ToastProvider } from "@/components/Toast";
+import HabitReminderWorker from "@/components/reminders/HabitReminderWorker";
 import { initDB } from "@/libs/sqlite/db";
 import { Stack } from "expo-router";
 
@@ -62,6 +63,7 @@ export default function TabLayout() {
       <ThemeProvider>
         <AppProvider>
           <ToastProvider>
+            <HabitReminderWorker />
             <NavigationThemeBridge>
               <BottomSheetModalProvider>
                 <Stack screenOptions={{ headerShown: false }} />

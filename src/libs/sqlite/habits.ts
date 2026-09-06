@@ -22,6 +22,10 @@ export type Habit = {
   duration: number;
 
   archived: number;
+  /** 0 = off, 1 = remind me daily at `remindAt`. */
+  remindEnabled: number;
+  /** "HH:MM" in 24h, e.g. "08:30". Null when no reminder is set. */
+  remindAt: string | null;
   createdAt: string;
 };
 
@@ -37,6 +41,8 @@ export const createHabit = async ({
   color = "#FFD166",
   xpReward = 10,
   duration = 10,
+  remindEnabled = 0,
+  remindAt = null,
 }: {
   title: string;
   category?: string;
@@ -53,6 +59,8 @@ export const createHabit = async ({
   color?: string;
   xpReward?: number;
   duration?: number;
+  remindEnabled?: number;
+  remindAt?: string | null;
 }) => {
   const id = `hb-${Date.now()}`;
 
@@ -67,10 +75,12 @@ export const createHabit = async ({
     color,
     xpReward,
     duration,
+    remindEnabled,
+    remindAt,
     archived,
     createdAt
   )
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
     [
       id,
@@ -81,12 +91,32 @@ export const createHabit = async ({
       color,
       xpReward,
       duration,
+      remindEnabled,
+      remindAt,
       0,
       new Date().toISOString(),
     ],
   );
 
   return id;
+};
+
+/**
+ * Enable/disable (and set the time for) a habit's daily reminder.
+ * Passing an empty `time` turns the reminder off.
+ */
+export const setHabitReminder = async (
+  habitId: string,
+  enabled: boolean,
+  time?: string | null,
+) => {
+  const remindAt =
+    enabled && time && /^[0-2][0-9]:[0-5][0-9]$/.test(time) ? time : null;
+
+  await sqlite.runAsync(
+    `UPDATE habits SET remindEnabled = ?, remindAt = ? WHERE id = ?`,
+    [remindAt ? 1 : 0, remindAt, habitId],
+  );
 };
 
 // GET ALL ACTIVE HABITS

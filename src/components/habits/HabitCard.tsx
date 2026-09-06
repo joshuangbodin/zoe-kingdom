@@ -3,7 +3,7 @@ import { useApp } from "@/context/app-context";
 import { useTheme } from "@/context/theme-context";
 import { getHabitStatus } from "@/libs/sqlite/habits";
 import { router } from "expo-router";
-import { CheckCheck, ChevronRight, Moon, Sun } from "lucide-react-native";
+import { BellRing, CheckCheck, ChevronRight, Moon, Sun } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { PressableScale } from "react-native-pressable-scale";
@@ -54,6 +54,12 @@ const HabitCard = ({ item }: { item: any }) => {
             </Text>
             <Text className="text-tertiary mt-0.5 text-[10px] font-sora">
               {item.frequency?.replace("_", " ")} · {item.xpReward}xp
+              {item.remindEnabled && item.remindAt ? (
+                <Text className="text-amber-500">
+                  {" "}
+                  · <BellRing size={9} color="#f59e0b" /> {formatReminder(item.remindAt)}
+                </Text>
+              ) : null}
             </Text>
           </View>
 
@@ -125,3 +131,12 @@ const HabitCard = ({ item }: { item: any }) => {
 };
 
 export default HabitCard;
+
+/** "HH:MM" (24h) -> friendly "8:30am". */
+const formatReminder = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  const period = h >= 12 ? "pm" : "am";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  const mins = m ? `:${String(m).padStart(2, "0")}` : "";
+  return `${hour12}${mins}${period}`;
+};

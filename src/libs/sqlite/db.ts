@@ -9,8 +9,13 @@ export const sqlite = SQLite.openDatabaseSync("zoe-kingdom.db");
  * the seeder stores human-readable string ids ("0-0-0"). Inserting a string into
  * an INTEGER column throws SQLite error code 20 (datatype mismatch). v2 rebuilds
  * the table with a TEXT primary key so string ids work correctly.
+ *
+ * v2 -> v3: adds per-habit reminders. `remindEnabled` toggles the reminder
+ * (a self-contained, offline background poller in `libs/reminders`), and
+ * `remindAt` stores the daily time as "HH:MM" (24h) when the user wants to be
+ * pinged.
  */
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 const CREATE_TABLES = `
   CREATE TABLE IF NOT EXISTS spirit_state (
@@ -31,6 +36,8 @@ const CREATE_TABLES = `
     xpReward INTEGER DEFAULT 10,
     duration INTEGER DEFAULT 10,
     archived INTEGER DEFAULT 0,
+    remindEnabled INTEGER DEFAULT 0,
+    remindAt TEXT,
     createdAt TEXT NOT NULL
   );
 
@@ -85,6 +92,22 @@ export const initDB = async () => {
     // Migration: rebuild bible_verses when the previous schema had an INTEGER id.
     if (currentVersion < 2) {
       await sqlite.execAsync("DROP TABLE IF EXISTS bible_verses;");
+    }
+
+    // Migration: add per-habit reminder columns (idempotent, guarded).
+    if (currentVersion < 3) {
+      const cols = (await sqlite.getAllAsync("PRAGMA table_info(habits);")) as {
+        name: string;
+      }[];
+      const has = (name: string) => cols.some((c) => c.name === name);
+      if (!has("remindEnabled")) {
+        await sqlite.execAsync(
+          "ALTER TABLE habits ADD COLUMN remindEnabled INTEGER DEFAULT 0;",
+        );
+      }
+      if (!has("remindAt")) {
+        await sqlite.execAsync("ALTER TABLE habits ADD COLUMN remindAt TEXT;");
+      }
     }
 
     await sqlite.execAsync(CREATE_TABLES);

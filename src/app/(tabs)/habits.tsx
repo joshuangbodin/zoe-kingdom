@@ -54,6 +54,10 @@ export default function Habits() {
 
   const [duration, setDuration] = useState(10);
 
+  const [remindEnabled, setRemindEnabled] = useState(false);
+  const [remindHour, setRemindHour] = useState(8);
+  const [remindMin, setRemindMin] = useState(0);
+
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0]);
 
   const [frequency, setFrequency] = useState<
@@ -114,9 +118,14 @@ export default function Habits() {
         color: selectedCategory.color,
         frequency,
         duration,
+        remindEnabled: remindEnabled ? 1 : 0,
+        remindAt: remindEnabled
+          ? `${String(remindHour).padStart(2, "0")}:${String(remindMin).padStart(2, "0")}`
+          : null,
       });
 
       setTitle("");
+      setRemindEnabled(false);
       setOpen(false);
       showToast("Habit created!", "success");
 
@@ -381,6 +390,89 @@ export default function Habits() {
                 );
               })}
             </View>
+
+            {/* Reminder */}
+            <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
+              Daily reminder
+            </Text>
+            <View className="flex-row items-center justify-between bg-card-1 rounded-xl px-4 py-3.5 mb-3">
+              <View className="flex-1">
+                <Text className="text-primary text-[13px] font-sora-semibold">
+                  Notify me
+                </Text>
+                <Text className="text-tertiary text-[10px] font-sora mt-[1px]">
+                  {`We'll nudge you at your chosen time`}
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setRemindEnabled(!remindEnabled)}
+                className={`w-12 h-7 rounded-full items-center ${
+                  remindEnabled ? "bg-accent justify-end" : "bg-overlay justify-start"
+                }`}
+              >
+                <View className="w-5 h-5 rounded-full bg-white ml-0.5 mr-0.5" />
+              </Pressable>
+            </View>
+
+            {remindEnabled && (
+              <>
+                {/* Hour */}
+                <Text className="text-tertiary text-[10px] font-sora-medium mb-1.5">
+                  Hour
+                </Text>
+                <View className="flex-row flex-wrap gap-2 mb-2.5">
+                  {[6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(
+                    (h) => {
+                      const active = remindHour === h;
+                      return (
+                        <Pressable
+                          key={h}
+                          onPress={() => setRemindHour(h)}
+                          className={`w-9 h-8 rounded-lg items-center ${
+                            active ? "bg-accent" : "bg-card-1"
+                          }`}
+                        >
+                          <Text
+                            className={`text-[11px] font-sora-medium ${
+                              active ? "text-bg" : "text-primary/70"
+                            }`}
+                          >
+                            {h > 12 ? h - 12 : h}
+                          </Text>
+                        </Pressable>
+                      );
+                    },
+                  )}
+                </View>
+
+                {/* Minute */}
+                <Text className="text-tertiary text-[10px] font-sora-medium mb-1.5">
+                  Minutes
+                </Text>
+                <View className="flex-row flex-wrap gap-2 mb-6">
+                  {[0, 15, 30, 45].map((m) => {
+                    const active = remindMin === m;
+                    return (
+                      <Pressable
+                        key={m}
+                        onPress={() => setRemindMin(m)}
+                        className={`px-3.5 py-2 rounded-lg ${
+                          active ? "bg-accent" : "bg-card-1"
+                        }`}
+                      >
+                        <Text
+                          className={`text-[11px] font-sora-medium ${
+                            active ? "text-bg" : "text-primary/70"
+                          }`}
+                        >
+                          {String(m).padStart(2, "0")}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </>
+            )}
 
             {/* Actions */}
             <View className="flex-row gap-3">
