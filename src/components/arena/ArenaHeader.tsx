@@ -1,7 +1,10 @@
 import React, { memo } from "react";
 import { Pressable, Text, View } from "react-native";
-
 import { useTheme } from "@/context/theme-context";
+import Animated, {
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
 
 export type ArenaSection = "challenges" | "leaderboard";
 
@@ -16,9 +19,14 @@ const SEGMENTS: { id: ArenaSection; label: string }[] = [
   { id: "leaderboard", label: "Leaderboard" },
 ];
 
+const SPRING_CONFIG = {
+  damping: 15,
+  stiffness: 180,
+  mass: 0.7,
+};
+
 /**
- * Slim, minimal segmented control that crowns the arena. The heavy
- * section-relative content (podium, etc.) lives in the list below it.
+ * Slim, minimal segmented control that crowns the arena.
  */
 export default memo(function ArenaHeader({
   section,
@@ -28,48 +36,57 @@ export default memo(function ArenaHeader({
   const { isDark } = useTheme();
 
   return (
-    <View className="px-4 pt-3">
-      <View className="flex-row bg-card-1 rounded-full p-0.75 border border-line">
+    <View className="mb-3 pt-3">
+      <View className="flex-row rounded-full">
         {SEGMENTS.map((seg) => {
           const active = section === seg.id;
+
+          const animatedStyle = useAnimatedStyle(() => {
+            return {
+              transform: [
+                {
+                  scale: withSpring(active ? 1 : 0.9, SPRING_CONFIG),
+                },
+              ],
+              opacity: withSpring(active ? 1 : 0.65, SPRING_CONFIG),
+            };
+          }, [active]);
+
           return (
             <Pressable
               key={seg.id}
               onPress={() => onSectionChange(seg.id)}
-              className="flex-1 py-1.75 rounded-full items-center"
-              style={
-                active
-                  ? isDark
-                    ? { backgroundColor: "#27272a" }
-                    : { backgroundColor: "#0c0c0c" }
-                  : { backgroundColor: "transparent" }
-              }
+              className="pr-5"
             >
-              <Text
-                className="text-[11px] font-sora-semibold"
-                style={{
-                  color: active
-                    ? "#fff"
-                    : isDark
-                      ? "#a1a1aa"
-                      : "#71717a",
-                }}
+              <Animated.Text
+                className="text-lg font-sora-semibold"
+                style={[
+                  {
+                    color: active
+                      ? "#fff"
+                      : isDark
+                        ? "#a1a1aa"
+                        : "#71717a",
+                  },
+                  animatedStyle,
+                ]}
               >
                 {seg.label}
-              </Text>
+              </Animated.Text>
             </Pressable>
           );
         })}
       </View>
 
-      <View className="flex-row items-center justify-between mt-4">
+      {/* <View className="mt-4 flex-row items-center justify-between">
         <Text className="text-secondary text-[11px] font-sora-semibold uppercase tracking-wider">
           {section === "challenges" ? "Weekly Challenges" : "Top Players"}
         </Text>
+
         <Text className="text-quaternary text-[9px] font-sora-medium">
           {rightMeta}
         </Text>
-      </View>
+      </View> */}
     </View>
   );
 });

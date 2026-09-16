@@ -151,7 +151,7 @@ export default function Games() {
       />
 
       {/* User progress footer (your path to the next level) */}
-      <View
+      {/* <View
         className="absolute bottom-0 left-0 right-0 bg-card-1/95 border-t border-line px-5 py-3 flex-row items-center"
         style={{ paddingBottom: 12 }}
       >
@@ -171,7 +171,7 @@ export default function Games() {
             />
           </View>
         </View>
-      </View>
+      </View> */}
     </View>
   );
 }

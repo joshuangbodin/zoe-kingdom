@@ -408,7 +408,7 @@ export default function Habits() {
                 <Text className="text-primary text-[13px] font-sora-semibold">
                   Notify me
                 </Text>
-                <Text className="text-tertiary text-[10px] font-sora mt-[1px]">
+                <Text className="text-tertiary text-[10px] font-sora mt-px">
                   {`We'll nudge you at your chosen time`}
                 </Text>
               </View>

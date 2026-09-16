@@ -15,9 +15,9 @@ export type PodiumUser = {
 };
 
 const STEPS: Record<number, { h: number; color: string; order: number }> = {
-  1: { h: 64, color: "#f59e0b", order: 1 },
-  2: { h: 44, color: "#cbd5e1", order: 0 },
-  3: { h: 34, color: "#d97706", order: 2 },
+  1: { h: 84, color: "#f59e0b", order: 1 },
+  2: { h: 64, color: "#cbd5e1", order: 0 },
+  3: { h: 54, color: "#d97706", order: 2 },
 };
 
 type Props = { users: PodiumUser[] };
@@ -38,7 +38,7 @@ export default function LeaderboardPodium({ users }: Props) {
     .sort((a, b) => a.step.order - b.step.order);
 
   return (
-    <View className="px-4 mt-6 mb-5">
+    <View className="p-4 mt-6 mb-5 bg-card-1 rounded-3xl">
       <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-4 text-center">
         Top Players
       </Text>
@@ -48,21 +48,21 @@ export default function LeaderboardPodium({ users }: Props) {
           <View key={u.uid} className="items-center" style={{ width: 96 }}>
             {/* Floating avatar */}
             <View
-              className={`items-center ${u.isYou ? "" : ""}`}
+              className={`items-center  rounded-full justify-end ${u.isYou ? "bg-amber-300/50 border border-amber-400" : "bg-bg"}`}
               style={{
-                width: u.step.h + 22,
-                height: u.step.h + 22,
+                width: u.step.h ,
+                height: u.step.h ,
               }}
             >
-              <Avatar index={u.avatar} diameter={u.step.h + 22} />
+              <Avatar index={u.avatar} diameter={u.step.h} />
             </View>
 
             {/* Meta */}
-            <View className="items-center">
+            <View className="items-center mb-4">
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                className="text-primary text-[11px] font-sora-semibold mt-0.5 max-w-[96px]"
+                className="text-primary text-[11px] font-sora-semibold mt-0.5 max-w-24"
               >
                 {u.username}
               </Text>
@@ -73,16 +73,11 @@ export default function LeaderboardPodium({ users }: Props) {
 
             {/* Step / pedestal */}
             <View
-              className="w-full rounded-t-[6px] items-center justify-start"
-              style={{ height: u.step.h, backgroundColor: u.step.color + "26" }}
+              className="w-full rounded-t-2xl items-center justify-start"
+              style={{ height: u.step.h, backgroundColor: u.step.color }}
             >
-              <View
-                className="w-5 h-5 rounded-full items-center justify-center -mt-1"
-                style={{ backgroundColor: u.step.color }}
-              >
-                <Trophy size={11} color="#0c0c0c" />
-              </View>
-              <Text className="text-primary text-[12px] font-sora-bold tabular-nums mt-0.5">
+              
+              <Text className="text-primary text-2xl font-sora-bold tabular-nums mt-0.5">
                 {u.rank}
               </Text>
             </View>

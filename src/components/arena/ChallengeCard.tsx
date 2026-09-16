@@ -19,11 +19,11 @@ export default function ChallengeCard({ item, claiming, onClaim }: Props) {
     item.target > 0 ? Math.min((item.progress / item.target) * 100, 100) : 0;
 
   return (
-    <View className="bg-card-1 rounded-2xl p-3.5 mb-3 border border-line">
+    <View className="border-b border-line p-3.5 mb-3 ">
       <View className="flex-row items-center">
         {/* Icon tile */}
         <View
-          className="h-11 w-11 rounded-[10px] items-center justify-center"
+          className="h-11 w-11 rounded-full items-center justify-center"
           style={{ backgroundColor: item.color }}
         >
           {iconFor(item.icon, 18, "#fff")}
@@ -34,14 +34,14 @@ export default function ChallengeCard({ item, claiming, onClaim }: Props) {
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            className="text-primary text-[13px] font-sora-semibold"
+            className="text-primary text-sm font-sora-semibold"
           >
             {item.title}
           </Text>
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            className="text-tertiary text-[10px] font-sora mt-[1px]"
+            className="text-tertiary text-xs font-sora mt-0.5"
           >
             {item.description}
           </Text>
@@ -50,7 +50,7 @@ export default function ChallengeCard({ item, claiming, onClaim }: Props) {
 
       {/* Progress bar with reward inline */}
       <View className="flex-row items-center mt-3">
-        <View className="relative h-2 flex-1 bg-overlay rounded-full overflow-hidden">
+        <View className="relative h-4 flex-1 bg-overlay rounded-full overflow-hidden">
           <View
             style={{
               width: `${pct}%`,
@@ -67,11 +67,11 @@ export default function ChallengeCard({ item, claiming, onClaim }: Props) {
               CLAIMED
             </Text>
           </View>
-        ) : item.done ? (
+        ) :item.done? (
           <Pressable
             disabled={claiming}
             onPress={onClaim}
-            className={`ml-2.5 h-7 min-w-[72px] rounded-full px-3 flex-row items-center justify-center ${
+            className={`ml-2.5 h-4 min-w-18 rounded-full px-3 flex-row items-center justify-center ${
               isDark ? "bg-white" : "bg-accent"
             }`}
           >
