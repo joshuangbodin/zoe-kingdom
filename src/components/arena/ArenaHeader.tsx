@@ -48,7 +48,7 @@ export default memo(function ArenaHeader({
                   scale: withSpring(active ? 1 : 0.9, SPRING_CONFIG),
                 },
               ],
-              opacity: withSpring(active ? 1 : 0.65, SPRING_CONFIG),
+              opacity: withSpring(active ? 1 : 0.25, SPRING_CONFIG),
             };
           }, [active]);
 
@@ -59,15 +59,15 @@ export default memo(function ArenaHeader({
               className="pr-5"
             >
               <Animated.Text
-                className="text-lg font-sora-semibold"
+                className="text-lg text-primary  font-sora-semibold"
                 style={[
-                  {
-                    color: active
-                      ? "#fff"
-                      : isDark
-                        ? "#a1a1aa"
-                        : "#71717a",
-                  },
+                  // {
+                  //   color: active
+                  //     ? isDark?"#000":"#fff"
+                  //     : isDark
+                  //       ? "#a1a1aa"
+                  //       : "#71717a",
+                  // },
                   animatedStyle,
                 ]}
               >

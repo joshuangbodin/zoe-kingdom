@@ -1,3 +1,5 @@
+import { useApp } from "@/context/app-context";
+import { useTheme } from "@/context/theme-context";
 import { Tabs } from "expo-router";
 import {
   BookPlus,
@@ -7,10 +9,8 @@ import {
   Newspaper,
   User,
 } from "lucide-react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text, View } from "react-native";
-import { useApp } from "@/context/app-context";
-import { useTheme } from "@/context/theme-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function SyncBanner() {
   const { isOnline, pendingSync } = useApp();
@@ -94,6 +94,15 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
+          name="bible"
+          options={{
+            title: "Bible",
+            tabBarIcon: ({ size, color }) => (
+              <BookPlus size={17} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="games"
           options={{
             title: "Arena",
@@ -102,15 +111,6 @@ export default function TabLayout() {
             ),
           }}
         />
-
-        <Tabs.Screen
-          name="bible"
-          options={{
-            title: "Bible",
-            tabBarIcon: ({ size, color }) => <BookPlus size={17} color={color} />,
-          }}
-        />
-
         <Tabs.Screen
           name="profile"
           options={{
@@ -123,4 +123,3 @@ export default function TabLayout() {
     </>
   );
 }
-

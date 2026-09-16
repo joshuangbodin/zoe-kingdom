@@ -40,7 +40,7 @@ export default function LeaderboardPodium({ users }: Props) {
   return (
     <View className="p-4 mt-6 mb-5 bg-card-1 rounded-3xl">
       <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-4 text-center">
-        Top Players
+        Complete Habits to Rank!
       </Text>
 
       <View className="flex-row items-end justify-center gap-3">
