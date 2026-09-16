@@ -115,6 +115,7 @@ export default function Games() {
         keyExtractor={(item: any) =>
           section === "challenges" ? item.id : item.uid
         }
+        contentContainerClassName="px-3"
         renderItem={
           section === "challenges"
             ? ({ item }: { item: ChallengeProgress }) => (

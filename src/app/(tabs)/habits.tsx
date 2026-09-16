@@ -174,24 +174,32 @@ export default function Habits() {
             {/* Daily Scripture Card */}
             {(() => {
               const dailyVerse = getDailyVerse();
+              const val = Math.floor(Math.random() * 3) ;
+
+              const src = [
+                require(`@/assets/images/bgs/bg-1.png`),
+                require(`@/assets/images/bgs/bg-2.png`),
+                require(`@/assets/images/bgs/bg-3.png`),
+              ];
+
               return (
                 <View className="rounded-3xl overflow-hidden mb-6">
                   {/* Absolute pattern fills the card; content sits above it */}
                   <Image
-                    source={require("@/assets/images/pattern.jpg")}
-                    className="absolute inset-0 opacity-40  w-full h-full"
+                    source={src[val]}
+                    className="absolute inset-0   w-full h-full"
                     style={{ borderRadius: 24 }}
                     resizeMode="cover"
                   />
 
                   {/* Pattern overlaid with the card surface color so text stays readable */}
-                  <View className="bg-card-2/80 p-5 pb-12">
-                    <Text className="text-tertiary text-[10px] font-sora ">
+                  <View className="bg-bg/60 p-5 pb-12">
+                    <Text className="text-primary/80 text-[10px] font-sora ">
                       {dailyVerse.ref}
                     </Text>
                     <Text
                       numberOfLines={3}
-                      className="text-primary/80 text-xs font-serif leading-5 mt-2"
+                      className="text-primary text-xs font-serif leading-5 mt-2"
                     >
                       {dailyVerse.text}
                     </Text>
@@ -407,7 +415,9 @@ export default function Habits() {
               <Pressable
                 onPress={() => setRemindEnabled(!remindEnabled)}
                 className={`w-12 h-7 rounded-full items-center ${
-                  remindEnabled ? "bg-accent justify-end" : "bg-overlay justify-start"
+                  remindEnabled
+                    ? "bg-accent justify-end"
+                    : "bg-overlay justify-start"
                 }`}
               >
                 <View className="w-5 h-5 rounded-full bg-white ml-0.5 mr-0.5" />

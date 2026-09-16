@@ -40,6 +40,14 @@ export default function PostCard({
   const { isDark } = useTheme();
   const ACTION_COLOR = isDark ? "#fff" : "#0c0c0c";
 
+              const val = Math.floor(Math.random() * 3) ;
+
+              const src = [
+                require(`@/assets/images/bgs/bg-1.png`),
+                require(`@/assets/images/bgs/bg-2.png`),
+                require(`@/assets/images/bgs/bg-3.png`),
+              ];
+
   return (
     <View className="mb-4 mx-4 bg-card-1 p-3 rounded-3xl">
       {/* Author header */}
@@ -69,24 +77,24 @@ export default function PostCard({
       {!!item.verseReference && (
         <Pressable
           onPress={() => onOpenVerse(item.verseReference!)}
-          className="bg-card-2 rounded-3xl overflow-hidden active:opacity-80 mb-3"
+          className="bg-black/80 rounded-3xl overflow-hidden active:opacity-80 mb-3"
         >
           <Image
-            source={require("@/assets/images/pattern.jpg")}
-            className="absolute inset-0 opacity-5  w-full h-full"
+            source={src[val]}
+            className="absolute inset-0 opacity-40  w-full h-full"
             style={{ borderRadius: 24 }}
             resizeMode="cover"
           />
           <View className="p-4">
-            <Text className="text-primary text-xs font-sora mb-1.5">
+            <Text className="text-white text-xs font-sora mb-1.5">
               {item.verseReference}
             </Text>
-            <Text className="text-secondary text-xs leading-5 font-serif">
+            <Text className="text-white text-xs leading-5 font-serif">
               {item.verseText}
             </Text>
           </View>
-          <View className="border-t border-line px-4 py-2">
-            <Text className="text-tertiary text-[10px] font-sora">
+          <View className="border-t border-white/50 px-4 py-2">
+            <Text className="text-white text-[10px] font-sora">
               Read full chapter →
             </Text>
           </View>
