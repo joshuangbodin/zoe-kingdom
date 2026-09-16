@@ -29,14 +29,14 @@ export default memo(function ArenaHeader({
 
   return (
     <View className="px-4 pt-3">
-      <View className="flex-row bg-card-1 rounded-full p-[3px] border border-line">
+      <View className="flex-row bg-card-1 rounded-full p-0.75 border border-line">
         {SEGMENTS.map((seg) => {
           const active = section === seg.id;
           return (
             <Pressable
               key={seg.id}
               onPress={() => onSectionChange(seg.id)}
-              className="flex-1 py-[7px] rounded-full items-center"
+              className="flex-1 py-1.75 rounded-full items-center"
               style={
                 active
                   ? isDark
