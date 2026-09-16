@@ -107,7 +107,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
 
             {/* Hero */}
             <View className="items-center my-4">
-              <View className="w-27.5 h-27.5 rounded-full bg-amber-500/10 border border-amber-500/20 items-center justify-center overflow-hidden">
+              <View className="w-27.5 h-27.5 mb-3 rounded-full  items-center justify-center overflow-hidden">
                 <LottieView
                   source={fire}
                   autoPlay
@@ -116,7 +116,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
                 />
               </View>
               <View className="flex-row items-end mt-2.5">
-                <Flame size={26} color="#f59e0b" />
+                {/* <Flame size={26} color="#f59e0b" /> */}
                 <Text className="text-primary text-5xl font-sora-bold ml-2 leading-none">
                   {streak}
                 </Text>
