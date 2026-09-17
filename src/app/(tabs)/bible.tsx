@@ -11,13 +11,12 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
-  SectionList,
   Text,
   TextInput,
   View,
 } from "react-native";
 
-import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetSectionList } from "@gorhom/bottom-sheet";
 
 import {
   ChevronDown,
@@ -28,11 +27,11 @@ import {
 } from "lucide-react-native";
 
 import { isRedLetterVerse } from "@/constants/red-text";
+import { useTheme } from "@/context/theme-context";
 import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTheme } from "@/context/theme-context";
 
 /* ---------------------------- PURE ROW ---------------------------- */
 
@@ -54,7 +53,11 @@ const VerseRow = memo(
 
         <Text
           className={`flex-1 text-base leading-8 font-serif ${
-            selected ? "text-amber-500" : isRed ? "text-red-500" : "text-primary"
+            selected
+              ? "text-amber-500"
+              : isRed
+                ? "text-red-500"
+                : "text-primary"
           }`}
         >
           {item.text}
@@ -420,10 +423,7 @@ export default function Bible() {
               {expandedBook === item.bookIndex ? (
                 <ChevronDown color={isDark ? "#fff" : "#0c0c0c"} size={16} />
               ) : (
-                <ChevronRight
-                  color={isDark ? "#fff" : "#0c0c0c"}
-                  size={16}
-                />
+                <ChevronRight color={isDark ? "#fff" : "#0c0c0c"} size={16} />
               )}
             </Pressable>
           </Pressable>
@@ -447,7 +447,14 @@ export default function Bible() {
         </View>
       );
     },
-    [expandedBook, chapters, selectBook, selectChapter, selectedBookIndex, isDark],
+    [
+      expandedBook,
+      chapters,
+      selectBook,
+      selectChapter,
+      selectedBookIndex,
+      isDark,
+    ],
   );
 
   /* ---------------------------- LOADING ---------------------------- */
@@ -545,58 +552,58 @@ export default function Bible() {
           width: 42,
         }}
       >
-        <BottomSheetView className="flex-1" style={{ flex: 1 }}>
-          {/* Header */}
-          <View className="flex-row items-center justify-between px-5 pt-2 pb-3">
-            <View>
-              <Text className="text-primary text-base font-sora-bold">
-                Books of the Bible
-              </Text>
-              <Text className="text-tertiary text-[11px] font-sora">
-                Tap a book to read, expand for chapters
-              </Text>
-            </View>
-            <Pressable
-              onPress={() => bookSheetRef.current?.dismiss()}
-              className="w-9 h-9 bg-card-2 rounded-xl items-center justify-center"
-            >
-              <X color={isDark ? "#fff" : "#0c0c0c"} size={18} />
-            </Pressable>
-          </View>
+        <BottomSheetSectionList
+          ListHeaderComponent={() => (
+            <>
+              {/* Header */}
+              <View className="flex-row items-center justify-between px-5 pt-2 pb-3">
+                <View>
+                  <Text className="text-primary text-base font-sora-bold">
+                    Books of the Bible
+                  </Text>
+                  <Text className="text-tertiary text-[11px] font-sora">
+                    Tap a book to read, expand for chapters
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={() => bookSheetRef.current?.dismiss()}
+                  className="w-9 h-9 bg-card-2 rounded-xl items-center justify-center"
+                >
+                  <X color={isDark ? "#fff" : "#0c0c0c"} size={18} />
+                </Pressable>
+              </View>
 
-          {/* SEARCH */}
-          <View className="px-5 py-3 border-b border-line">
-            <View className="flex-row items-center bg-card-2 px-3 py-2.5 rounded-xl">
-              <Search color={isDark ? "#9ca3af" : "#71717a"} size={15} />
-              <TextInput
-                value={search}
-                onChangeText={setSearch}
-                placeholder="Search book..."
-                placeholderTextColor={isDark ? "#555" : "#9ca3af"}
-                className="flex-1 text-primary/80 text-xs ml-2.5 font-sora"
-              />
-            </View>
-          </View>
-
-          {/* BOOK LIST — grouped OT / NT */}
-          <SectionList
-            nestedScrollEnabled
-            sections={bookSections}
-            keyExtractor={(i: any) => i.bookIndex.toString()}
-            renderItem={renderBook}
-            renderSectionHeader={({ section }) => (
-              <Text className="px-6 pt-4 pb-1 text-secondary text-[11px] font-sora-semibold uppercase tracking-wider">
-                {section.title}
-              </Text>
-            )}
-            stickySectionHeadersEnabled={false}
-            removeClippedSubviews
-            maxToRenderPerBatch={10}
-            windowSize={6}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
-            keyboardShouldPersistTaps="handled"
-          />
-        </BottomSheetView>
+              {/* SEARCH */}
+              <View className="px-5 py-3 border-b border-line">
+                <View className="flex-row items-center bg-card-2 px-3 py-2.5 rounded-xl">
+                  <Search color={isDark ? "#9ca3af" : "#71717a"} size={15} />
+                  <TextInput
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder="Search book..."
+                    placeholderTextColor={isDark ? "#555" : "#9ca3af"}
+                    className="flex-1 text-primary/80 text-xs ml-2.5 font-sora"
+                  />
+                </View>
+              </View>
+            </>
+          )}
+          nestedScrollEnabled
+          sections={bookSections}
+          keyExtractor={(i: any) => i.bookIndex.toString()}
+          renderItem={renderBook}
+          renderSectionHeader={({ section }) => (
+            <Text className="px-6 pt-4 pb-1 text-secondary text-[11px] font-sora-semibold uppercase tracking-wider">
+              {section.title}
+            </Text>
+          )}
+          stickySectionHeadersEnabled={false}
+          removeClippedSubviews
+          maxToRenderPerBatch={10}
+          windowSize={6}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+          keyboardShouldPersistTaps="handled"
+        />
       </BottomSheetModal>
     </View>
   );

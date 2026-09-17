@@ -354,7 +354,7 @@ export default function PostDetail() {
       {/* EDIT POST MODAL */}
       <Modal visible={editVisible} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-card-2 rounded-t-[32px] px-5 pt-6 pb-10">
+          <View className="bg-card-2 rounded-t-4xl px-5 pt-6 pb-10">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-primary text-base font-sora-semibold">Edit Post</Text>
               <Pressable onPress={() => setEditVisible(false)} className="p-1.5">
@@ -367,7 +367,7 @@ export default function PostDetail() {
               multiline
               placeholder="Edit your post..."
               placeholderTextColor="#555"
-              className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-[120px]"
+              className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-30"
             />
             <Pressable onPress={saveEdit} className="bg-white rounded-xl py-3.5 items-center mt-4">
               <Text className="text-black text-sm font-sora-semibold">Save Changes</Text>

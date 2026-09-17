@@ -23,6 +23,12 @@ import { enqueueOp } from "@/libs/offline/queue";
 /*                                   TYPES                                    */
 /* -------------------------------------------------------------------------- */
 
+export type Mention = {
+  uid: string;
+
+  username: string;
+};
+
 export type CreatePostPayload = {
   uid: string;
 
@@ -33,6 +39,9 @@ export type CreatePostPayload = {
   verseReference?: string;
 
   tags?: string[];
+
+  /** Users @mentioned in the post body. */
+  mentions?: Mention[];
 };
 
 /* -------------------------------------------------------------------------- */
@@ -53,6 +62,8 @@ export const createPost = async (
       payload.verseReference || "",
 
     tags: payload.tags || [],
+
+    mentions: payload.mentions || [],
 
     likesCount: 0,
     commentsCount: 0,

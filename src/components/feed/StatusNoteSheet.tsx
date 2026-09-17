@@ -1,3 +1,4 @@
+import { PenLineIcon, X } from "lucide-react-native";
 import React, {
   forwardRef,
   useImperativeHandle,
@@ -6,19 +7,21 @@ import React, {
   useState,
 } from "react";
 import { Pressable, Text, View } from "react-native";
-import { PenLineIcon, X } from "lucide-react-native";
 
-import {
-  BottomSheetModal,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 
 import Avatar from "@/components/Avatar";
 import { getStoryColor } from "@/constants/feed";
 import { useTheme } from "@/context/theme-context";
+import { router } from "expo-router";
 
 export type StatusNoteSheetHandle = {
-  present: (user: { uid?: string; username?: string; avatar?: number; statusNote?: string }) => void;
+  present: (user: {
+    uid?: string;
+    username?: string;
+    avatar?: number;
+    statusNote?: string;
+  }) => void;
   dismiss: () => void;
 };
 
@@ -30,7 +33,12 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
   function StatusNoteSheet(_, ref) {
     const { isDark } = useTheme();
     const sheetRef = useRef<BottomSheetModal>(null);
-    const [user, setUser] = useState<{ uid?: string; username?: string; avatar?: number; statusNote?: string } | null>(null);
+    const [user, setUser] = useState<{
+      uid?: string;
+      username?: string;
+      avatar?: number;
+      statusNote?: string;
+    } | null>(null);
 
     const snapPoints = useMemo(() => ["50%"], []);
     const color = getStoryColor(user?.uid);
@@ -81,9 +89,7 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
                   className="w-23 h-23 rounded-full items-center justify-end"
                   style={{ backgroundColor: color }}
                 >
-                
-                    <Avatar index={user.avatar ?? 0} diameter={76} />
-                 
+                  <Avatar index={user.avatar ?? 0} diameter={76} />
                 </View>
                 <Text className="text-primary text-sm font-sora-semibold mt-3">
                   @{user.username ?? "user"}
@@ -92,16 +98,30 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
 
               {/* Quote */}
               <View className="bg-card-2 rounded-3xl px-6 py-6">
-               
                 <Text className="text-primary text-base font-serif leading-7 text-center">
                   “{user.statusNote}”
                 </Text>
               </View>
 
-
-              <Pressable className="w-full h-13 flex-row gap-3  bg-primary mt-5 justify-center items-center rounded-2xl">
-                <PenLineIcon color={isDark? "#000" : "#fff"} size={16} />
-                <Text className="font-sora-medium text-bg text-sm">Share your Take</Text>
+              <Pressable
+                onPress={() => {
+                  dismiss();
+                  router.push({
+                    pathname: "/sharethought",
+                    params: {
+                      // Pass primitives only — nested/serialized objects don't
+                      // transit reliably through native route params.
+                      mentionUid: user?.uid || "",
+                      mentionUsername: user?.username || "",
+                    },
+                  });
+                }}
+                className="w-full h-13 flex-row gap-3  bg-primary mt-5 justify-center items-center rounded-2xl"
+              >
+                <PenLineIcon color={isDark ? "#000" : "#fff"} size={16} />
+                <Text className="font-sora-medium text-bg text-sm">
+                  Share your Take
+                </Text>
               </Pressable>
             </>
           )}
