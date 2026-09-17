@@ -52,6 +52,7 @@ export default function PostDetail() {
   const [author, setAuthor] = useState<UserProfile | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [commentText, setCommentText] = useState("");
+  const [commentVisible, setCommentVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
@@ -120,6 +121,7 @@ export default function PostDetail() {
         isOnline,
       );
       setCommentText("");
+      setCommentVisible(false);
       showToast(isOnline ? "Comment added!" : "Comment saved — will sync", "success");
     } catch (err) {
       console.error("Error commenting:", err);
@@ -324,32 +326,83 @@ export default function PostDetail() {
 
         </View>
 
-        {/* Comment Input */}
+        {/* Comment trigger — opens the composer modal */}
         <View className="px-5 pb-8 pt-3 border-t border-line bg-bg">
-          <View className="flex-row items-center bg-card-1 rounded-xl px-4 py-2.5">
-            <TextInput
-              value={commentText}
-              onChangeText={setCommentText}
-              placeholder="Write a comment..."
-              placeholderTextColor="#555"
-              className="flex-1 text-primary/80 text-xs font-sora"
-            />
-            <Pressable
-              onPress={handleComment}
-              disabled={submitting || !commentText.trim()}
-            >
-              {submitting ? (
-                <ActivityIndicator size="small" color="#888" />
-              ) : (
-                <Send
-                  size={16}
-                  color={commentText.trim() ? "#fbbf24" : "#444"}
-                />
-              )}
-            </Pressable>
-          </View>
+          <Pressable
+            onPress={() => setCommentVisible(true)}
+            className="flex-row items-center bg-card-1 rounded-xl px-4 py-3 active:opacity-70"
+          >
+            <Text className="flex-1 text-quaternary text-xs font-sora">
+              Write a comment...
+            </Text>
+            <Send size={15} color="#888" />
+          </Pressable>
         </View>
       </View>
+
+      {/* COMMENT MODAL — bottom sheet so the keyboard never resizes the screen */}
+      <Modal
+        visible={commentVisible}
+        animationType="slide"
+        transparent
+        statusBarTranslucent
+        onRequestClose={() => setCommentVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          className="flex-1"
+        >
+          <Pressable
+            className="flex-1 bg-black/60 justify-end"
+            onPress={() => setCommentVisible(false)}
+          >
+            <Pressable
+              className="bg-card-2 rounded-t-[28px] px-5 pt-6 pb-8"
+              onPress={() => {}}
+            >
+              <View className="flex-row items-center justify-between mb-4">
+                <Text className="text-primary text-base font-sora-semibold">
+                  Add Comment
+                </Text>
+                <Pressable
+                  onPress={() => setCommentVisible(false)}
+                  className="p-1.5"
+                >
+                  <X size={18} color="#888" />
+                </Pressable>
+              </View>
+              <View className="flex-row items-center bg-card-1 rounded-xl px-4 py-2.5">
+                <TextInput
+                  value={commentText}
+                  onChangeText={setCommentText}
+                  placeholder="Share your thoughts..."
+                  placeholderTextColor="#555"
+                  multiline
+                  autoFocus
+                  className="flex-1 text-primary/80 text-xs font-sora max-h-24"
+                />
+                <Pressable
+                  onPress={handleComment}
+                  disabled={submitting || !commentText.trim()}
+                  className="ml-2"
+                >
+                  {submitting ? (
+                    <ActivityIndicator size="small" color="#888" />
+                  ) : (
+                    <Send
+                      size={17}
+                      color={commentText.trim() ? "#fbbf24" : "#444"}
+                    />
+                  )}
+                </Pressable>
+              </View>
+              <Text className="text-quaternary text-[10px] font-sora mt-3 text-center">
+                Your comment will appear below the post.
+              </Text>
+            </Pressable>
+          </Pressable>
+        </KeyboardAvoidingView>
+      </Modal>
 
       {/* EDIT POST MODAL */}
       <Modal visible={editVisible} animationType="slide" transparent>

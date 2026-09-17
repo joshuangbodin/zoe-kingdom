@@ -31,6 +31,15 @@ import { useTheme } from "@/context/theme-context";
 import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
 import { router, useLocalSearchParams } from "expo-router";
+import Animated, {
+  FadeIn,
+  FadeInUp,
+  FadeOut,
+  FadeOutDown,
+  FadeOutUp,
+  RotateInUpRight,
+  SlideInUp,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /* ---------------------------- PURE ROW ---------------------------- */
@@ -99,7 +108,7 @@ export default function Bible() {
   const [search, setSearch] = useState("");
   // Bottom sheet driving the "Books of the Bible" navigation chooser.
   const bookSheetRef = useRef<BottomSheetModal>(null);
-  const bookSheetSnapPoints = useMemo(() => ["75%", "90%"], []);
+  const bookSheetSnapPoints = useMemo(() => ["85%", "95%"], []);
 
   const toggleVerse = useCallback((id: string) => {
     setSelectedVerses((prev) => {
@@ -387,22 +396,17 @@ export default function Bible() {
     ({ item }: any) => {
       const isSelected = selectedBookIndex === item.bookIndex;
       return (
-        <View className="mb-3 rounded-3xl bg-card-1 overflow-hidden">
+        <View className="mb-3 ">
           <Pressable
             onPress={() => {
-              selectBook(item.bookIndex);
+              // selectBook(item.bookIndex);
               setExpandedBook((prev) =>
                 prev === item.bookIndex ? null : item.bookIndex,
               );
             }}
-            className={`px-5 py-4 flex-row items-center justify-between border-l-[3px] ${
-              isSelected ? "border-amber-400" : "border-transparent"
-            }`}
+            className={` py-1 flex-row items-center justify-between`}
           >
             <View className="flex-row items-center flex-1">
-              <Text className="text-quaternary text-[10px] font-sora-semibold w-8">
-                {item.bookIndex}
-              </Text>
               <Text
                 className={`font-sora-semibold ${
                   isSelected ? "text-amber-500" : "text-primary"
@@ -421,7 +425,9 @@ export default function Bible() {
               className="p-1"
             >
               {expandedBook === item.bookIndex ? (
-                <ChevronDown color={isDark ? "#fff" : "#0c0c0c"} size={16} />
+                <Animated.View entering={RotateInUpRight}>
+                  <ChevronDown color={isDark ? "#fff" : "#0c0c0c"} size={16} />
+                </Animated.View>
               ) : (
                 <ChevronRight color={isDark ? "#fff" : "#0c0c0c"} size={16} />
               )}
@@ -429,7 +435,11 @@ export default function Bible() {
           </Pressable>
 
           {expandedBook === item.bookIndex ? (
-            <View className="px-5 pb-4 flex-row flex-wrap">
+            <Animated.View
+              entering={FadeIn}
+              exiting={FadeOut}
+              className="pb-4 flex-row flex-wrap"
+            >
               {chapters.map((ch) => (
                 <Pressable
                   key={ch}
@@ -437,12 +447,12 @@ export default function Bible() {
                     selectBook(item.bookIndex);
                     selectChapter(ch);
                   }}
-                  className="w-10 h-10 bg-bg m-1 rounded-xl items-center justify-center"
+                  className="w-13 h-13 bg-bg m-1 rounded-xl items-center justify-center"
                 >
                   <Text className="text-primary text-xs">{ch}</Text>
                 </Pressable>
               ))}
-            </View>
+            </Animated.View>
           ) : null}
         </View>
       );
@@ -556,7 +566,7 @@ export default function Bible() {
           ListHeaderComponent={() => (
             <>
               {/* Header */}
-              <View className="flex-row items-center justify-between px-5 pt-2 pb-3">
+              <View className="flex-row items-center justify-between  pt-2 pb-3">
                 <View>
                   <Text className="text-primary text-base font-sora-bold">
                     Books of the Bible
@@ -574,7 +584,7 @@ export default function Bible() {
               </View>
 
               {/* SEARCH */}
-              <View className="px-5 py-3 border-b border-line">
+              <View className=" py-3 border-b border-line">
                 <View className="flex-row items-center bg-card-2 px-3 py-2.5 rounded-xl">
                   <Search color={isDark ? "#9ca3af" : "#71717a"} size={15} />
                   <TextInput
@@ -593,7 +603,7 @@ export default function Bible() {
           keyExtractor={(i: any) => i.bookIndex.toString()}
           renderItem={renderBook}
           renderSectionHeader={({ section }) => (
-            <Text className="px-6 pt-4 pb-1 text-secondary text-[11px] font-sora-semibold uppercase tracking-wider">
+            <Text className=" pt-4 pb-1 text-secondary text-[11px] font-sora-semibold">
               {section.title}
             </Text>
           )}
