@@ -1,8 +1,9 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { Trophy } from "lucide-react-native";
+
 
 import Avatar from "@/components/Avatar";
+import Animated, { BounceInDown} from "react-native-reanimated";
 
 export type PodiumUser = {
   uid: string;
@@ -38,7 +39,7 @@ export default function LeaderboardPodium({ users }: Props) {
     .sort((a, b) => a.step.order - b.step.order);
 
   return (
-    <View className="p-4 mt-6 mb-5 bg-card-1 rounded-3xl">
+    <View className="p-4 mt-6 mb-5 bg-card-1 overflow-hidden rounded-3xl">
       <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-4 text-center">
         Complete Habits to Rank!
       </Text>
@@ -72,7 +73,8 @@ export default function LeaderboardPodium({ users }: Props) {
             </View>
 
             {/* Step / pedestal */}
-            <View
+            <Animated.View
+            entering={BounceInDown}
               className="w-full rounded-t-2xl items-center justify-start"
               style={{ height: u.step.h, backgroundColor: u.step.color }}
             >
@@ -80,7 +82,7 @@ export default function LeaderboardPodium({ users }: Props) {
               <Text className="text-primary text-2xl font-sora-bold tabular-nums mt-0.5">
                 {u.rank}
               </Text>
-            </View>
+            </Animated.View>
           </View>
         ))}
       </View>
