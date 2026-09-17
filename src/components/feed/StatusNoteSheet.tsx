@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import { Pressable, Text, View } from "react-native";
-import { X } from "lucide-react-native";
+import { PenLineIcon, X } from "lucide-react-native";
 
 import {
   BottomSheetModal,
@@ -32,7 +32,7 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
     const sheetRef = useRef<BottomSheetModal>(null);
     const [user, setUser] = useState<{ uid?: string; username?: string; avatar?: number; statusNote?: string } | null>(null);
 
-    const snapPoints = useMemo(() => ["42%"], []);
+    const snapPoints = useMemo(() => ["50%"], []);
     const color = getStoryColor(user?.uid);
 
     useImperativeHandle(ref, () => ({
@@ -52,7 +52,7 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
         snapPoints={snapPoints}
         enablePanDownToClose
         enableDynamicSizing={false}
-        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#ffffff" }}
+        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#f5f5ed" }}
         handleIndicatorStyle={{
           backgroundColor: isDark ? "#3a3a3a" : "#d4d4d8",
           width: 40,
@@ -63,7 +63,7 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
             <>
               {/* Header row */}
               <View className="flex-row items-center justify-between">
-                <Text className="text-tertiary text-[11px] font-sora-semibold uppercase tracking-widest">
+                <Text className="text-tertiary text-[11px] font-sora-semibold">
                   Status Note
                 </Text>
                 <Pressable
@@ -78,12 +78,12 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
               {/* Hero */}
               <View className="items-center my-6">
                 <View
-                  className="w-[92px] h-[92px] rounded-full items-center justify-center"
+                  className="w-23 h-23 rounded-full items-center justify-end"
                   style={{ backgroundColor: color }}
                 >
-                  <View className="w-[84px] h-[84px] rounded-full bg-bg p-[3px]">
+                
                     <Avatar index={user.avatar ?? 0} diameter={76} />
-                  </View>
+                 
                 </View>
                 <Text className="text-primary text-sm font-sora-semibold mt-3">
                   @{user.username ?? "user"}
@@ -91,14 +91,18 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
               </View>
 
               {/* Quote */}
-              <View className="bg-card-2 rounded-3xl px-6 py-6 border border-line">
-                <Text className="text-amber-400/70 text-[10px] font-sora-semibold uppercase tracking-widest mb-2 text-center">
-                  “Today I’m leaning on…”
-                </Text>
+              <View className="bg-card-2 rounded-3xl px-6 py-6">
+               
                 <Text className="text-primary text-base font-serif leading-7 text-center">
                   “{user.statusNote}”
                 </Text>
               </View>
+
+
+              <Pressable className="w-full h-13 flex-row gap-3  bg-primary mt-5 justify-center items-center rounded-2xl">
+                <PenLineIcon color={isDark? "#000" : "#fff"} size={16} />
+                <Text className="font-sora-medium text-bg text-sm">Share your Take</Text>
+              </Pressable>
             </>
           )}
         </BottomSheetView>

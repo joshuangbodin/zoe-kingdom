@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "@/context/theme-context";
 import { getYearContributions } from "../libs/sqlite/contributions";
 
@@ -43,14 +44,16 @@ export default function ContributionGraph() {
 
   const [data, setData] = useState<any[]>([]);
 
-  useEffect(() => {
-    load();
-  }, [year]);
-
-  const load = async () => {
+  const load = useCallback(async () => {
     const res = await getYearContributions(year);
     setData(res);
-  };
+  }, [year]);
+
+  // Reload the consistency map whenever the containing screen regains focus, so
+  // a habit completed elsewhere shows up as soon as the user returns home.
+  useFocusEffect(() => {
+    void load();
+  });
   /**
    * Split into week columns
    */

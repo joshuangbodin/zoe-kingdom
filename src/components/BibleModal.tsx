@@ -16,6 +16,8 @@ import {
   View,
 } from "react-native";
 
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+
 import {
   ChevronDown,
   ChevronLeft,
@@ -144,12 +146,14 @@ export default function BibleModal({
     Record<string, boolean>
   >({});
   const flatListRef = useRef<FlatList>(null);
+  // Bottom sheet that drives the "Books of the Bible" navigation chooser.
+  const bookSheetRef = useRef<BottomSheetModal>(null);
+  const bookSheetSnapPoints = useMemo(() => ["75%", "90%"], []);
 
   const [selectedBookIndex, setSelectedBookIndex] = useState(0);
   const [selectedChapter, setSelectedChapter] = useState(1);
 
   const [search, setSearch] = useState("");
-  const [open, setOpen] = useState(false);
 
   const toggleVerse = useCallback((id: string) => {
     setSelectedVerses((prev) => {
@@ -362,7 +366,7 @@ export default function BibleModal({
   const selectBook = useCallback(async (bookIndex: number) => {
     setSelectedBookIndex(bookIndex);
     setSelectedChapter(1);
-    setOpen(false);
+    bookSheetRef.current?.dismiss();
 
     await loadChapters(bookIndex);
     await loadVerses(bookIndex, 1);
@@ -371,7 +375,7 @@ export default function BibleModal({
   const selectChapter = useCallback(
     async (ch: number) => {
       setSelectedChapter(ch);
-      setOpen(false);
+      bookSheetRef.current?.dismiss();
       await loadVerses(selectedBookIndex, ch);
     },
     [selectedBookIndex],
@@ -422,7 +426,7 @@ export default function BibleModal({
       setSelectedVerses({});
       setHighlightedVerse(null);
       setSearch("");
-      setOpen(false);
+      bookSheetRef.current?.dismiss();
       setExpandedBook(null);
     }
   }, [visible]);
@@ -490,6 +494,7 @@ export default function BibleModal({
           {expandedBook === item.bookIndex ? (
             <FlatList
               horizontal
+              nestedScrollEnabled
               data={chapters}
               keyExtractor={(i) => i.toString()}
               renderItem={({ item: ch }) => (
@@ -532,7 +537,7 @@ export default function BibleModal({
             </Pressable>
 
             <Pressable
-              onPress={() => setOpen(true)}
+              onPress={() => bookSheetRef.current?.present()}
               className="bg-card-1 px-3 py-2 rounded-xl"
             >
               <Text className="text-primary text-sm font-sora-semibold">
@@ -543,7 +548,7 @@ export default function BibleModal({
             </Pressable>
 
             <Pressable
-              onPress={() => setOpen(true)}
+              onPress={() => bookSheetRef.current?.present()}
               className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center"
             >
               <Search color={isDark ? "#fff" : "#0c0c0c"} size={15} />
@@ -653,56 +658,59 @@ export default function BibleModal({
             </>
           )}
 
-          {/* BOOK SELECTION MODAL */}
-          <Modal visible={open} transparent animationType="slide">
-            <Pressable
-              onPress={() => setOpen(false)}
-              className="flex-1 justify-end bg-black/60"
-            >
-              <Pressable onPress={() => {}} className="bg-card-1 rounded-t-[32px]" style={{ maxHeight: "80%" }}>
-                {/* Handle */}
-                <View className="items-center pt-3 pb-1">
-                  <View className="w-10 h-1.5 rounded-full bg-line" />
-                </View>
-                <View className="flex-row items-center justify-between px-5 pt-2 pb-3 border-b border-line">
-                  <Text className="text-primary text-sm font-sora-semibold">
-                    Books of the Bible
-                  </Text>
-                  <Pressable
-                    onPress={() => setOpen(false)}
-                    className="w-9 h-9 bg-card-2 rounded-xl items-center justify-center"
-                  >
-                    <X color={isDark ? "#fff" : "#0c0c0c"} size={18} />
-                  </Pressable>
-                </View>
+          {/* BOOK SELECTION BOTTOM SHEET */}
+          <BottomSheetModal
+            ref={bookSheetRef}
+            index={0}
+            snapPoints={bookSheetSnapPoints}
+            enablePanDownToClose
+            enableDynamicSizing={false}
+            backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#f5f5ed" }}
+            handleIndicatorStyle={{
+              backgroundColor: isDark ? "#3a3a3a" : "#d4d4d8",
+              width: 42,
+            }}
+          >
+            <BottomSheetView className="flex-1" style={{ flex: 1 }}>
+              <View className="flex-row items-center justify-between px-5 pt-2 pb-3 border-b border-line">
+                <Text className="text-primary text-sm font-sora-semibold">
+                  Books of the Bible
+                </Text>
+                <Pressable
+                  onPress={() => bookSheetRef.current?.dismiss()}
+                  className="w-9 h-9 bg-card-2 rounded-xl items-center justify-center"
+                >
+                  <X color={isDark ? "#fff" : "#0c0c0c"} size={18} />
+                </Pressable>
+              </View>
 
-                {/* SEARCH */}
-                <View className="px-5 py-3 border-b border-line">
-                  <View className="flex-row items-center bg-card-2 px-3 py-2.5 rounded-xl">
-                    <Search color={isDark ? "#9ca3af" : "#71717a"} size={15} />
-                    <TextInput
-                      value={search}
-                      onChangeText={setSearch}
-                      placeholder="Search book..."
-                      placeholderTextColor={isDark ? "#555" : "#9ca3af"}
-                      className="flex-1 text-primary/80 text-xs ml-2.5 font-sora"
-                    />
-                  </View>
+              {/* SEARCH */}
+              <View className="px-5 py-3 border-b border-line">
+                <View className="flex-row items-center bg-card-2 px-3 py-2.5 rounded-xl">
+                  <Search color={isDark ? "#9ca3af" : "#71717a"} size={15} />
+                  <TextInput
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder="Search book..."
+                    placeholderTextColor={isDark ? "#555" : "#9ca3af"}
+                    className="flex-1 text-primary/80 text-xs ml-2.5 font-sora"
+                  />
                 </View>
+              </View>
 
-                {/* BOOK LIST */}
-                <FlatList
-                  data={filteredBooks}
-                  renderItem={renderBook}
-                  keyExtractor={(i) => i.bookIndex.toString()}
-                  removeClippedSubviews
-                  maxToRenderPerBatch={10}
-                  windowSize={6}
-                  contentContainerStyle={{ padding: 16 }}
-                />
-              </Pressable>
-            </Pressable>
-          </Modal>
+              {/* BOOK LIST */}
+              <FlatList
+                nestedScrollEnabled
+                data={filteredBooks}
+                renderItem={renderBook}
+                keyExtractor={(i) => i.bookIndex.toString()}
+                removeClippedSubviews
+                maxToRenderPerBatch={10}
+                windowSize={6}
+                contentContainerStyle={{ padding: 16 }}
+              />
+            </BottomSheetView>
+          </BottomSheetModal>
         </View>
       </View>
     </Modal>

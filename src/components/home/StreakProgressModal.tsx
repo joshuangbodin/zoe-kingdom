@@ -84,7 +84,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
         snapPoints={snapPoints}
         enablePanDownToClose
         enableDynamicSizing={false}
-        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#ffffff" }}
+        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#f5f5ed" }}
         handleIndicatorStyle={{ backgroundColor: placeholderColor, width: 40 }}
       >
         <BottomSheetView className="flex-1 px-6 pb-8">

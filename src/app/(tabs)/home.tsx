@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -19,7 +19,7 @@ import { useTheme } from "@/context/theme-context";
 import { getHabits } from "@/libs/sqlite/habits";
 import { getSpiritState, initializeSpirit } from "@/libs/sqlite/spirit";
 import { getDailyStreak } from "@/libs/sqlite/streak";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { BookOpen, Flame, Target } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -59,40 +59,44 @@ export default function Home() {
 
   const { top } = useSafeAreaInsets();
 
-  useEffect(() => {
-    let mounted = true;
+  // Reload whenever the Home tab regains focus so a habit completed on another
+  // screen immediately shows up in the consistency map and streak. The blocking
+  // spinner only appears on the very first load (`loading` initial state); later
+  // refocuses refresh silently in the background.
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
 
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        await initializeSpirit();
-        const [s, h, currentStreak] = await Promise.all([
-          getSpiritState(),
-          getHabits(),
-          getDailyStreak(),
-        ]);
+      const loadData = async () => {
+        try {
+          await initializeSpirit();
+          const [s, h, currentStreak] = await Promise.all([
+            getSpiritState(),
+            getHabits(),
+            getDailyStreak(),
+          ]);
 
-        if (!mounted) return;
+          if (!mounted) return;
 
-        setSpirit(s);
-        setHabits(h);
-        setStreak(currentStreak || 0);
+          setSpirit(s);
+          setHabits(h);
+          setStreak(currentStreak || 0);
 
-        // Fresh copy of the profile from Firestore (falls back to cache offline).
-        await refreshUser();
-      } catch (err) {
-        console.error("Home loadData error:", err);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
+          // Fresh copy of the profile from Firestore (falls back to cache offline).
+          await refreshUser();
+        } catch (err) {
+          console.error("Home loadData error:", err);
+        } finally {
+          if (mounted) setLoading(false);
+        }
+      };
 
-    loadData();
-    return () => {
-      mounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid]);
+      loadData();
+      return () => {
+        mounted = false;
+      };
+    }, [refreshUser, setHabits]),
+  );
 
   if (loading) {
     return (

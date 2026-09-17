@@ -93,6 +93,9 @@ const cacheKey = (uid: string) => `user.${uid}`;
 /** Persisted inside AsyncStorage so returning guests don't see onboarding again. */
 const GUEST_KEY = "zoe.guest.mode";
 
+/** Interval (ms) between silent, best-effort habit-log autosyncs while online. */
+const AUTO_SYNC_INTERVAL_MS = 60 * 1000;
+
 type ProviderProps = {
   children: ReactNode;
 };
@@ -223,6 +226,24 @@ export default function AppProvider({ children }: ProviderProps) {
       queueLength().then(setPendingSync).catch(() => {});
     }
   }, [isOnline]);
+
+  // Silent, periodic cloud sync for unsynced habit completions. Because the app
+  // is offline-first, completions are written to SQLite first; while online this
+  // quietly pushes any `synced = 0` rows to Firebase without any UI/friction.
+  useEffect(() => {
+    const uid = user?.uid;
+    const sync = () => {
+      if (isOnline && uid) {
+        syncUnsyncedLogsAutomatically(uid).catch(() => {});
+      }
+    };
+
+    // Run once immediately (handles already-online sessions) and then on a timer
+    // so new completions are pushed to the cloud as soon as internet is present.
+    sync();
+    const interval = setInterval(sync, AUTO_SYNC_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [isOnline, user]);
 
   const flushOfflineQueue = useCallback(async () => {
     const remaining = await syncOfflineQueue();

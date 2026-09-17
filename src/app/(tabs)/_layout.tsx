@@ -9,28 +9,52 @@ import {
   Newspaper,
   User,
 } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+// The offline notice is intentionally subtle for an offline-first app and
+// auto-hides after a few minutes so it never becomes nagging.
+const OFFLINE_AUTO_HIDE_MS = 3 * 60 * 1000; // ~3 minutes
 
 function SyncBanner() {
   const { isOnline, pendingSync } = useApp();
   const insets = useSafeAreaInsets();
+  const [offlineHidden, setOfflineHidden] = useState(false);
 
+  // When connectivity drops, show a small notice, then fade it out after a while.
+  useEffect(() => {
+    if (isOnline) {
+      setOfflineHidden(false);
+      return;
+    }
+    setOfflineHidden(false);
+    const t = setTimeout(() => setOfflineHidden(true), OFFLINE_AUTO_HIDE_MS);
+    return () => clearTimeout(t);
+  }, [isOnline]);
+
+  // Nothing to show when online with no pending writes, or when the offline
+  // notice already auto-hid.
   if (isOnline && pendingSync === 0) return null;
+  if (!isOnline && offlineHidden) return null;
 
   return (
     <View
-      style={{ top: insets.top + 4, zIndex: 100 }}
-      className="absolute hidden left-4 right-4 rounded-full px-4 py-2 bg-amber-500/90"
+      style={{ top: insets.top + 6, zIndex: 100 }}
+      className="absolute left-4 right-4 rounded-full px-4 py-1.5 bg-card-1/90 self-start"
+      pointerEvents="none"
     >
       {isOnline ? (
-        <Text className="text-black text-[11px] font-sora-semibold text-center">
-          Syncing {pendingSync} pending change{pendingSync === 1 ? "" : "s"}…
+        <Text className="text-tertiary text-[10px] font-sora-medium text-center">
+          Syncing {pendingSync} change{pendingSync === 1 ? "" : "s"}…
         </Text>
       ) : (
-        <Text className="text-black text-[11px] font-sora-semibold text-center">
-          You're offline — changes will sync automatically
-        </Text>
+        <View className="flex-row items-center justify-center">
+          <View className="w-1.5 h-1.5 rounded-full bg-tertiary mr-2" />
+          <Text className="text-tertiary text-[10px] font-sora-medium text-center">
+            Offline — saving locally
+          </Text>
+        </View>
       )}
     </View>
   );
