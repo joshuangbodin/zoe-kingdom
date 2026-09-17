@@ -29,6 +29,11 @@ import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/context/theme-context";
+import Animated, {
+  FadeInDown,
+  ZoomIn,
+} from "react-native-reanimated";
+import { PressableScale } from "react-native-pressable-scale";
 
 /* ---------------------------- TYPES ---------------------------- */
 
@@ -107,7 +112,12 @@ const VerseRow = memo(
               selected ? "border-amber-400 bg-amber-400/20" : "border-line"
             }`}
           >
-            {selected && <View className="w-2.5 h-2.5 rounded-full bg-amber-400" />}
+            {selected && (
+              <Animated.View
+                entering={ZoomIn.springify().damping(16)}
+                className="w-2.5 h-2.5 rounded-full bg-amber-400"
+              />
+            )}
           </View>
         )}
       </Pressable>
@@ -524,14 +534,16 @@ export default function BibleModal({
         <View style={{ paddingTop: top + 8 }} className="flex-1 bg-bg">
           {/* HEADER */}
           <View className="px-5 pb-3 flex-row justify-between items-center">
-            <Pressable
+            <PressableScale
+              activeScale={0.88}
               onPress={onClose}
               className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center"
             >
               <X color={isDark ? "#fff" : "#0c0c0c"} size={18} />
-            </Pressable>
+            </PressableScale>
 
-            <Pressable
+            <PressableScale
+              activeScale={0.94}
               onPress={() => setOpen(true)}
               className="bg-card-1 px-3 py-2 rounded-xl"
             >
@@ -540,14 +552,15 @@ export default function BibleModal({
                   "Bible"}{" "}
                 <Text className="text-secondary">{selectedChapter}</Text>
               </Text>
-            </Pressable>
+            </PressableScale>
 
-            <Pressable
+            <PressableScale
+              activeScale={0.88}
               onPress={() => setOpen(true)}
               className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center"
             >
               <Search color={isDark ? "#fff" : "#0c0c0c"} size={15} />
-            </Pressable>
+            </PressableScale>
           </View>
 
           {loading ? (
@@ -557,7 +570,11 @@ export default function BibleModal({
             </View>
           ) : (
             <>
-              {/* VERSES */}
+              {/* VERSES — subtle fade/reveal whenever the chapter changes */}
+              <Animated.View
+                key={`${selectedBookIndex}-${selectedChapter}`}
+                entering={FadeInDown.duration(280)}
+              >
               <FlatList
                 ref={flatListRef}
                 data={verses}
@@ -586,13 +603,15 @@ export default function BibleModal({
                   </View>
                 }
               />
+              </Animated.View>
 
               {/* BOTTOM ACTIONS */}
               <View className="absolute bottom-0 left-0 right-0 pb-8 px-5">
                 <View className="flex-row gap-3">
                   {selectionMode && (
                     <>
-                      <Pressable
+                      <PressableScale
+                        activeScale={0.95}
                         onPress={() => {
                           setSelectedVerses({});
                           onClose();
@@ -602,8 +621,9 @@ export default function BibleModal({
                         <Text className="text-primary/70 text-sm font-sora-semibold">
                           Cancel
                         </Text>
-                      </Pressable>
-                      <Pressable
+                      </PressableScale>
+                      <PressableScale
+                        activeScale={0.95}
                         onPress={handleConfirm}
                         disabled={
                           Object.keys(selectedVerses).length === 0
@@ -623,12 +643,13 @@ export default function BibleModal({
                         >
                           Add ({Object.keys(selectedVerses).length})
                         </Text>
-                      </Pressable>
+                      </PressableScale>
                     </>
                   )}
                   {!selectionMode && (
                     <View className="flex-row gap-3 flex-1">
-                      <Pressable
+                      <PressableScale
+                        activeScale={0.95}
                         onPress={goPrev}
                         className="flex-1 bg-card-1 rounded-xl py-3.5 items-center flex-row justify-center"
                       >
@@ -636,8 +657,9 @@ export default function BibleModal({
                         <Text className="text-primary text-sm font-sora-semibold ml-1">
                           Prev
                         </Text>
-                      </Pressable>
-                      <Pressable
+                      </PressableScale>
+                      <PressableScale
+                        activeScale={0.95}
                         onPress={goNext}
                         className="flex-1 bg-card-1 rounded-xl py-3.5 items-center flex-row justify-center"
                       >
@@ -645,7 +667,7 @@ export default function BibleModal({
                           Next
                         </Text>
                         <ChevronRight color={isDark ? "#fff" : "#0c0c0c"} size={16} />
-                      </Pressable>
+                      </PressableScale>
                     </View>
                   )}
                 </View>

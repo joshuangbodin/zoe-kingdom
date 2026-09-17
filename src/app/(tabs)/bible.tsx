@@ -556,9 +556,9 @@ export default function Bible() {
         snapPoints={bookSheetSnapPoints}
         enablePanDownToClose
         enableDynamicSizing={false}
-        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#f5f5ed" }}
+        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#fff" }}
         handleIndicatorStyle={{
-          backgroundColor: isDark ? "#3a3a3a" : "#d4d4d8",
+          backgroundColor: isDark ? "#3a3a3a" : "#f5f5ed",
           width: 42,
         }}
       >
