@@ -103,7 +103,7 @@ const CreateHabitSheet = forwardRef<CreateHabitSheetHandle, CreateHabitSheetProp
         enableDynamicSizing={false}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
-        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#ffffff" }}
+        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#f5f5ed" }}
         handleIndicatorStyle={{
           backgroundColor: isDark ? "#3a3a3a" : "#d4d4d8",
           width: 42,
@@ -235,8 +235,8 @@ const CreateHabitSheet = forwardRef<CreateHabitSheetHandle, CreateHabitSheetProp
                       className={`text-[11px] font-sora-medium ${
                         active
                           ? isDark
-                            ? "text-bg"
-                            : "text-primary"
+                            ? "text-[#0c0c0c]"
+                            : "text-[#ffffff]"
                           : "text-secondary"
                       }`}
                     >
