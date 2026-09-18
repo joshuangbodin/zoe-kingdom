@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 import { useToast } from "@/components/Toast";
 import { getDueReminderHabits } from "@/libs/reminders/habitReminders";
+import { initDB } from "@/libs/sqlite/db";
 
 /**
  * Global, self-contained habit reminder poller.
@@ -28,6 +29,7 @@ export default function HabitReminderWorker() {
     const today = now.toISOString().split("T")[0];
 
     try {
+      await initDB();
       const due = await getDueReminderHabits(now);
       for (const habit of due) {
         const key = `${habit.id}|${today}`;

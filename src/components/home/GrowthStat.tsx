@@ -7,7 +7,7 @@ import {
 import LottieView from "lottie-react-native";
 import { Flame, Share2 } from "lucide-react-native";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Share, Text, View } from "react-native";
 import { useTheme } from "@/context/theme-context";
 
 const spark = require("@/assets/lottie/Fire.json");
@@ -20,10 +20,12 @@ export default function GrowthStat({
   streak,
   xp,
   onStreakPress,
+  onStatusPress,
 }: {
   streak: number;
   xp: number;
   onStreakPress?: () => void;
+  onStatusPress?: () => void;
 }) {
   const { isDark } = useTheme();
   const levelNumber = getLevelFromXP(xp);
@@ -32,6 +34,12 @@ export default function GrowthStat({
 
   const nextLevelXP = getXPForNextLevel(levelNumber);
   const progress = getProgressPercentage(xp);
+  const handleShare = () => {
+    const message =
+      `My faith journey in Zoe Kingdom: ${fire.title} at Level ${levelNumber} (${xp} XP).`;
+    Share.share({ message, title: "My Zoe Kingdom Status" }).catch(() => {});
+  };
+
 
   const iconColor = isDark ? "#fff" : "#0c0c0c";
   return (
@@ -58,21 +66,24 @@ export default function GrowthStat({
             }}
           />
 
-          <Pressable className="absolute right-2 bottom-2 p-3 px-4 bg-card-1/80 rounded-full">
+          <Pressable onPress={handleShare} className="absolute right-2 bottom-2 p-3 px-4 bg-card-1/80 rounded-full">
             <Share2 size={14} color={iconColor} />
           </Pressable>
         </View>
 
         {/* side stats (fire status and current Streak) */}
         <View className="w-1/2 h-full gap-2">
-          <View className="p-3 h-13 flex-[.4] justify-between rounded-2xl bg-card-2 ">
+          <Pressable
+            onPress={onStatusPress}
+            className="p-3 h-13 flex-[.4] justify-between rounded-2xl bg-card-2 "
+          >
             <Text className="font-sora text-[10px] text-muted">
               Altar Fire Status
             </Text>
             <Text className="font-sora-bold text-xs text-primary">
               {fire.title}
             </Text>
-          </View>
+          </Pressable>
           <Pressable
             onPress={onStreakPress}
             className="p-3 h-16 flex-row flex-[.6] items-end justify-between rounded-2xl bg-card-2 "

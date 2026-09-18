@@ -13,7 +13,11 @@ import GrowthStat from "@/components/home/GrowthStat";
 import StreakProgressModal, {
   StreakProgressModalHandle,
 } from "@/components/home/StreakProgressModal";
+import SpiritStatusModal, {
+  SpiritStatusModalHandle,
+} from "@/components/home/SpiritStatusModal";
 import { getFirstName, getGreeting } from "@/constants/time";
+import { getLevelFromXP } from "@/constants/levels";
 import { useApp } from "@/context/app-context";
 import { useTheme } from "@/context/theme-context";
 import { getHabits } from "@/libs/sqlite/habits";
@@ -54,6 +58,7 @@ export default function Home() {
   const { setHabits, user, refreshUser } = useApp();
   const [streak, setStreak] = useState<number>(0);
   const streakModalRef = useRef<StreakProgressModalHandle>(null);
+  const spiritModalRef = useRef<SpiritStatusModalHandle>(null);
   const [loading, setLoading] = useState(true);
   const { isDark } = useTheme();
 
@@ -154,6 +159,7 @@ export default function Home() {
           streak={streak}
           xp={spirit?.totalXP || 0}
           onStreakPress={() => streakModalRef.current?.present()}
+          onStatusPress={() => spiritModalRef.current?.present()}
         />
 
         {/* Quick Actions */}
@@ -192,6 +198,11 @@ export default function Home() {
       <StreakProgressModal
         ref={streakModalRef}
         streak={streak || 0}
+      />
+
+      <SpiritStatusModal
+        ref={spiritModalRef}
+        currentLevel={getLevelFromXP(spirit?.totalXP || 0)}
       />
     </View>
   );

@@ -12,6 +12,7 @@ import {
   rescheduleAllHabitReminders,
 } from "@/libs/reminders/scheduleHabitNotifications";
 import { getHabits } from "@/libs/sqlite/habits";
+import { initDB } from "@/libs/sqlite/db";
 
 export default function HabitNotificationBootstrap() {
   const response = Notifications.useLastNotificationResponse();
@@ -22,6 +23,7 @@ export default function HabitNotificationBootstrap() {
 
     (async () => {
       try {
+        await initDB();
         const habits = await getHabits();
         await rescheduleAllHabitReminders(habits);
       } catch (err) {

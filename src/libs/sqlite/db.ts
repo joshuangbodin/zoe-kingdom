@@ -81,40 +81,57 @@ const CREATE_TABLES = `
   ON challenge_logs(challengeId, period);
 `;
 
-export const initDB = async () => {
-  try {
-    const versionRow = (await sqlite.getFirstAsync(
-      "PRAGMA user_version;",
-    )) as { user_version?: number } | null;
+let initDBPromise: Promise<void> | null = null;
 
-    const currentVersion = Number(versionRow?.user_version ?? 0);
+/**
+ * Initializes (and migrates) the SQLite schema exactly once. Idempotent: every
+ * caller awaits the same in-flight promise, so eager queries never race table
+ * creation (avoids a cold-start missing table error).
+ */
+export const initDB = (): Promise<void> => {
+  if (initDBPromise) return initDBPromise;
 
-    // Migration: rebuild bible_verses when the previous schema had an INTEGER id.
-    if (currentVersion < 2) {
-      await sqlite.execAsync("DROP TABLE IF EXISTS bible_verses;");
-    }
+  initDBPromise = (async () => {
+    try {
+      const versionRow = (await sqlite.getFirstAsync(
+        "PRAGMA user_version;",
+      )) as { user_version?: number } | null;
 
-    // Migration: add per-habit reminder columns (idempotent, guarded).
-    if (currentVersion < 3) {
-      const cols = (await sqlite.getAllAsync("PRAGMA table_info(habits);")) as {
-        name: string;
-      }[];
-      const has = (name: string) => cols.some((c) => c.name === name);
-      if (!has("remindEnabled")) {
-        await sqlite.execAsync(
-          "ALTER TABLE habits ADD COLUMN remindEnabled INTEGER DEFAULT 0;",
-        );
+      const currentVersion = Number(versionRow?.user_version ?? 0);
+
+      // Fresh or old DBs only: rebuild bible_verses when its id was INTEGER.
+      if (currentVersion < 2) {
+        await sqlite.execAsync("DROP TABLE IF EXISTS bible_verses;");
       }
-      if (!has("remindAt")) {
-        await sqlite.execAsync("ALTER TABLE habits ADD COLUMN remindAt TEXT;");
+
+      // Build the base schema FIRST so a fresh database already has every table
+      // (and the v3 columns) before migrations run. This is what prevents a
+      // missing-tables error when the database is brand new.
+      await sqlite.execAsync(CREATE_TABLES);
+
+      // Migration: add per-habit reminder columns. Only affects an existing
+      // v2 database that predates these columns; fresh DBs already have them.
+      if (currentVersion < 3) {
+        const cols = (await sqlite.getAllAsync("PRAGMA table_info(habits);")) as {
+          name: string;
+        }[];
+        const has = (name: string) => cols.some((c) => c.name === name);
+        if (!has("remindEnabled")) {
+          await sqlite.execAsync(
+            "ALTER TABLE habits ADD COLUMN remindEnabled INTEGER DEFAULT 0;",
+          );
+        }
+        if (!has("remindAt")) {
+          await sqlite.execAsync("ALTER TABLE habits ADD COLUMN remindAt TEXT;");
+        }
       }
+
+      await sqlite.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
+    } catch (err) {
+      console.error("DB init error:", err);
     }
+  })();
 
-    await sqlite.execAsync(CREATE_TABLES);
-
-    await sqlite.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
-  } catch (err) {
-    console.error("DB init error:", err);
-  }
+  return initDBPromise;
 };
 

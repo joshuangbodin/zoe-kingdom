@@ -108,14 +108,22 @@ export default function CompleteHabit() {
       interruptionMode: "doNotMix",
     }).catch(() => {});
     return () => {
-      player.pause();
+      try {
+        player.pause();
+      } catch {
+        /* released */
+      }
     };
   }, [player]);
 
   // Immersive UX: start the music when the focus timer begins; stop on finish.
   useEffect(() => {
-    if (running && musicOn) player.play();
-    if (sessionFinished) player.pause();
+    try {
+      if (running && musicOn) player.play();
+      if (sessionFinished) player.pause();
+    } catch {
+      /* player unavailable while navigating away */
+    }
   }, [running, sessionFinished, player, musicOn]);
 
 
