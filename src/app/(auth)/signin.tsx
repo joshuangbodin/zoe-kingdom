@@ -1,12 +1,7 @@
 import { useApp } from "@/context/app-context";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 
 import { ChevronLeft } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,16 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 /** Simple multi-color "G" badge matching the Google logo. */
 function GoogleMark() {
   return (
-    <View className="w-6 h-6 bg-white rounded-full items-center justify-center">
-      <Text className="text-sm" style={{ fontFamily: "Geist-Bold", lineHeight: 18 }}>
-        <Text style={{ color: "#4285F4" }}>G</Text>
-        <Text style={{ color: "#EA4335" }}>o</Text>
-        <Text style={{ color: "#FBBC05" }}>o</Text>
-        <Text style={{ color: "#4285F4" }}>g</Text>
-        <Text style={{ color: "#34A853" }}>l</Text>
-        <Text style={{ color: "#EA4335" }}>e</Text>
-      </Text>
-    </View>
+    <Image className="h-6 w-6" source={require("@/assets/images/google.png")} />
   );
 }
 
@@ -68,7 +54,9 @@ export default function SignIn() {
 
       {/* HEADER */}
       <View className="mb-10">
-        <Text className="text-primary text-lg font-sora-bold">Welcome Back</Text>
+        <Text className="text-primary text-lg font-sora-bold">
+          Welcome Back
+        </Text>
         <Text className="text-muted text-sm font-sora mt-2 leading-5">
           Sign in to continue your spiritual journey
         </Text>
@@ -106,4 +94,3 @@ export default function SignIn() {
     </View>
   );
 }
-
