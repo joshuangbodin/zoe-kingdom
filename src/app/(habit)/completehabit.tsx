@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import {
   Image,
   KeyboardAvoidingView,
@@ -52,6 +53,21 @@ export default function CompleteHabit() {
   const { setHabits, syncHabitLogs } = useApp();
   const { isDark } = useTheme();
   const inactiveIcon = "#fff";
+  const player = useAudioPlayer(require("@/assets/sounds/wn-1.mp3"));
+  const playerStatus = useAudioPlayerStatus(player);
+  const isMusicPlaying = playerStatus?.playing ?? false;
+  const [musicOn, setMusicOn] = useState<boolean>(true);
+
+  const toggleMusic = useCallback(() => {
+    if (isMusicPlaying) {
+      player.pause();
+      setMusicOn(false);
+    } else {
+      player.play();
+      setMusicOn(true);
+    }
+  }, [player, isMusicPlaying]);
+
 
   const bg = require("@/assets/images/bgs/bg-4.gif");
   const bg2 = require("@/assets/images/bgs/bg-5.gif");
@@ -82,6 +98,26 @@ export default function CompleteHabit() {
   const [checked, setChecked] = useState(false);
 
   const intervalRef = useRef<any>(null);
+  // Background music: configure + loop. Best-effort; never blocks the UI.
+  useEffect(() => {
+    player.loop = true;
+    player.volume = 0.7;
+    setAudioModeAsync({
+      playsInSilentMode: true,
+      shouldPlayInBackground: true,
+      interruptionMode: "doNotMix",
+    }).catch(() => {});
+    return () => {
+      player.pause();
+    };
+  }, [player]);
+
+  // Immersive UX: start the music when the focus timer begins; stop on finish.
+  useEffect(() => {
+    if (running && musicOn) player.play();
+    if (sessionFinished) player.pause();
+  }, [running, sessionFinished, player, musicOn]);
+
 
   useEffect(() => {
     loadHabit();
@@ -180,8 +216,13 @@ export default function CompleteHabit() {
         </Pressable>
 
         <Text className="text-white capitalize font-medium">{habit.title}</Text>
-        <Pressable className="w-9 h-9 rounded-xl bg-white/10 items-center justify-center">
-          <Music color="#fff" size={16} />
+        <Pressable
+          onPress={toggleMusic}
+          className={`w-9 h-9 rounded-xl items-center justify-center ${
+            isMusicPlaying ? "bg-amber-500/25" : "bg-white/10"
+          }`}
+        >
+          <Music color={isMusicPlaying ? "#fbbf24" : "#fff"} size={16} />
         </Pressable>
       </View>
 

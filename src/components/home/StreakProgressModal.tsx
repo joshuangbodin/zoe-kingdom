@@ -94,7 +94,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
           >
             {/* Header */}
             <View className="flex-row items-center justify-between">
-              <Text className="text-tertiary text-[11px] font-sora-semibold uppercase tracking-widest">
+              <Text className="text-tertiary text-sm font-sora-medium ">
                 Streak Progress
               </Text>
               <View
@@ -131,7 +131,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
             {/* Next milestone */}
             <View className="bg-card-2 rounded-3xl p-5 border border-line">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-muted text-[10px] font-sora-semibold uppercase tracking-widest">
+                <Text className="text-muted text-xs font-sora-semibold ">
                   Next milestone
                 </Text>
                 {milestone.allReached ? (
@@ -175,7 +175,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
                         />
                       </View>
                       <Text
-                        className={`text-[10px] font-sora-semibold ${
+                        className={`text-xs font-sora-semibold ${
                           passed ? "text-amber-500" : "text-tertiary"
                         }`}
                       >
@@ -189,7 +189,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
 
             {/* How to keep it alive */}
             <View className="mt-4">
-              <Text className="text-tertiary text-[10px] font-sora-semibold uppercase tracking-widest mb-2.5">
+              <Text className="text-tertiary text-xs font-sora-semibold  mb-2.5">
                 Keep the flame burning
               </Text>
               {TIPS.map((tip, i) => (

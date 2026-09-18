@@ -56,7 +56,15 @@
         }
       ],
       "expo-sqlite",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-notifications",
+        {
+          "mode": "development",
+          "color": "#ffffff"
+        }
+      ],
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true,

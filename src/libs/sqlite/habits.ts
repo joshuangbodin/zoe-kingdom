@@ -1,5 +1,6 @@
 import { sqlite } from "./db";
 import { addXP } from "./spirit";
+import { rescheduleAllHabitReminders } from "@/libs/reminders/scheduleHabitNotifications";
 
 export type Habit = {
   id: string;
@@ -117,7 +118,14 @@ export const setHabitReminder = async (
     `UPDATE habits SET remindEnabled = ?, remindAt = ? WHERE id = ?`,
     [remindAt ? 1 : 0, remindAt, habitId],
   );
-};
+
+    // Keep OS-level daily notification schedules in sync with the reminder state.
+    try {
+      await rescheduleAllHabitReminders(await getHabits());
+    } catch (err) {
+      console.warn("reschedule after reminder change failed:", err);
+    }
+  };
 
 // GET ALL ACTIVE HABITS
 export const getHabits = async () => {
