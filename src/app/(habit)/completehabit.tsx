@@ -53,7 +53,7 @@ export default function CompleteHabit() {
   const { setHabits, syncHabitLogs } = useApp();
   const { isDark } = useTheme();
   const inactiveIcon = "#fff";
-  const player = useAudioPlayer(require("@/assets/sounds/wn-1.mp3"));
+  const player = useAudioPlayer(require("@/assets/sounds/wn-2.mp3"));
   const playerStatus = useAudioPlayerStatus(player);
   const isMusicPlaying = playerStatus?.playing ?? false;
   const [musicOn, setMusicOn] = useState<boolean>(true);
