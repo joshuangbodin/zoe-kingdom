@@ -32,6 +32,22 @@ export type Habit = {
 
 const getToday = () => new Date().toISOString().split("T")[0];
 
+/**
+ * The current LOCAL calendar day expressed as UTC ISO instants, from 00:00:00.000
+ * to 23:59:59.999. Using the local-day span (instead of narrow time-of-day
+ * windows or a `DATE()` cast) makes completion detection consistent no matter
+ * when during the day a habit is actually completed.
+ */
+const dayRange = (): { start: string; end: string } => {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  return { start: start.toISOString(), end: end.toISOString() };
+};
+
 // CREATE HABIT
 export const createHabit = async ({
   title,
@@ -194,17 +210,15 @@ export const getHabitStatus = async (habit: Habit) => {
     return !!result;
   };
 
-  // MORNING
+  // MORNING — counts a habit as done any time today (not just during morning
+  // hours), so a completion always marks the day complete regardless of when
+  // the user actually gets to it in the afternoon or evening.
   if (habit.frequency === "morning") {
-    const start = new Date();
-    start.setHours(4, 0, 0, 0);
-
-    const end = new Date();
-    end.setHours(11, 59, 59, 999);
+    const { start, end } = dayRange();
 
     const done = await checkLog(
-      start.toISOString(),
-      end.toISOString(),
+      start,
+      end,
     );
 
     return {
@@ -215,17 +229,13 @@ export const getHabitStatus = async (habit: Habit) => {
     };
   }
 
-  // EVENING
+  // EVENING — same local-day treatment as morning.
   if (habit.frequency === "evening") {
-    const start = new Date();
-    start.setHours(17, 0, 0, 0);
-
-    const end = new Date();
-    end.setHours(23, 59, 59, 999);
+    const { start, end } = dayRange();
 
     const done = await checkLog(
-      start.toISOString(),
-      end.toISOString(),
+      start,
+      end,
     );
 
     return {
@@ -302,15 +312,11 @@ export const getHabitStatus = async (habit: Habit) => {
   }
 
   // THROUGHOUT DAY
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
+  const { start, end } = dayRange();
 
   const done = await checkLog(
-    start.toISOString(),
-    end.toISOString(),
+    start,
+    end,
   );
 
   return {
@@ -332,17 +338,22 @@ export const completeHabit = async (habit: any) => {
     slot = hour < 12 ? "morning" : "evening";
   }
 
+  // Duplicate detection mirrors `getHabitStatus`: a log counts as completed for
+  // the current LOCAL day when it falls anywhere within today's span, so the
+  // gate we enforce here exactly matches what the status check reports.
+  const { start, end } = dayRange();
+
   const already = await sqlite.getFirstAsync(
     `
     SELECT id FROM habit_logs
     WHERE habitId = ?
-    AND DATE(completedAt) = DATE(?)
+    AND completedAt BETWEEN ? AND ?
     AND (
   (slot IS NULL AND ? IS NULL)
   OR slot = ?
 )
     `,
-    [habit.id, new Date().toISOString(), slot, slot],
+    [habit.id, start, end, slot, slot],
   );
 
   if (already) {

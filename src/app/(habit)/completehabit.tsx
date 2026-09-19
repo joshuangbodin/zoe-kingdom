@@ -97,6 +97,10 @@ export default function CompleteHabit() {
   // generic
   const [checked, setChecked] = useState(false);
 
+  // Guards against rapid double-taps firing concurrent `completeHabit` calls,
+  // which could award XP twice before the duplicate check sees the insert.
+  const [completing, setCompleting] = useState(false);
+
   const intervalRef = useRef<any>(null);
   // Background music: configure + loop. Best-effort; never blocks the UI.
   useEffect(() => {
@@ -163,15 +167,21 @@ export default function CompleteHabit() {
   };
 
   const HandleCompleteHabit = async () => {
-    const data = await completeHabit(habit);
-    if (data.success) {
-      showToast("Habit completed! +" + habit.xpReward + " XP", "success");
-      // Auto-upload the new completion if online; otherwise it flushes via the
-      // reconnect effect in AppProvider. Best-effort, never blocks completion.
-      syncHabitLogs().catch(() => {});
-      await loadHabit();
-    } else if (data.reason === "already_completed") {
-      showToast("Already completed today!", "info");
+    if (completing) return;
+    setCompleting(true);
+    try {
+      const data = await completeHabit(habit);
+      if (data.success) {
+        showToast("Habit completed! +" + habit.xpReward + " XP", "success");
+        // Auto-upload the new completion if online; otherwise it flushes via the
+        // reconnect effect in AppProvider. Best-effort, never blocks completion.
+        syncHabitLogs().catch(() => {});
+        await loadHabit();
+      } else if (data.reason === "already_completed") {
+        showToast("Already completed today!", "info");
+      }
+    } finally {
+      setCompleting(false);
     }
   };
 
@@ -529,7 +539,7 @@ export default function CompleteHabit() {
 
           {/* COMPLETE BUTTON */}
           <Pressable
-            disabled={!sessionFinished}
+            disabled={!sessionFinished || completing}
             onPress={HandleCompleteHabit}
             className={`mt-6 rounded-xl py-4 items-center ${
               sessionFinished ? "bg-white" : "bg-black/50"

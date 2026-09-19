@@ -349,7 +349,7 @@ export default function PostDetail() {
         onRequestClose={() => setCommentVisible(false)}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={"padding"}
           className="flex-1"
         >
           <Pressable

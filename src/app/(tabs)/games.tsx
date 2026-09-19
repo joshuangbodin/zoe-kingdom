@@ -30,13 +30,16 @@ import LeaderboardRow from "@/components/arena/LeaderboardRow";
 
 export default function Games() {
   const { top } = useSafeAreaInsets();
-  const { user, refreshUser } = useApp();
+  const { user, refreshUser, isOnline } = useApp();
   const { showToast } = useToast();
   const { isDark } = useTheme();
 
   const [section, setSection] = useState<ArenaSection>("challenges");
   const [challenges, setChallenges] = useState<ChallengeProgress[]>([]);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  // True when the leaderboard is being served from the last cached snapshot
+  // (offline or a transient fetch failure) so we can show a subtle note.
+  const [lbFromCache, setLbFromCache] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [claimingId, setClaimingId] = useState<string | null>(null);
@@ -47,7 +50,8 @@ export default function Games() {
       getLeaderboard(user?.uid, 50),
     ]);
     setChallenges(ch);
-    setLeaderboard(lb);
+    setLeaderboard(lb.entries);
+    setLbFromCache(lb.fromCache);
     setLoading(false);
   }, [user?.uid]);
 
@@ -144,6 +148,17 @@ export default function Games() {
             />
             {section === "leaderboard" && (
               <LeaderboardPodium users={podUsers} />
+            )}
+            {/* Subtle, offline-first note when showing the last saved board. */}
+            {section === "leaderboard" && lbFromCache && (
+              <View className="flex-row items-center justify-center mt-1.5">
+                <View className="w-1.5 h-1.5 rounded-full bg-tertiary mr-1.5" />
+                <Text className="text-tertiary text-[9px] font-sora-medium text-center">
+                  {isOnline
+                    ? "Showing last saved leaderboard"
+                    : "Offline — showing saved leaderboard"}
+                </Text>
+              </View>
             )}
           </View>
         }

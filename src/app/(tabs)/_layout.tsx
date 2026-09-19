@@ -15,12 +15,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // The offline notice is intentionally subtle for an offline-first app and
 // auto-hides after a few minutes so it never becomes nagging.
-const OFFLINE_AUTO_HIDE_MS = 3 * 60 * 1000; // ~3 minutes
+const OFFLINE_AUTO_HIDE_MS = 12000; // ~3 minutes
 
 function SyncBanner() {
   const { isOnline, pendingSync } = useApp();
   const insets = useSafeAreaInsets();
   const [offlineHidden, setOfflineHidden] = useState(false);
+
 
   // When connectivity drops, show a small notice, then fade it out after a while.
   useEffect(() => {
