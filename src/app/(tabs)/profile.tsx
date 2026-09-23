@@ -1,45 +1,45 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  Modal,
-  TextInput,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  LogOut,
-  Settings,
-  BookOpen,
-  Heart,
-  Target,
-  ChevronRight,
-  Edit3,
-  Info,
-  Check,
-  X,
-  RefreshCw,
-  CloudUpload,
-} from "lucide-react-native";
 import Avatar from "@/components/Avatar";
 import { Avatars } from "@/constants/avatar";
 import {
-  getLevelFromXP,
   getFireStatus,
-  getXPForNextLevel,
+  getLevelFromXP,
   getProgressPercentage,
+  getXPForNextLevel,
 } from "@/constants/levels";
 import { useApp } from "@/context/app-context";
-import { useTheme, ThemePreference } from "@/context/theme-context";
-import { getDailyStreak } from "@/libs/sqlite/streak";
+import { ThemePreference, useTheme } from "@/context/theme-context";
 import { getTodayCompletedCount } from "@/libs/sqlite/habits";
 import { getSpiritState } from "@/libs/sqlite/spirit";
+import { getDailyStreak } from "@/libs/sqlite/streak";
 import { syncLocalDataToFirebase } from "@/libs/sync/sync";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import {
+  BookOpen,
+  Check,
+  ChevronRight,
+  CloudUpload,
+  Edit3,
+  Heart,
+  Info,
+  LogOut,
+  RefreshCw,
+  Settings,
+  Target,
+  X,
+} from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const LAST_SYNCED_KEY = "zoe.lastSynced";
 
@@ -163,10 +163,7 @@ export default function Profile() {
       const result = await syncLocalDataToFirebase(user.uid);
       const now = Date.now();
       setLastSynced(now);
-      await AsyncStorage.setItem(
-        `${LAST_SYNCED_KEY}.${user.uid}`,
-        String(now),
-      );
+      await AsyncStorage.setItem(`${LAST_SYNCED_KEY}.${user.uid}`, String(now));
       Alert.alert(
         "Synced",
         `Uploaded ${result.logsUploaded} habit logs, pulled ${result.pulledLogs} from cloud.\n` +
@@ -179,8 +176,8 @@ export default function Profile() {
     }
   };
 
-  const level = user?.level || spiritState?.level || 1;
   const xp = user?.xp || spiritState?.totalXP || 0;
+  const level = getLevelFromXP(xp);
   const fireStatus = getFireStatus(level);
   const nextLevelXP = getXPForNextLevel(level);
   const progress = getProgressPercentage(xp);
@@ -281,14 +278,18 @@ export default function Profile() {
         {/* DAILY STATS */}
         <View className="flex-row gap-3 mt-4">
           <View className="flex-1 bg-card-1 rounded-2xl p-4">
-            <Text className="text-tertiary text-[10px] font-sora-semibold uppercase">Streak</Text>
+            <Text className="text-tertiary text-[10px] font-sora-semibold uppercase">
+              Streak
+            </Text>
             <Text className="text-primary text-xl font-sora-bold mt-1">
               {streak}
               <Text className="text-xs text-tertiary"> days</Text>
             </Text>
           </View>
           <View className="flex-1 bg-card-1 rounded-2xl p-4">
-            <Text className="text-tertiary text-[10px] font-sora-semibold uppercase">Today</Text>
+            <Text className="text-tertiary text-[10px] font-sora-semibold uppercase">
+              Today
+            </Text>
             <Text className="text-primary text-xl font-sora-bold mt-1">
               {todayCompleted}
               <Text className="text-xs text-tertiary"> habits</Text>
@@ -357,12 +358,18 @@ export default function Profile() {
               onPress={() => router.push(item.route as any)}
               className="bg-card-1 rounded-2xl p-4 flex-row items-center"
             >
-              <View className={`w-10 h-10 rounded-xl ${item.bg} items-center justify-center`}>
+              <View
+                className={`w-10 h-10 rounded-xl ${item.bg} items-center justify-center`}
+              >
                 {item.icon}
               </View>
               <View className="flex-1 ml-3">
-                <Text className="text-primary text-sm font-sora-semibold">{item.label}</Text>
-                <Text className="text-tertiary text-[10px] font-sora mt-0.5">{item.desc}</Text>
+                <Text className="text-primary text-sm font-sora-semibold">
+                  {item.label}
+                </Text>
+                <Text className="text-tertiary text-[10px] font-sora mt-0.5">
+                  {item.desc}
+                </Text>
               </View>
               <ChevronRight size={16} color="#444" />
             </Pressable>
@@ -376,7 +383,9 @@ export default function Profile() {
         >
           <View className="flex-row items-center">
             <LogOut size={14} color="#ef4444" />
-            <Text className="text-red-400 text-xs font-sora-semibold ml-2">Sign Out</Text>
+            <Text className="text-red-400 text-xs font-sora-semibold ml-2">
+              Sign Out
+            </Text>
           </View>
         </Pressable>
       </ScrollView>
@@ -384,10 +393,15 @@ export default function Profile() {
       {/* SETTINGS MODAL */}
       <Modal visible={showSettings} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-card-2 rounded-t-[32px] max-h-[80%]">
+          <View className="bg-card-2 rounded-t-4xl max-h-[80%]">
             <View className="flex-row items-center justify-between px-5 pt-5 pb-3 border-b border-line">
-              <Text className="text-primary text-base font-sora-semibold">Settings</Text>
-              <Pressable onPress={() => setShowSettings(false)} className="p-1.5">
+              <Text className="text-primary text-base font-sora-semibold">
+                Settings
+              </Text>
+              <Pressable
+                onPress={() => setShowSettings(false)}
+                className="p-1.5"
+              >
                 <X size={18} color={isDark ? "#fff" : "#0c0c0c"} />
               </Pressable>
             </View>
@@ -397,13 +411,17 @@ export default function Profile() {
                   {
                     id: "edit-profile",
                     label: "Edit Profile",
-                    icon: <Edit3 size={16} color={isDark ? "#fff" : "#0c0c0c"} />,
+                    icon: (
+                      <Edit3 size={16} color={isDark ? "#fff" : "#0c0c0c"} />
+                    ),
                     action: () => setShowEditProfile(true),
                   },
                   {
                     id: "about",
                     label: "About Zoe Kingdom",
-                    icon: <Info size={16} color={isDark ? "#fff" : "#0c0c0c"} />,
+                    icon: (
+                      <Info size={16} color={isDark ? "#fff" : "#0c0c0c"} />
+                    ),
                     action: () =>
                       Alert.alert(
                         "Zoe Kingdom",
@@ -424,7 +442,9 @@ export default function Profile() {
                     <View className="w-7 h-7 rounded-lg items-center justify-center bg-overlay">
                       {item.icon}
                     </View>
-                    <Text className="flex-1 ml-3 font-sora text-sm text-primary">{item.label}</Text>
+                    <Text className="flex-1 ml-3 font-sora text-sm text-primary">
+                      {item.label}
+                    </Text>
                     <ChevronRight size={14} color="#444" />
                   </Pressable>
                 ))}
@@ -442,13 +462,17 @@ export default function Profile() {
                       key={option.id}
                       onPress={() => setPreference(option.id)}
                       className={`flex-row items-center px-4 py-3.5 ${
-                        index < THEME_OPTIONS.length - 1 ? "border-b border-line" : ""
+                        index < THEME_OPTIONS.length - 1
+                          ? "border-b border-line"
+                          : ""
                       }`}
                     >
                       <View className="w-7 h-7 rounded-lg items-center justify-center bg-overlay">
                         <View
                           className={`w-3.5 h-3.5 rounded-full border-2 ${
-                            active ? "border-amber-400 bg-amber-400" : "border-tertiary"
+                            active
+                              ? "border-amber-400 bg-amber-400"
+                              : "border-tertiary"
                           }`}
                         />
                       </View>
@@ -468,10 +492,15 @@ export default function Profile() {
       {/* EDIT PROFILE MODAL */}
       <Modal visible={showEditProfile} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-card-2 rounded-t-[32px] px-5 pt-6 pb-10 max-h-[88%]">
+          <View className="bg-card-2 rounded-t-4xl px-5 pt-6 pb-10 max-h-[88%]">
             <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-primary text-base font-sora-semibold">Edit Profile</Text>
-              <Pressable onPress={() => setShowEditProfile(false)} className="p-1.5">
+              <Text className="text-primary text-base font-sora-semibold">
+                Edit Profile
+              </Text>
+              <Pressable
+                onPress={() => setShowEditProfile(false)}
+                className="p-1.5"
+              >
                 <X size={18} color={isDark ? "#fff" : "#0c0c0c"} />
               </Pressable>
             </View>
@@ -495,7 +524,7 @@ export default function Profile() {
                 placeholder="Share a thought..."
                 placeholderTextColor="#555"
                 multiline
-                className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-[60px] mb-4"
+                className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-15 mb-4"
               />
               <Text className="text-secondary text-[10px] font-sora-semibold uppercase tracking-wider mb-2.5">
                 Spiritual Focus
@@ -509,7 +538,9 @@ export default function Profile() {
                       onPress={() => setEditSpiritMode(mode)}
                       className={`px-4 py-2.5 rounded-xl ${active ? "bg-white" : "bg-card-1"}`}
                     >
-                      <Text className={`text-xs font-sora-medium ${active ? "text-black" : "text-primary/70"}`}>
+                      <Text
+                        className={`text-xs font-sora-medium ${active ? "text-black" : "text-primary/70"}`}
+                      >
                         {mode}
                       </Text>
                     </Pressable>
@@ -520,13 +551,21 @@ export default function Profile() {
                 onPress={() => setShowAvatarPicker(true)}
                 className="bg-card-1 rounded-xl py-3 mb-4 items-center"
               >
-                <Text className="text-primary/80 text-xs font-sora-semibold">Change Avatar</Text>
+                <Text className="text-primary/80 text-xs font-sora-semibold">
+                  Change Avatar
+                </Text>
               </Pressable>
-              <Pressable onPress={handleSaveProfile} disabled={saving} className="bg-white rounded-xl py-3.5 items-center">
+              <Pressable
+                onPress={handleSaveProfile}
+                disabled={saving}
+                className="bg-white rounded-xl py-3.5 items-center"
+              >
                 {saving ? (
                   <ActivityIndicator color="black" />
                 ) : (
-                  <Text className="text-black text-sm font-sora-semibold">Save Changes</Text>
+                  <Text className="text-black text-sm font-sora-semibold">
+                    Save Changes
+                  </Text>
                 )}
               </Pressable>
             </ScrollView>
@@ -537,10 +576,15 @@ export default function Profile() {
       {/* AVATAR PICKER MODAL */}
       <Modal visible={showAvatarPicker} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-card-2 rounded-t-[32px] px-5 pt-6 pb-10 max-h-[85%]">
+          <View className="bg-card-2 rounded-t-4xl px-5 pt-6 pb-10 max-h-[85%]">
             <View className="flex-row items-center justify-between mb-5">
-              <Text className="text-primary text-base font-sora-semibold">Choose Avatar</Text>
-              <Pressable onPress={() => setShowAvatarPicker(false)} className="p-1.5">
+              <Text className="text-primary text-base font-sora-semibold">
+                Choose Avatar
+              </Text>
+              <Pressable
+                onPress={() => setShowAvatarPicker(false)}
+                className="p-1.5"
+              >
                 <X size={18} color={isDark ? "#fff" : "#0c0c0c"} />
               </Pressable>
             </View>
@@ -573,6 +617,3 @@ export default function Profile() {
     </View>
   );
 }
-
-
-

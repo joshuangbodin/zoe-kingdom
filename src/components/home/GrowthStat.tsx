@@ -30,6 +30,7 @@ export default function GrowthStat({
   const { isDark } = useTheme();
   const levelNumber = getLevelFromXP(xp);
 
+  
   const fire = getFireStatus(levelNumber);
 
   const nextLevelXP = getXPForNextLevel(levelNumber);
