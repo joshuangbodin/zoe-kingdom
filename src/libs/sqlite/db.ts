@@ -14,8 +14,16 @@ export const sqlite = SQLite.openDatabaseSync("zoe-kingdom.db");
  * (a self-contained, offline background poller in `libs/reminders`), and
  * `remindAt` stores the daily time as "HH:MM" (24h) when the user wants to be
  * pinged.
+ *
+ * v3 -> v4: adds the `saved_verses` table so readers can save/highlight verses.
+ * It is added via `CREATE TABLE IF NOT EXISTS`, so an existing v3 database picks
+ * it up on the next launch without needing a destructive migration.
+ *
+ * v4 -> v5: adds `note` and `color` (color tag) columns to `saved_verses` so a
+ * saved verse can carry a personal note and a highlight color. Added via a
+ * non-destructive `ALTER TABLE ... ADD COLUMN` migration below.
  */
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 5;
 
 const CREATE_TABLES = `
   CREATE TABLE IF NOT EXISTS spirit_state (
@@ -68,6 +76,20 @@ const CREATE_TABLES = `
 
   CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_verse
   ON bible_verses(bookIndex, chapter, verse);
+
+  CREATE TABLE IF NOT EXISTS saved_verses (
+    id TEXT PRIMARY KEY NOT NULL,
+    book TEXT NOT NULL,
+    bookIndex INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    verse INTEGER NOT NULL,
+    note TEXT,
+    color TEXT,
+    savedAt TEXT NOT NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_saved_lookup
+  ON saved_verses(bookIndex, chapter);
 
   CREATE TABLE IF NOT EXISTS challenge_logs (
     id TEXT PRIMARY KEY NOT NULL,
@@ -123,6 +145,22 @@ export const initDB = (): Promise<void> => {
         }
         if (!has("remindAt")) {
           await sqlite.execAsync("ALTER TABLE habits ADD COLUMN remindAt TEXT;");
+        }
+      }
+
+      // Migration: add note + color-tag columns to saved_verses. Affects an
+      // existing v4 database that predates these columns; fresh DBs already
+      // have them from CREATE_TABLES.
+      if (currentVersion < 5) {
+        const cols = (await sqlite.getAllAsync(
+          "PRAGMA table_info(saved_verses);",
+        )) as { name: string }[];
+        const has = (name: string) => cols.some((c) => c.name === name);
+        if (!has("note")) {
+          await sqlite.execAsync("ALTER TABLE saved_verses ADD COLUMN note TEXT;");
+        }
+        if (!has("color")) {
+          await sqlite.execAsync("ALTER TABLE saved_verses ADD COLUMN color TEXT;");
         }
       }
 

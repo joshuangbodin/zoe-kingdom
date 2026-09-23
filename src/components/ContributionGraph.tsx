@@ -1,30 +1,38 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import { Pressable, ScrollView, Text, View } from "react-native";
+import {
+  LayoutChangeEvent,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
-import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
+
 import { useTheme } from "@/context/theme-context";
+
 import { getYearContributions } from "../libs/sqlite/contributions";
 
-/**
- * Simple monochrome intensity scale. Fewer colors, matched to the active
- * theme: on dark, cells step up through white opacities toward solid white;
- * on light they step through neutral grays toward near-black. Level 0 stays a
- * subtle, visible tint on the current background.
- */
 const LIGHT_COLORS: Record<number, string> = {
-  0: "rgba(0,0,0,0.05)", // inactive
-  1: "rgba(0,0,0,0.35)", // low — zinc-300
-  2: "rgba(0,0,0,0.65)", // medium — zinc-400
-  3: "rgba(0,0,0,1)", // peak — primary / near-black
+  0: "rgba(0,0,0,0.05)",
+  1: "rgba(0,0,0,0.35)",
+  2: "rgba(0,0,0,0.65)",
+  3: "rgba(0,0,0,1)",
 };
 
 const DARK_COLORS: Record<number, string> = {
-  0: "rgba(255,255,255,0.05)", // inactive
-  1: "rgba(255,255,255,0.35)", // low
-  2: "rgba(255,255,255,0.65)", // medium
-  3: "#ffffff", // peak — white
+  0: "rgba(255,255,255,0.05)",
+  1: "rgba(255,255,255,0.35)",
+  2: "rgba(255,255,255,0.65)",
+  3: "#ffffff",
 };
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -35,28 +43,27 @@ const WEEK_WIDTH = CELL_SIZE + CELL_GAP;
 
 export default function ContributionGraph() {
   const scrollRef = useRef<ScrollView>(null);
+
   const { isDark } = useTheme();
 
   const COLORS = isDark ? DARK_COLORS : LIGHT_COLORS;
   const chevronColor = isDark ? "#ffffff" : "#0c0c0c";
 
   const [year, setYear] = useState(new Date().getFullYear());
-
   const [data, setData] = useState<any[]>([]);
+  const [scrollWidth, setScrollWidth] = useState(0);
 
   const load = useCallback(async () => {
     const res = await getYearContributions(year);
     setData(res);
   }, [year]);
 
-  // Reload the consistency map whenever the containing screen regains focus, so
-  // a habit completed elsewhere shows up as soon as the user returns home.
-  useFocusEffect(() => {
-    void load();
-  });
-  /**
-   * Split into week columns
-   */
+  useFocusEffect(
+    useCallback(() => {
+      void load();
+    }, [load]),
+  );
+
   const weeks = useMemo(() => {
     if (!data.length) return [];
 
@@ -71,28 +78,19 @@ export default function ContributionGraph() {
     const firstDate = new Date(`${year}-01-01T00:00:00`);
     const lastDate = new Date(`${year}-12-31T00:00:00`);
 
-    // Convert JS weekday:
-    // Sunday = 0
-    // Monday = 1
-    // ...
-    //
-    // Into:
-    // Monday = 0
-    // ...
-    // Sunday = 6
     const getDayIndex = (date: Date) => {
       return (date.getDay() + 6) % 7;
     };
 
-    // Find Monday containing Jan 1
     const calendarStart = new Date(firstDate);
+
     calendarStart.setDate(firstDate.getDate() - getDayIndex(firstDate));
 
-    // Find Sunday containing Dec 31
     const calendarEnd = new Date(lastDate);
+
     calendarEnd.setDate(lastDate.getDate() + (6 - getDayIndex(lastDate)));
 
-    let current = new Date(calendarStart);
+    const current = new Date(calendarStart);
 
     while (current <= calendarEnd) {
       const week: any[] = [];
@@ -121,16 +119,14 @@ export default function ContributionGraph() {
     return result;
   }, [data, year]);
 
-  /**
-   * Auto-scroll to latest week
-   */
-  useEffect(() => {
-    if (!weeks.length) return;
+  const handleScrollLayout = useCallback((event: LayoutChangeEvent) => {
+    setScrollWidth(event.nativeEvent.layout.width);
+  }, []);
 
-    /**
-     * Find last active week
-     */
-    let lastActiveWeek = 0;
+  useEffect(() => {
+    if (!weeks.length || !scrollWidth) return;
+
+    let lastActiveWeek = -1;
 
     weeks.forEach((week, weekIndex) => {
       const hasActivity = week.some((day) => (day.level || 0) > 0);
@@ -140,21 +136,30 @@ export default function ContributionGraph() {
       }
     });
 
-    /**
-     * Calculate x offset
-     */
-    const x = lastActiveWeek * (CELL_SIZE + CELL_GAP + 4);
+    if (lastActiveWeek === -1) return;
 
-    setTimeout(() => {
+    /**
+     * Position the most recent active week close to the
+     * right side of the visible viewport.
+     */
+    const targetX = lastActiveWeek * WEEK_WIDTH - scrollWidth + WEEK_WIDTH * 2;
+
+    const maxScrollX = Math.max(weeks.length * WEEK_WIDTH - scrollWidth, 0);
+
+    const x = Math.min(Math.max(targetX, 0), maxScrollX);
+
+    const timer = setTimeout(() => {
       scrollRef.current?.scrollTo({
-        x: Math.max(x - 120, 0),
+        x,
         animated: true,
       });
-    }, 100);
-  }, [weeks]);
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [weeks, scrollWidth]);
 
   return (
-    <View className="mt-12 ">
+    <View className="mt-12">
       {/* HEADER */}
       <View className="flex-row justify-between items-center mb-5">
         <View>
@@ -172,7 +177,9 @@ export default function ContributionGraph() {
             <ChevronLeft color={chevronColor} />
           </Pressable>
 
-          <Text className="text-primary text-xs font-sora-semibold mx-2">{year}</Text>
+          <Text className="text-primary text-xs font-sora-semibold mx-2">
+            {year}
+          </Text>
 
           <Pressable
             onPress={() => setYear(year + 1)}
@@ -200,45 +207,49 @@ export default function ContributionGraph() {
         </View>
 
         {/* HORIZONTAL SCROLL */}
-        <ScrollView
-          ref={scrollRef}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          bounces
-        >
-          <View className="flex-row">
-            {weeks.map((week, weekIndex) => (
-              <View
-                key={weekIndex}
-                style={{
-                  marginRight: CELL_GAP,
-                }}
-              >
-                {week.map((day, dayIndex) => (
-                  <View
-                    key={dayIndex}
-                    style={{
-                      width: CELL_SIZE,
-                      height: CELL_SIZE,
-                      marginBottom: CELL_GAP,
-                      borderRadius: 3,
-                      backgroundColor: COLORS[day.level || 0],
-                    }}
-                  />
-                ))}
-              </View>
-            ))}
-          </View>
-        </ScrollView>
+        <View className="flex-1" onLayout={handleScrollLayout}>
+          <ScrollView
+            ref={scrollRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            bounces
+            contentContainerStyle={{
+              paddingRight: WEEK_WIDTH,
+            }}
+          >
+            <View className="flex-row">
+              {weeks.map((week, weekIndex) => (
+                <View
+                  key={weekIndex}
+                  style={{
+                    width: CELL_SIZE,
+                    marginRight: CELL_GAP,
+                  }}
+                >
+                  {week.map((day, dayIndex) => (
+                    <View
+                      key={dayIndex}
+                      style={{
+                        width: CELL_SIZE,
+                        height: CELL_SIZE,
+                        marginBottom: CELL_GAP,
+                        borderRadius: 3,
+                        backgroundColor: COLORS[day.level || 0],
+                      }}
+                    />
+                  ))}
+                </View>
+              ))}
+            </View>
+          </ScrollView>
+        </View>
       </View>
 
       {/* LEGEND */}
       <View className="flex-row items-center justify-end mt-5">
         <Text className="text-secondary text-xs mr-2">Less</Text>
 
-        {[
-          0, 1, 2, 3,
-        ].map((level) => (
+        {[0, 1, 2, 3].map((level) => (
           <View
             key={level}
             style={{

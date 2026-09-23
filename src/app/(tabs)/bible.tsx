@@ -11,10 +11,13 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
+  Share,
   Text,
   TextInput,
   View,
 } from "react-native";
+
+// import * as Clipboard from "expo-clipboard";
 
 import { BottomSheetModal, BottomSheetSectionList } from "@gorhom/bottom-sheet";
 
@@ -28,9 +31,22 @@ import {
 
 import { isRedLetterVerse } from "@/constants/red-text";
 import { useTheme } from "@/context/theme-context";
+import SelectionActionBar from "@/components/bible/SelectionActionBar";
+import SaveVerseSheet, {
+  SaveVerseSheetHandle,
+} from "@/components/bible/SaveVerseSheet";
+import VersionSheet, { VersionSheetHandle } from "@/components/bible/VersionSheet";
 import VerseText from "@/components/bible/VerseText";
+import { useToast } from "@/components/Toast";
+import { cleanVerseText } from "@/libs/bible/verse-annotations";
 import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
+import {
+  getSavedIds,
+  getSavedVerse,
+  saveVerses,
+  unsaveVerses,
+} from "@/libs/sqlite/saved-verses";
 import { router, useLocalSearchParams } from "expo-router";
 import Animated, {
   FadeIn,
@@ -87,6 +103,7 @@ export default function Bible() {
   const { top } = useSafeAreaInsets();
   const version = "KJV"
   const { isDark } = useTheme();
+  const { showToast } = useToast();
   const params = useLocalSearchParams<{
     book?: string;
     chapter?: string;
@@ -108,9 +125,23 @@ export default function Bible() {
   const [selectedChapter, setSelectedChapter] = useState(1);
 
   const [search, setSearch] = useState("");
+  // Verse ids the reader has saved / highlighted (offline-persisted).
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const refreshSaved = async () => {
+    try {
+      setSavedIds(await getSavedIds());
+    } catch {
+      /* ignore – save actions also refresh defensively */
+    }
+  };
+  useEffect(() => {
+    void refreshSaved();
+  }, []);
   // Bottom sheet driving the "Books of the Bible" navigation chooser.
   const bookSheetRef = useRef<BottomSheetModal>(null);
   const bookSheetSnapPoints = useMemo(() => ["85%", "95%"], []);
+  const saveSheetRef = useRef<SaveVerseSheetHandle>(null);
+  const versionSheetRef = useRef<VersionSheetHandle>(null);
 
   const toggleVerse = useCallback((id: string) => {
     setSelectedVerses((prev) => {
@@ -358,6 +389,127 @@ export default function Bible() {
     [selectedBookIndex],
   );
 
+  /* ---------------------------- SELECTION ACTIONS ---------------------------- */
+
+  // Build a clean shareable representation of the currently selected verses.
+  const getSelection = () => {
+    const items = verses.filter((v) => selectedVerses[v.id]);
+    if (!items.length) return null;
+
+    const numbers = items.map((v) => v.verse);
+    const start = Math.min(...numbers);
+    const end = Math.max(...numbers);
+    const range = start === end ? `${start}` : `${start}-${end}`;
+    const book =
+      books.find((b) => b.bookIndex === selectedBookIndex)?.book ?? "";
+
+    return {
+      items,
+      reference: `${book} ${selectedChapter}:${range}`,
+      text: items.map((v) => cleanVerseText(v.text)).join(" "),
+    };
+  };
+
+  const copySelection = async () => {
+    const sel = getSelection();
+    if (!sel) return;
+
+    try {
+      // const ok = await Clipboard.setStringAsync(
+      //   `“${sel.text}”\n\n— ${sel.reference} (KJV)`,
+      // );
+      // showToast(ok ? "Verse copied" : "Couldn’t copy", ok ? "success" : "error");
+    } catch {
+      showToast("Couldn’t copy", "error");
+    }
+  };
+
+  const shareSelection = () => {
+    const sel = getSelection();
+    if (!sel) return;
+
+    try {
+      void Share.share({
+        message: `“${sel.text}”\n\n— ${sel.reference} (KJV)`,
+        title: sel.reference,
+      });
+    } catch {
+      showToast("Share unavailable", "error");
+    }
+  };
+
+  const postSelection = () => {
+    const sel = getSelection();
+    if (!sel) return;
+
+    router.push({
+      pathname: "/(network)/sharethought",
+      params: {
+        verses: JSON.stringify(sel.items),
+      },
+    });
+  };
+
+  const toggleSaveSelection = async () => {
+    const sel = getSelection();
+    if (!sel) return;
+
+    const ids = sel.items.map((v) => v.id);
+    const alreadySaved = ids.every((id) => savedIds.has(id));
+
+    // Pre-fill note + color when editing an already-saved verse.
+    let existingNote: string | undefined;
+    let existingColor: string | null | undefined;
+    if (alreadySaved && ids.length) {
+      const first = await getSavedVerse(ids[0]);
+      existingNote = first?.note ?? undefined;
+      existingColor = first?.color ?? undefined;
+    }
+
+    saveSheetRef.current?.present({
+      reference: sel.reference,
+      alreadySaved,
+      note: existingNote,
+      color: existingColor,
+    });
+  };
+
+  const handleSaveVerse = (note: string, color: string | null) => {
+    const sel = getSelection();
+    if (!sel) return;
+
+    void saveVerses(
+      sel.items.map((v) => ({
+        id: v.id,
+        book: v.book,
+        bookIndex: v.bookIndex,
+        chapter: v.chapter,
+        verse: v.verse,
+        note,
+        color,
+      })),
+    );
+    showToast(note ? "Verse saved with note" : "Verse saved", "success");
+    void refreshSaved();
+  };
+
+  const handleRemoveSaved = () => {
+    const sel = getSelection();
+    if (!sel) return;
+
+    const ids = sel.items.map((v) => v.id);
+    void unsaveVerses(ids);
+    showToast("Removed from saved", "info");
+    void refreshSaved();
+  };
+
+  const allSelectedSaved = useMemo(() => {
+    const ids = verses
+      .filter((v) => selectedVerses[v.id])
+      .map((v) => v.id);
+    return ids.length > 0 && ids.every((id) => savedIds.has(id));
+  }, [verses, selectedVerses, savedIds]);
+
   /* ---------------------------- FILTER (MEMOIZED) ---------------------------- */
 
   const filteredBooks = useMemo(() => {
@@ -494,7 +646,10 @@ export default function Bible() {
         </Pressable>
 
         <View className="flex-row gap-1">
-          <Pressable className="bg-card-2 px-3 py-2 rounded-l-xl">
+          <Pressable
+            onPress={() => versionSheetRef.current?.present()}
+            className="bg-card-2 px-3 py-2 rounded-l-xl"
+          >
             <Text className="text-tertiary text-xs font-sora-semibold">{version}</Text>
           </Pressable>
           <Pressable
@@ -518,23 +673,15 @@ export default function Bible() {
       </View>
 
       {Object.keys(selectedVerses).length !== 0 && (
-        <Pressable
-          onPress={() => {
-            const selected = verses.filter((v) => selectedVerses[v.id]);
-
-            router.push({
-              pathname: "/(network)/sharethought",
-              params: {
-                verses: JSON.stringify(selected),
-              },
-            });
-          }}
-          className="absolute bottom-6 z-50 right-5 bg-white px-4 py-2.5 rounded-xl"
-        >
-          <Text className="text-black text-sm font-sora-semibold">
-            Share ({Object.keys(selectedVerses).length})
-          </Text>
-        </Pressable>
+        <SelectionActionBar
+          isDark={isDark}
+          count={Object.keys(selectedVerses).length}
+          allSaved={allSelectedSaved}
+          onCopy={copySelection}
+          onShare={shareSelection}
+          onPost={postSelection}
+          onToggleSave={toggleSaveSelection}
+        />
       )}
 
       {/* VERSES */}
@@ -622,6 +769,16 @@ export default function Bible() {
           keyboardShouldPersistTaps="handled"
         />
       </BottomSheetModal>
+
+      {/* Save verse (note + color tag) */}
+      <SaveVerseSheet
+        ref={saveSheetRef}
+        onSave={handleSaveVerse}
+        onRemove={handleRemoveSaved}
+      />
+
+      {/* Bible version picker */}
+      <VersionSheet ref={versionSheetRef} />
     </View>
   );
 }
