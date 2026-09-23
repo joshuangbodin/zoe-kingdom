@@ -25,6 +25,7 @@ import {
 } from "lucide-react-native";
 
 import { isRedLetterVerse } from "@/constants/red-text";
+import VerseText from "@/components/bible/VerseText";
 import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -94,17 +95,17 @@ const VerseRow = memo(
           {index + 1}
         </Text>
 
-        <Text
-          className={`flex-1 text-base leading-8 font-serif ${
+        <VerseText
+          text={item.text}
+          colorClass={
             selected
               ? "text-amber-500"
               : isRed
                 ? "text-red-500"
                 : "text-primary"
-          }`}
-        >
-          {item.text}
-        </Text>
+          }
+          containerClassName="flex-1"
+        />
 
         {selectionMode && (
           <View

@@ -28,6 +28,7 @@ import {
 
 import { isRedLetterVerse } from "@/constants/red-text";
 import { useTheme } from "@/context/theme-context";
+import VerseText from "@/components/bible/VerseText";
 import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
 import { router, useLocalSearchParams } from "expo-router";
@@ -60,17 +61,17 @@ const VerseRow = memo(
           {index + 1}
         </Text>
 
-        <Text
-          className={`flex-1 text-base leading-8 font-serif ${
+        <VerseText
+          text={item.text}
+          colorClass={
             selected
               ? "text-amber-500"
               : isRed
                 ? "text-red-500"
                 : "text-primary"
-          }`}
-        >
-          {item.text}
-        </Text>
+          }
+          containerClassName="flex-1"
+        />
       </Pressable>
     );
   },
@@ -84,6 +85,7 @@ const VerseRow = memo(
 
 export default function Bible() {
   const { top } = useSafeAreaInsets();
+  const version = "KJV"
   const { isDark } = useTheme();
   const params = useLocalSearchParams<{
     book?: string;
@@ -491,16 +493,21 @@ export default function Bible() {
           <ChevronLeft color={isDark ? "#fff" : "#0c0c0c"} size={18} />
         </Pressable>
 
-        <Pressable
-          onPress={() => bookSheetRef.current?.present()}
-          className="bg-card-1 px-3 py-2 rounded-xl"
-        >
-          <Text className="text-primary text-sm font-sora-semibold">
-            {books.find((b) => b.bookIndex === selectedBookIndex)?.book ??
-              "Bible"}{" "}
-            <Text className="text-secondary">{selectedChapter}</Text>
-          </Text>
-        </Pressable>
+        <View className="flex-row gap-1">
+          <Pressable className="bg-card-2 px-3 py-2 rounded-l-xl">
+            <Text className="text-tertiary text-xs font-sora-semibold">{version}</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => bookSheetRef.current?.present()}
+            className="bg-card-2 px-3 py-2 rounded-r-xl"
+          >
+            <Text className="text-primary text-sm font-sora-semibold">
+              {books.find((b) => b.bookIndex === selectedBookIndex)?.book ??
+                "Bible"}{" "}
+              <Text className="text-secondary">{selectedChapter}</Text>
+            </Text>
+          </Pressable>
+        </View>
 
         <Pressable
           onPress={goNext}

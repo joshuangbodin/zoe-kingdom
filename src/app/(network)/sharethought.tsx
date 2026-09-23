@@ -21,6 +21,7 @@ import Avatar from "@/components/Avatar";
 import BibleModal, { BibleSelection } from "@/components/BibleModal";
 import { useToast } from "@/components/Toast";
 import { useApp } from "@/context/app-context";
+import { cleanVerseText } from "@/libs/bible/verse-annotations";
 import { createPostSmart } from "@/libs/firebase/posts";
 import { getAllUsersSortedByLastUpload } from "@/libs/firebase/users";
 import {
@@ -249,7 +250,7 @@ export default function ShareThought() {
         {
           uid,
           thought: thought.trim() || "Shared a scripture",
-          verseText: selectedVerse?.text || "",
+          verseText: cleanVerseText(selectedVerse?.text) || "",
           verseReference: selectedVerse?.reference || "",
           tags: [
             "faith",
