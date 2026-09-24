@@ -24,6 +24,7 @@ import {
   X,
 } from "lucide-react-native";
 import Avatar from "@/components/Avatar";
+import VerseText from "@/components/bible/VerseText";
 import {
   createCommentSmart,
   deletePostSmart,
@@ -282,9 +283,11 @@ export default function PostDetail() {
                       <Text className="text-primary text-sm font-serif mb-1.5">
                         {verseReference}
                       </Text>
-                      <Text className="text-secondary text-[12px] leading-6 font-serif">
-                        {verseText}
-                      </Text>
+                      <VerseText
+                        text={verseText}
+                        bodyClassName="text-secondary text-[12px] leading-6 font-serif"
+                        noteClassName="text-secondary/60 text-[11px] leading-4 font-serif-italic mt-1"
+                      />
                     </View>
                   </Pressable>
                 )}

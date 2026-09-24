@@ -45,7 +45,7 @@ const VersionSheet = forwardRef<VersionSheetHandle, object>(
     return (
       <BottomSheetModal
         ref={sheetRef}
-        index={2}
+        index={1}
         snapPoints={snapPoints}
         enablePanDownToClose
         enableDynamicSizing={false}

@@ -22,6 +22,7 @@ import {
 import { BottomSheetModal, BottomSheetSectionList } from "@gorhom/bottom-sheet";
 
 import {
+  Bookmark,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -663,6 +664,13 @@ export default function Bible() {
             </Text>
           </Pressable>
         </View>
+
+        <Pressable
+          onPress={() => router.push("/saved")}
+          className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center mr-2"
+        >
+          <Bookmark color="#fbbf24" size={17} />
+        </Pressable>
 
         <Pressable
           onPress={goNext}

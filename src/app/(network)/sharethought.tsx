@@ -19,9 +19,9 @@ import {
 
 import Avatar from "@/components/Avatar";
 import BibleModal, { BibleSelection } from "@/components/BibleModal";
+import VerseText from "@/components/bible/VerseText";
 import { useToast } from "@/components/Toast";
 import { useApp } from "@/context/app-context";
-import { cleanVerseText } from "@/libs/bible/verse-annotations";
 import { createPostSmart } from "@/libs/firebase/posts";
 import { getAllUsersSortedByLastUpload } from "@/libs/firebase/users";
 import {
@@ -250,7 +250,7 @@ export default function ShareThought() {
         {
           uid,
           thought: thought.trim() || "Shared a scripture",
-          verseText: cleanVerseText(selectedVerse?.text) || "",
+          verseText: selectedVerse?.text || "",
           verseReference: selectedVerse?.reference || "",
           tags: [
             "faith",
@@ -435,9 +435,11 @@ export default function ShareThought() {
                   <Text className="text-primary text-lg font-serif mb-2">
                     {selectedVerse.reference}
                   </Text>
-                  <Text className="text-primary/80 text-[14px] leading-7 font-serif">
-                    "{selectedVerse.text}"
-                  </Text>
+                  <VerseText
+                    text={selectedVerse.text}
+                    bodyClassName="text-primary/80 text-[14px] leading-7 font-serif"
+                    noteClassName="text-tertiary/60 text-[11px] leading-4 font-serif-italic mt-1.5"
+                  />
                 </View>
 
                 {/* Actions bar */}

@@ -31,6 +31,38 @@ export type SavedVerseInput = {
   color?: string | null;
 };
 
+export type SavedVerseDetail = {
+  id: string;
+  book: string;
+  bookIndex: number;
+  chapter: number;
+  verse: number;
+  note?: string | null;
+  color?: string | null;
+  savedAt: string;
+  /** The actual verse body from `bible_verses` (may be empty if missing). */
+  text?: string | null;
+};
+
+/** Fetch all saved verses (with their note, color tag, and verse text). */
+export const getSavedVerses = async (): Promise<SavedVerseDetail[]> => {
+  try {
+    await initDB();
+    const res = (await sqlite.getAllAsync<SavedVerseDetail>(`
+      SELECT s.id, s.book, s.bookIndex, s.chapter, s.verse,
+             s.note, s.color, s.savedAt,
+             b.text
+      FROM saved_verses s
+      LEFT JOIN bible_verses b ON b.id = s.id
+      ORDER BY s.savedAt DESC
+    `)) ?? [];
+    return res;
+  } catch (err) {
+    console.error("getSavedVerses error:", err);
+    return [];
+  }
+};
+
 /** Resolve the full set of currently-saved verse ids. */
 export const getSavedIds = async (): Promise<Set<string>> => {
   try {

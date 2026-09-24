@@ -3,6 +3,7 @@ import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
 
 import Avatar from "@/components/Avatar";
+import VerseText from "@/components/bible/VerseText";
 import { useTheme } from "@/context/theme-context";
 
 export type PostCardData = {
@@ -89,9 +90,11 @@ export default function PostCard({
             <Text className="text-white text-xs font-sora mb-1.5">
               {item.verseReference}
             </Text>
-            <Text className="text-white text-xs leading-5 font-serif">
-              {item.verseText}
-            </Text>
+            <VerseText
+              text={item.verseText}
+              bodyClassName="text-white text-xs leading-5 font-serif"
+              noteClassName="text-white/55 text-[10px] leading-4 font-serif-italic mt-1"
+            />
           </View>
           <View className="border-t border-white/50 px-4 py-2">
             <Text className="text-white text-[10px] font-sora">

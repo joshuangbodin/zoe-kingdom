@@ -138,13 +138,13 @@ export default function Habits() {
                   />
 
                   {/* Pattern overlaid with the card surface color so text stays readable */}
-                  <View className="bg-bg/60 p-5 pb-12">
-                    <Text className="text-primary/80 text-[10px] font-sora ">
+                  <View className="bg-black/40 p-5 pb-12">
+                    <Text className="text-white/80 text-[10px] font-sora ">
                       {dailyVerse.ref}
                     </Text>
                     <Text
                       numberOfLines={3}
-                      className="text-primary text-xs font-serif leading-5 mt-2"
+                      className="text-white text-xs font-serif leading-5 mt-2"
                     >
                       {dailyVerse.text}
                     </Text>
@@ -158,9 +158,9 @@ export default function Habits() {
                       });
                       setShowBibleModal(true);
                     }}
-                    className="absolute bottom-0 right-0 bg-accent px-4 py-2 rounded-tl-2xl"
+                    className="absolute bottom-0 right-0 bg-white px-4 py-2 rounded-tl-2xl"
                   >
-                    <Text className="text-bg text-[10px] font-sora-semibold">
+                    <Text className="text-black text-[10px] font-sora-semibold">
                       Read full
                     </Text>
                   </Pressable>
