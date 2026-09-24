@@ -2,9 +2,11 @@ import { useApp } from "@/context/app-context";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import { Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Index = () => {
   const { user, isGuest, initializing } = useApp();
+  const bottom = useSafeAreaInsets().bottom + 10;
 
   // The AppProvider subscribes to Firebase auth on mount and hydrates the user
   // into context. Once bootstrap completes we route accordingly. Guests are
@@ -25,7 +27,7 @@ const Index = () => {
         My<Text className="text-muted">Zoe</Text>Life
       </Text>
 
-      <View className="items-center absolute bottom-safe-offset-8">
+      <View style={{ bottom }} className="items-center absolute">
         <Text className="text-muted text-xs font-sora">Powered By </Text>
         <Text className="text-white font-sora-bold text-lg">Christ.</Text>
       </View>
@@ -34,4 +36,3 @@ const Index = () => {
 };
 
 export default Index;
-

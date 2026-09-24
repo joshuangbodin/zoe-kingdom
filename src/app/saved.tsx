@@ -186,7 +186,7 @@ export default function SavedVerses() {
         </Pressable>
 
         <View className="flex-1 flex-row items-center ml-3">
-          <Bookmark size={16} color="#fbbf24" />
+       
 
           <Text className="text-primary text-lg font-sora-semibold ml-2">
             Saved Verses
