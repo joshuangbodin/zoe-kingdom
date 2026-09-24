@@ -66,7 +66,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
     }, [streak]);
 
     const iconColor = isDark ? "#fff" : "#0c0c0c";
-    const placeholderColor = isDark ? "#3a3a3a" : "#d4d4d8";
+    const placeholderColor = isDark ? "#3a3a3a" : "#d9cbb5";
 
     const heroMessage =
       streak === 0
@@ -84,7 +84,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
         snapPoints={snapPoints}
         enablePanDownToClose
         enableDynamicSizing={false}
-        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#f5f5ed" }}
+        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#fbf6ee" }}
         handleIndicatorStyle={{ backgroundColor: placeholderColor, width: 40 }}
       >
         <BottomSheetView className="flex-1 px-6 pb-8">

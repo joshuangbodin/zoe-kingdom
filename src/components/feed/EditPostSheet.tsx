@@ -70,7 +70,7 @@ const EditPostSheet = forwardRef<EditPostSheetHandle, EditPostSheetProps>(
         keyboardBlurBehavior="restore"
         backgroundStyle={{ backgroundColor: isDark ? "#111" : "#ffffff" }}
         handleIndicatorStyle={{
-          backgroundColor: isDark ? "#3a3a3a" : "#d4d4d8",
+          backgroundColor: isDark ? "#3a3a3a" : "#d9cbb5",
           width: 40,
         }}
       >

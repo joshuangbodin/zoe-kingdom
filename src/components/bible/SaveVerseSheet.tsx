@@ -90,9 +90,9 @@ const SaveVerseSheet = forwardRef<SaveVerseSheetHandle, SaveVerseSheetProps>(
         enableDynamicSizing={false}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
-        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#f5f5ed" }}
+        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#fbf6ee" }}
         handleIndicatorStyle={{
-          backgroundColor: isDark ? "#3a3a3a" : "#d4d4d8",
+          backgroundColor: isDark ? "#3a3a3a" : "#d9cbb5",
           width: 42,
         }}
       >

@@ -51,7 +51,7 @@ const SpiritStatusModal = forwardRef<SpiritStatusModalHandle, Props>(
     const next = FIRE_STAGES[currentIndex + 1];
 
     const iconColor = isDark ? "#fff" : "#0c0c0c";
-    const placeholder = isDark ? "#3a3a3a" : "#d4d4d8";
+    const placeholder = isDark ? "#3a3a3a" : "#d9cbb5";
 
     return (
       <BottomSheetModal
@@ -60,7 +60,7 @@ const SpiritStatusModal = forwardRef<SpiritStatusModalHandle, Props>(
         snapPoints={snapPoints}
         enablePanDownToClose
         enableDynamicSizing={false}
-        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#f5f5ed" }}
+        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#fbf6ee" }}
         handleIndicatorStyle={{ backgroundColor: placeholder, width: 40 }}
       >
         <BottomSheetView className="flex-1 px-6 pb-8">

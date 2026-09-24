@@ -72,16 +72,16 @@ export default function TabLayout() {
           headerShown: false,
 
           tabBarStyle: {
-            backgroundColor: isDark ? "#181818" : "#fdfdf6",
+            backgroundColor: isDark ? "#181818" : "#fbf6ee",
             borderTopWidth: 0,
-            borderTopColor: isDark ? "#000" : "#e5e7eb",
+            borderTopColor: isDark ? "#000" : "#eadfcb",
             height: insets.bottom + 80,
             paddingTop: 8,
             paddingBottom: insets.bottom + 10,
           },
 
-          tabBarInactiveTintColor: isDark ? "#fff9" : "#71717a",
-          tabBarActiveTintColor: isDark ? "#fff" : "#0c0c0c",
+          tabBarInactiveTintColor: isDark ? "#fff9" : "#8b7f6e",
+          tabBarActiveTintColor: isDark ? "#fff" : "#3f372d",
 
           tabBarLabelStyle: {
             fontSize: 10,

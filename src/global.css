@@ -32,19 +32,19 @@
 @layer theme {
   :root {
     @variant light {
-      --color-bg: #f4f4eb;
-      --color-card-1: #fdfdf6;
-      --color-card-2: #ffffff;
+      --color-bg: #f6efe5;
+      --color-card-1: #fbf6ee;
+      --color-card-2: #efe6d8;
 
-      --color-muted: #71717a;
-      --color-primary: #0c0c0c;
-      --color-secondary: #52525b;
-      --color-tertiary: #7d7d85;
-      --color-quaternary: #a1a1aa;
+      --color-muted: #8b7f6e;
+      --color-primary: #3f372d;
+      --color-secondary: #6d6253;
+      --color-tertiary: #9a8c7a;
+      --color-quaternary: #b9ac9a;
 
-      --color-line: rgba(0, 0, 0, 0.08);
-      --color-overlay: rgba(0, 0, 0, 0.06);
-      --color-accent: #000
+      --color-line: rgba(94, 76, 58, 0.14);
+      --color-overlay: rgba(122, 96, 70, 0.08);
+      --color-accent: #3f372d
     }
 
     @variant dark {

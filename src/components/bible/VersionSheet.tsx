@@ -49,9 +49,9 @@ const VersionSheet = forwardRef<VersionSheetHandle, object>(
         snapPoints={snapPoints}
         enablePanDownToClose
         enableDynamicSizing={false}
-        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#f5f5ed" }}
+        backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#fbf6ee" }}
         handleIndicatorStyle={{
-          backgroundColor: isDark ? "#3a3a3a" : "#d4d4d8",
+          backgroundColor: isDark ? "#3a3a3a" : "#d9cbb5",
           width: 42,
         }}
       >
@@ -59,9 +59,7 @@ const VersionSheet = forwardRef<VersionSheetHandle, object>(
           {/* Header */}
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center gap-2">
-              <View className="w-9 h-9 rounded-xl bg-amber-500/15 items-center justify-center">
-                <BookOpen size={16} color="#f59e0b" />
-              </View>
+             
               <View>
                 <Text className="text-primary text-lg font-sora-semibold leading-6">
                   Bible Version
@@ -84,7 +82,7 @@ const VersionSheet = forwardRef<VersionSheetHandle, object>(
           <View className="flex-row items-center gap-3 rounded-2xl px-4 py-3.5 mb-4"
             style={{
               backgroundColor: isDark ? "#171616" : "#fdfdf6",
-              borderWidth: 1.5,
+              borderWidth: 1,
               borderColor: "#f59e0b",
             }}
           >

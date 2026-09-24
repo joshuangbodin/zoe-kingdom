@@ -649,13 +649,13 @@ export default function Bible() {
         <View className="flex-row gap-1">
           <Pressable
             onPress={() => versionSheetRef.current?.present()}
-            className="bg-card-2 px-3 py-2 rounded-l-xl"
+            className="bg-card-1 px-3 py-2 rounded-3xl"
           >
-            <Text className="text-tertiary text-xs font-sora-semibold">{version}</Text>
+            <Text className="text-tertiary text-sm font-sora-semibold">{version}</Text>
           </Pressable>
           <Pressable
             onPress={() => bookSheetRef.current?.present()}
-            className="bg-card-2 px-3 py-2 rounded-r-xl"
+            className="bg-card-1 px-3 py-2 rounded-3xl"
           >
             <Text className="text-primary text-sm font-sora-semibold">
               {books.find((b) => b.bookIndex === selectedBookIndex)?.book ??
@@ -669,7 +669,7 @@ export default function Bible() {
           onPress={() => router.push("/saved")}
           className="w-10 h-10 bg-card-1 rounded-xl items-center justify-center mr-2"
         >
-          <Bookmark color="#fbbf24" size={17} />
+          <Bookmark color={isDark ? "#fff" : "#0c0c0c"} size={17} />
         </Pressable>
 
         <Pressable
@@ -720,7 +720,7 @@ export default function Bible() {
         enableDynamicSizing={false}
         backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#fff" }}
         handleIndicatorStyle={{
-          backgroundColor: isDark ? "#3a3a3a" : "#f5f5ed",
+          backgroundColor: isDark ? "#3a3a3a" : "#fbf6ee",
           width: 42,
         }}
       >
