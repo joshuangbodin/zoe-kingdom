@@ -148,20 +148,26 @@ export const initDB = (): Promise<void> => {
         }
       }
 
-      // Migration: add note + color-tag columns to saved_verses. Affects an
-      // existing v4 database that predates these columns; fresh DBs already
-      // have them from CREATE_TABLES.
-      if (currentVersion < 5) {
-        const cols = (await sqlite.getAllAsync(
+      // Reconcile saved_verses columns UNCONDITIONALLY (idempotent). `CREATE TABLE
+      // IF NOT EXISTS` never adds columns to an already-existing table, and a
+      // device whose `user_version` was bumped to 5 by a previous run will skip
+      // the `version < 5` gate below. Checking the live column list and ALTER-ing
+      // when missing self-heals a DB stuck at any version, so note/color always
+      // exist before any saved-verses query runs.
+      try {
+        const savedCols = (await sqlite.getAllAsync(
           "PRAGMA table_info(saved_verses);",
         )) as { name: string }[];
-        const has = (name: string) => cols.some((c) => c.name === name);
-        if (!has("note")) {
+        const savedHas = (name: string) =>
+          savedCols.some((c) => c.name === name);
+        if (!savedHas("note")) {
           await sqlite.execAsync("ALTER TABLE saved_verses ADD COLUMN note TEXT;");
         }
-        if (!has("color")) {
+        if (!savedHas("color")) {
           await sqlite.execAsync("ALTER TABLE saved_verses ADD COLUMN color TEXT;");
         }
+      } catch (err) {
+        console.error("saved_verses reconcile error:", err);
       }
 
       await sqlite.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
