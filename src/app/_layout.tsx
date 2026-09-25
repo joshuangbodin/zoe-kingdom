@@ -1,3 +1,4 @@
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import {
   DarkTheme,
   DefaultTheme,
@@ -7,28 +8,25 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import "../global.css";
 
+import { ToastProvider } from "@/components/Toast";
+import LevelUpModal from "@/components/home/LevelUpModal";
+import HabitNotificationBootstrap from "@/components/reminders/HabitNotificationBootstrap";
+import HabitReminderWorker from "@/components/reminders/HabitReminderWorker";
 import AppProvider from "@/context/app-context";
 import { ThemeProvider, useTheme } from "@/context/theme-context";
-import { ToastProvider } from "@/components/Toast";
-import HabitReminderWorker from "@/components/reminders/HabitReminderWorker";
-import HabitNotificationBootstrap from "@/components/reminders/HabitNotificationBootstrap";
-import LevelUpModal from "@/components/home/LevelUpModal";
 import { initDB } from "@/libs/sqlite/db";
 import { Stack } from "expo-router";
 
 /** Bridges our theme preference into React Navigation's theme. */
-function NavigationThemeBridge({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function NavigationThemeBridge({ children }: { children: React.ReactNode }) {
   const { isDark } = useTheme();
   const navTheme = isDark ? DarkTheme : DefaultTheme;
   return (
-    <NavigationThemeProvider value={navTheme}>{children}</NavigationThemeProvider>
+    <NavigationThemeProvider value={navTheme}>
+      {children}
+    </NavigationThemeProvider>
   );
 }
 
@@ -70,7 +68,12 @@ export default function TabLayout() {
             <LevelUpModal />
             <NavigationThemeBridge>
               <BottomSheetModalProvider>
-                <Stack screenOptions={{ headerShown: false }} />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    animation: "slide_from_right",
+                  }}
+                />
               </BottomSheetModalProvider>
             </NavigationThemeBridge>
           </ToastProvider>

@@ -22,7 +22,6 @@ function SyncBanner() {
   const insets = useSafeAreaInsets();
   const [offlineHidden, setOfflineHidden] = useState(false);
 
-
   // When connectivity drops, show a small notice, then fade it out after a while.
   useEffect(() => {
     if (isOnline) {
@@ -70,6 +69,8 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
+
+          animation: "shift",
 
           tabBarStyle: {
             backgroundColor: isDark ? "#181818" : "#fbf6ee",
