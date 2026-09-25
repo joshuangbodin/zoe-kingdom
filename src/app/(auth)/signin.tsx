@@ -57,7 +57,7 @@ export default function SignIn() {
         <Text className="text-primary text-lg font-sora-bold">
           Welcome Back
         </Text>
-        <Text className="text-muted text-sm font-sora mt-2 leading-5">
+        <Text className="text-secondary text-sm font-sora mt-2 leading-5">
           Sign in to continue your spiritual journey
         </Text>
       </View>
@@ -73,21 +73,21 @@ export default function SignIn() {
       <Pressable
         onPress={handleGoogle}
         disabled={loading}
-        className="bg-white rounded-xl h-14 items-center justify-center flex-row"
+        className="bg-primary rounded-xl h-14 items-center justify-center flex-row"
       >
         {loading ? (
           <ActivityIndicator color="black" />
         ) : (
           <>
             <GoogleMark />
-            <Text className="text-black font-sora-bold text-sm ml-3">
+            <Text className="text-bg font-sora-bold text-sm ml-3">
               Continue with Google
             </Text>
           </>
         )}
       </Pressable>
 
-      <Text className="text-muted text-[11px] text-center mt-5 font-sora leading-5 px-6">
+      <Text className="text-secondary text-[11px] text-center mt-5 font-sora leading-5 px-6">
         By continuing you agree to our community guidelines. We never post
         without your permission.
       </Text>

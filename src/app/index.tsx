@@ -22,14 +22,14 @@ const Index = () => {
   }, [initializing, user, isGuest]);
 
   return (
-    <View className="relative justify-center items-center bg-black flex-1">
-      <Text className="text-white text-3xl font-sora-bold">
-        My<Text className="text-muted">Zoe</Text>Life
+    <View className="relative justify-center items-center bg-bg flex-1">
+      <Text className="text-primary text-3xl font-sora-bold">
+        My<Text className="text-primary/80">Zoe</Text>Life
       </Text>
 
       <View style={{ bottom }} className="items-center absolute">
-        <Text className="text-muted text-xs font-sora">Powered By </Text>
-        <Text className="text-white font-sora-bold text-lg">Christ.</Text>
+        <Text className="text-primary/80 text-xs font-sora">Powered By </Text>
+        <Text className="text-primary font-sora-bold text-lg">Christ.</Text>
       </View>
     </View>
   );

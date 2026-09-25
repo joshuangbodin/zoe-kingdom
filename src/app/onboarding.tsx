@@ -1,9 +1,9 @@
+import { useApp } from "@/context/app-context";
 import { useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
-import { useApp } from "@/context/app-context";
 
 const man = require("@/assets/images/man.png");
 const woman = require("@/assets/images/woman.png");
@@ -19,27 +19,27 @@ export default function Onboarding() {
   };
 
   return (
-    <StyledSafeAreaView className="flex-1 relative bg-neutral-950 pt-8 px-4 ">
+    <StyledSafeAreaView className="flex-1 relative bg-bg pt-8 px-4 ">
       {/* BRAND SECTION */}
       <View className=" mb-9">
         <View>
-          <Text className="text-muted text-[33px]  font-sora-bold">
+          <Text className="text-primary/80 text-[33px]  font-sora-bold">
             Consistent
           </Text>
-          <Text className="text-muted text-[33px]  font-sora-bold">
-            <Text className="text-white">Christian</Text> Spiritual
+          <Text className="text-primary/80 text-[33px]  font-sora-bold">
+            <Text className="text-primary">Christian</Text> Spiritual
           </Text>
 
-          <Text className="text-muted text-[33px]  font-sora-bold">
-            Growth <Text className="text-white">With my Zoe</Text>
+          <Text className="text-primary/80 text-[33px]  font-sora-bold">
+            Growth <Text className="text-primary">With my Zoe</Text>
           </Text>
 
-          <Text className="text-muted text-[33px]  font-sora-bold">
-            <Text className="text-white">Life</Text> App
+          <Text className="text-primary/80 text-[33px]  font-sora-bold">
+            <Text className="text-primary">Life</Text> App
           </Text>
         </View>
 
-        <Text className="text-muted  mt-8 text-base font-sora leading-7.5 ">
+        <Text className="text-primary/80  mt-8 text-base font-sora leading-7.5 ">
           Grow your Spirit Man.{"\n"}
           Join the community & Share thought.{"\n"}
           Build Holy Habits.
@@ -49,7 +49,7 @@ export default function Onboarding() {
       {/* PRIMARY ACTION */}
       <Pressable
         onPress={() => router.push("/(auth)/signin")}
-        className="bg-white py-4 z-10 rounded-xl items-center"
+        className="bg-primary py-4 z-10 rounded-xl items-center"
       >
         <Text className="text-black font-semibold text-base">Get Started</Text>
       </Pressable>
@@ -57,7 +57,7 @@ export default function Onboarding() {
         onPress={() => router.push("/(auth)/signin")}
         className="bg-card-2 mt-3 py-4 z-10 rounded-xl items-center"
       >
-        <Text className="text-white font-semibold text-base">
+        <Text className="text-primary font-semibold text-base">
           Sign in with Google
         </Text>
       </Pressable>
@@ -66,7 +66,7 @@ export default function Onboarding() {
         onPress={handleContinueAsGuest}
         className="mt-4 py-2 z-10 items-center"
       >
-        <Text className="text-muted font-sora text-xs underline">
+        <Text className="text-primary/80 font-sora text-xs underline">
           Continue without an account
         </Text>
       </Pressable>
