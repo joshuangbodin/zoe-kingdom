@@ -12,6 +12,7 @@ import React, {
   useState,
 } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "@/context/theme-context";
 
@@ -57,6 +58,7 @@ const SaveVerseSheet = forwardRef<SaveVerseSheetHandle, SaveVerseSheetProps>(
   function SaveVerseSheet({ onSave, onRemove }, ref) {
     const sheetRef = useRef<BottomSheetModal>(null);
     const { isDark } = useTheme();
+    const insets = useSafeAreaInsets();
 
     const [reference, setReference] = useState("");
     const [alreadySaved, setAlreadySaved] = useState(false);
@@ -96,7 +98,10 @@ const SaveVerseSheet = forwardRef<SaveVerseSheetHandle, SaveVerseSheetProps>(
           width: 42,
         }}
       >
-        <BottomSheetView className="flex-1 px-5 pb-6">
+        <BottomSheetView
+          className="flex-1 px-5"
+          style={{ paddingBottom: insets.bottom + 24 }}
+        >
           {/* Header */}
           <View className="flex-row items-center justify-between mb-1">
             <View className="flex-row items-center gap-2">

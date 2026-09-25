@@ -143,7 +143,7 @@ export default function BibleModal({
   initialChapter,
   initialVerse,
 }: BibleModalProps) {
-  const { top } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { isDark } = useTheme();
   const [loading, setLoading] = useState(true);
 
@@ -607,7 +607,10 @@ export default function BibleModal({
               </Animated.View>
 
               {/* BOTTOM ACTIONS */}
-              <View className="absolute bottom-0 left-0 right-0 pb-8 px-5">
+              <View
+                className="absolute bottom-0 left-0 right-0 px-5"
+                style={{ paddingBottom: bottom + 32 }}
+              >
                 <View className="flex-row gap-3">
                   {selectionMode && (
                     <>
@@ -721,7 +724,7 @@ export default function BibleModal({
                   removeClippedSubviews
                   maxToRenderPerBatch={10}
                   windowSize={6}
-                  contentContainerStyle={{ padding: 16 }}
+                  contentContainerStyle={{ padding: 16, paddingBottom: bottom + 16 }}
                 />
               </Pressable>
             </Pressable>

@@ -12,6 +12,7 @@ import "../global.css";
 
 import { ToastProvider } from "@/components/Toast";
 import LevelUpModal from "@/components/home/LevelUpModal";
+import UpdatesSheet from "@/components/UpdatesSheet";
 import HabitNotificationBootstrap from "@/components/reminders/HabitNotificationBootstrap";
 import HabitReminderWorker from "@/components/reminders/HabitReminderWorker";
 import AppProvider from "@/context/app-context";
@@ -68,6 +69,7 @@ export default function TabLayout() {
             <LevelUpModal />
             <NavigationThemeBridge>
               <BottomSheetModalProvider>
+                <UpdatesSheet />
                 <Stack
                   screenOptions={{
                     headerShown: false,

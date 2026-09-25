@@ -18,6 +18,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useToast } from "@/components/Toast";
 import {
@@ -44,6 +45,7 @@ const CreateHabitSheet = forwardRef<CreateHabitSheetHandle, CreateHabitSheetProp
   function CreateHabitSheet({ onCreated }, ref) {
     const sheetRef = useRef<BottomSheetModal>(null);
     const { isDark } = useTheme();
+    const insets = useSafeAreaInsets();
     const { showToast } = useToast();
 
     const [title, setTitle] = useState("");
@@ -109,7 +111,10 @@ const CreateHabitSheet = forwardRef<CreateHabitSheetHandle, CreateHabitSheetProp
           width: 42,
         }}
       >
-        <BottomSheetView className="flex-1 px-5 pb-6">
+        <BottomSheetView
+          className="flex-1 px-5"
+          style={{ paddingBottom: insets.bottom + 24 }}
+        >
           {/* Header */}
           <View className="flex-row items-center justify-between mb-1">
             <View className="flex-row items-center">

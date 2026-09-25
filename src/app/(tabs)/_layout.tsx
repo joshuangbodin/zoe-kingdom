@@ -70,7 +70,7 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
 
-          animation: "shift",
+          
 
           tabBarStyle: {
             backgroundColor: isDark ? "#181818" : "#fbf6ee",

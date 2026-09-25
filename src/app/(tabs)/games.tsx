@@ -27,6 +27,7 @@ import ArenaHeader, {
 import ChallengeCard from "@/components/arena/ChallengeCard";
 import LeaderboardPodium from "@/components/arena/LeaderboardPodium";
 import LeaderboardRow from "@/components/arena/LeaderboardRow";
+import LeaderboardEmptyState from "@/components/arena/LeaderboardEmptyState";
 
 export default function Games() {
   const { top } = useSafeAreaInsets();
@@ -161,6 +162,9 @@ export default function Games() {
               </View>
             )}
           </View>
+        }
+        ListEmptyComponent={
+          section === "leaderboard" ? <LeaderboardEmptyState /> : null
         }
         contentContainerStyle={{ paddingBottom: 140 }}
       />

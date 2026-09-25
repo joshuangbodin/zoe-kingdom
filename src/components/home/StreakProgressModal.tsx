@@ -9,6 +9,7 @@ import React, {
   useRef,
 } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "@/context/theme-context";
 
@@ -41,6 +42,7 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
   function StreakProgressModal({ streak }, ref) {
     const { isDark } = useTheme();
     const sheetRef = useRef<BottomSheetModal>(null);
+    const insets = useSafeAreaInsets();
 
     const snapPoints = useMemo(() => ["62%", "90%"], []);
 
@@ -87,10 +89,10 @@ const StreakProgressModal = forwardRef<StreakProgressModalHandle, props>(
         backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#fbf6ee" }}
         handleIndicatorStyle={{ backgroundColor: placeholderColor, width: 40 }}
       >
-        <BottomSheetView className="flex-1 px-6 pb-8">
+        <BottomSheetView className="flex-1 px-6" style={{ paddingBottom: insets.bottom + 8 }}>
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 8 }}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 8 }}
           >
             {/* Header */}
             <View className="flex-row items-center justify-between">

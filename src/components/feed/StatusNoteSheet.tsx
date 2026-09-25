@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { Pressable, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 
@@ -33,6 +34,7 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
   function StatusNoteSheet(_, ref) {
     const { isDark } = useTheme();
     const sheetRef = useRef<BottomSheetModal>(null);
+    const insets = useSafeAreaInsets();
     const [user, setUser] = useState<{
       uid?: string;
       username?: string;
@@ -66,7 +68,10 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
           width: 40,
         }}
       >
-        <BottomSheetView className="flex-1 px-6 pb-8">
+        <BottomSheetView
+          className="flex-1 px-6"
+          style={{ paddingBottom: insets.bottom + 32 }}
+        >
           {user && (
             <>
               {/* Header row */}

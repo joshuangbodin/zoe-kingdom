@@ -10,6 +10,7 @@ import React, {
   useRef,
 } from "react";
 import { Pressable, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "@/context/theme-context";
 
@@ -31,6 +32,7 @@ const VersionSheet = forwardRef<VersionSheetHandle, object>(
   function VersionSheet(_props, ref) {
     const sheetRef = useRef<BottomSheetModal>(null);
     const { isDark } = useTheme();
+    const insets = useSafeAreaInsets();
     const snapPoints = useMemo(() => ["55%", "65%"], []);
 
     const dismiss = () => sheetRef.current?.dismiss();
@@ -55,7 +57,10 @@ const VersionSheet = forwardRef<VersionSheetHandle, object>(
           width: 42,
         }}
       >
-        <BottomSheetView className="flex-1 px-5 pb-7">
+        <BottomSheetView
+          className="flex-1 px-5"
+          style={{ paddingBottom: insets.bottom + 28 }}
+        >
           {/* Header */}
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center gap-2">

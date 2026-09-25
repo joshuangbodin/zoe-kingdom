@@ -3,6 +3,7 @@ import LottieView from "lottie-react-native";
 import { Crown, Sparkles, X } from "lucide-react-native";
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "@/context/theme-context";
 import { FIRE_STAGES, getFireStageIndex } from "@/constants/levels";
@@ -38,6 +39,7 @@ const SpiritStatusModal = forwardRef<SpiritStatusModalHandle, Props>(
   function SpiritStatusModal({ currentLevel }, ref) {
     const { isDark } = useTheme();
     const sheetRef = useRef<BottomSheetModal>(null);
+    const insets = useSafeAreaInsets();
     const snapPoints = useMemo(() => ["55%", "90%"], []);
 
     const dismiss = useCallback(() => sheetRef.current?.dismiss(), []);
@@ -63,10 +65,10 @@ const SpiritStatusModal = forwardRef<SpiritStatusModalHandle, Props>(
         backgroundStyle={{ backgroundColor: isDark ? "#121111" : "#fbf6ee" }}
         handleIndicatorStyle={{ backgroundColor: placeholder, width: 40 }}
       >
-        <BottomSheetView className="flex-1 px-6 pb-8">
+        <BottomSheetView className="flex-1 px-6" style={{ paddingBottom: insets.bottom + 8 }}>
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 8 }}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 8 }}
           >
             <View className="flex-row items-center justify-between">
               <Text className="text-tertiary text-sm font-sora-medium">Altar Fire Status</Text>

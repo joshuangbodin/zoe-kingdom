@@ -101,7 +101,7 @@ const VerseRow = memo(
 /* ---------------------------- MAIN ---------------------------- */
 
 export default function Bible() {
-  const { top } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const version = "KJV"
   const { isDark } = useTheme();
   const { showToast } = useToast();
@@ -773,7 +773,10 @@ export default function Bible() {
           removeClippedSubviews
           maxToRenderPerBatch={10}
           windowSize={6}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingBottom: bottom + 24,
+          }}
           keyboardShouldPersistTaps="handled"
         />
       </BottomSheetModal>

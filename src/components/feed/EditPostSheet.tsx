@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 
 import {
@@ -33,6 +34,7 @@ const EditPostSheet = forwardRef<EditPostSheetHandle, EditPostSheetProps>(
   function EditPostSheet({ onSave }, ref) {
     const { isDark } = useTheme();
     const sheetRef = useRef<BottomSheetModal>(null);
+    const insets = useSafeAreaInsets();
     const [text, setText] = useState("");
     const [saving, setSaving] = useState(false);
 
@@ -74,7 +76,10 @@ const EditPostSheet = forwardRef<EditPostSheetHandle, EditPostSheetProps>(
           width: 40,
         }}
       >
-        <BottomSheetView className="flex-1 px-5 pb-8">
+        <BottomSheetView
+          className="flex-1 px-5"
+          style={{ paddingBottom: insets.bottom + 32 }}
+        >
           <View className="flex-row items-center justify-between mb-4">
             <Text className="text-primary text-base font-sora-semibold">
               Edit Post
