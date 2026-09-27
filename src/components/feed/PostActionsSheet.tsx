@@ -37,11 +37,7 @@ type RowProps = {
 function ActionRow({ icon, label, tone = "default", onPress }: RowProps) {
   const { isDark } = useTheme();
   const color =
-    tone === "destructive"
-      ? "#ef4444"
-      : isDark
-        ? "#fff"
-        : "#0c0c0c";
+    tone === "destructive" ? "#ef4444" : isDark ? "#fff" : "#0c0c0c";
 
   return (
     <Pressable
@@ -51,10 +47,11 @@ function ActionRow({ icon, label, tone = "default", onPress }: RowProps) {
     >
       <View
         className="w-9 h-9 rounded-xl items-center justify-center"
-        style={{
-          backgroundColor:
-            tone === "destructive" ? "rgba(239,68,68,0.15)" : "#f1e8da",
-        }}
+        style={
+          tone === "destructive" && {
+            backgroundColor: "rgba(239,68,68,0.15)",
+          }
+        }
       >
         {icon}
       </View>
@@ -124,7 +121,9 @@ const PostActionsSheet = forwardRef<PostActionsSheetHandle>(
             {payload?.isOwn ? (
               <>
                 <ActionRow
-                  icon={<Pencil size={16} color={isDark ? "#fff" : "#0c0c0c"} />}
+                  icon={
+                    <Pencil size={16} color={isDark ? "#fff" : "#0c0c0c"} />
+                  }
                   label="Edit post"
                   onPress={() => {
                     dismiss();
@@ -156,7 +155,9 @@ const PostActionsSheet = forwardRef<PostActionsSheetHandle>(
               icon={
                 <Bookmark
                   size={16}
-                  color={payload?.isSaved ? "#f59e0b" : isDark ? "#fff" : "#0c0c0c"}
+                  color={
+                    payload?.isSaved ? "#f59e0b" : isDark ? "#fff" : "#0c0c0c"
+                  }
                   fill={payload?.isSaved ? "#f59e0b" : "transparent"}
                 />
               }

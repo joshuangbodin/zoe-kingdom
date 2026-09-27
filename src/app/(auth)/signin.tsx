@@ -5,6 +5,7 @@ import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 
 import { ChevronLeft } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/context/theme-context";
 
 /** Simple multi-color "G" badge matching the Google logo. */
 function GoogleMark() {
@@ -18,6 +19,8 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const {isDark} = useTheme()
+ 
   const top = useSafeAreaInsets().top;
 
   const handleGoogle = async () => {
@@ -49,7 +52,7 @@ export default function SignIn() {
         style={{ top: top + 8 }}
         className="w-10 h-10 absolute left-5 rounded-xl bg-card-2 items-center justify-center"
       >
-        <ChevronLeft color="white" size={18} />
+        <ChevronLeft color={isDark?"white":"#000"} size={18} />
       </Pressable>
 
       {/* HEADER */}
@@ -76,7 +79,7 @@ export default function SignIn() {
         className="bg-primary rounded-xl h-14 items-center justify-center flex-row"
       >
         {loading ? (
-          <ActivityIndicator color="black" />
+          <ActivityIndicator color={isDark?"black":"#fff"} />
         ) : (
           <>
             <GoogleMark />

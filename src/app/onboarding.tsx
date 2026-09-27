@@ -51,16 +51,16 @@ export default function Onboarding() {
         onPress={() => router.push("/(auth)/signin")}
         className="bg-primary py-4 z-10 rounded-xl items-center"
       >
-        <Text className="text-black font-semibold text-base">Get Started</Text>
+        <Text className="text-bg font-semibold text-base">Get Started</Text>
       </Pressable>
-      <Pressable
+      {/* <Pressable
         onPress={() => router.push("/(auth)/signin")}
         className="bg-card-2 mt-3 py-4 z-10 rounded-xl items-center"
       >
         <Text className="text-primary font-semibold text-base">
           Sign in with Google
         </Text>
-      </Pressable>
+      </Pressable> */}
 
       <Pressable
         onPress={handleContinueAsGuest}

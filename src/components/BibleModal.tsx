@@ -244,6 +244,7 @@ export default function BibleModal({
       await ensureBibleSeeded();
 
       await loadBooks();
+      await loadAllChapters();
     } finally {
       setLoading(false);
     }
@@ -304,46 +305,36 @@ export default function BibleModal({
     setVerses(res);
   }, []);
 
-  /* -------------------- LOAD CHAPTERS FOR A SPECIFIC BOOK -------------------- */
-  // Each expanded book in the picker needs its OWN chapter list. The global
-  // `chapters` state always reflects the currently active book, so expanding a
-  // non-active book previously showed the wrong book's chapters (the "jank").
-  // We keep a per-book cache here so every book displays the correct set.
+  /* ---------------- LOAD ALL BOOKS' CHAPTERS (single pass) ---------------- */
+  // We fetch every book's chapter list once, up front, so:
+  //  • each book row shows its TRUE chapter count (e.g. Psalm highlights "150
+  //    chapters" even while Genesis is active), and
+  //  • any expanded book instantly renders its own correct chapter list.
+  // This kills the "expanding Psalm shows Genesis's 50 chapters" bug for good,
+  // because chapter data is keyed by bookIndex and never shares the global
+  // `chapters` state (which only reflects the currently active book).
 
-  const [bookChapters, setBookChapters] = useState<Record<number, number[]>>({});
-  const bookChaptersLoaded = useRef(new Set<number>());
+  const [allChapters, setAllChapters] = useState<Record<number, number[]>>({});
 
-  const loadChaptersForBook = useCallback(
-    async (bookIndex: number) => {
-      if (bookChaptersLoaded.current.has(bookIndex)) return;
-      bookChaptersLoaded.current.add(bookIndex);
-      try {
-        const res = await sqlite.getAllAsync(
-          `SELECT DISTINCT chapter
-           FROM bible_verses
-           WHERE bookIndex = ?
-           ORDER BY chapter ASC`,
-          [bookIndex],
-        );
-        setBookChapters((prev) => ({
-          ...prev,
-          [bookIndex]: res.map((r: any) => r.chapter),
-        }));
-      } catch (e) {
-        console.warn("load book chapters failed", e);
-        bookChaptersLoaded.current.delete(bookIndex);
-      }
-    },
-    [],
-  );
+  const loadAllChapters = useCallback(async () => {
+    const res = await sqlite.getAllAsync(
+      `SELECT DISTINCT bookIndex, chapter
+       FROM bible_verses
+       ORDER BY bookIndex ASC, chapter ASC`,
+    );
 
-  const toggleBookExpand = useCallback(
-    (bookIndex: number) => {
-      setExpandedBook((prev) => (prev === bookIndex ? null : bookIndex));
-      loadChaptersForBook(bookIndex);
-    },
-    [loadChaptersForBook],
-  );
+    const map: Record<number, number[]> = {};
+    for (const row of res) {
+      const r = row as any;
+      if (!map[r.bookIndex]) map[r.bookIndex] = [];
+      map[r.bookIndex].push(r.chapter);
+    }
+    setAllChapters(map);
+  }, []);
+
+  const toggleBookExpand = useCallback((bookIndex: number) => {
+    setExpandedBook((prev) => (prev === bookIndex ? null : bookIndex));
+  }, []);
 
   const goToChapter = async (
     bookIndex: number,
@@ -514,26 +505,41 @@ export default function BibleModal({
   const renderBook = useCallback(
     ({ item }: any) => {
       const expanded = expandedBook === item.bookIndex;
-      const bookChaptersList = bookChapters[item.bookIndex] ?? [];
+      const isActive = selectedBookIndex === item.bookIndex;
+      const chapters = allChapters[item.bookIndex] ?? [];
 
       return (
-        <View className="mb-3 rounded-3xl bg-card-1 overflow-hidden">
-          <Pressable
-            onPress={() => {
-              selectBook(item.bookIndex);
-              setExpandedBook((prev) =>
-                prev === item.bookIndex ? null : item.bookIndex,
-              );
-            }}
-            className="px-5 py-5 flex-row justify-between"
-          >
-            <Text className="text-primary font-sora-semibold">
-              {item.book}
-            </Text>
+        <View
+          className={`mb-3 rounded-3xl overflow-hidden bg-card-1 border ${
+            isActive ? "border-amber-500/40" : "border-transparent"
+          }`}
+        >
+          <View className="flex-row items-center">
+            {/* Book name — tapping reads the book */}
+            <Pressable
+              onPress={() => selectBook(item.bookIndex)}
+              className="flex-1 px-5 py-4"
+            >
+              <View className="flex-row items-center">
+                <Text className="text-primary font-sora-semibold">
+                  {item.book}
+                </Text>
+                {isActive ? (
+                  <View className="w-1.5 h-1.5 rounded-full bg-amber-400 ml-2" />
+                ) : null}
+              </View>
+              <Text className="text-tertiary text-[11px] font-sora mt-0.5">
+                {chapters.length > 0
+                  ? `${chapters.length} chapter${chapters.length > 1 ? "s" : ""}`
+                  : "\u00a0"}
+              </Text>
+            </Pressable>
 
+            {/* Chevron — expands this book's chapters without leaving the list */}
             <Pressable
               onPress={() => toggleBookExpand(item.bookIndex)}
-              hitSlop={8}
+              hitSlop={12}
+              className="px-5 py-4"
             >
               {expanded ? (
                 <ChevronDown color={isDark ? "#fff" : "#0c0c0c"} />
@@ -541,32 +547,68 @@ export default function BibleModal({
                 <ChevronRight color={isDark ? "#fff" : "#0c0c0c"} />
               )}
             </Pressable>
-          </Pressable>
+          </View>
 
           {expanded ? (
-            <FlatList
-              horizontal
-              data={bookChaptersList}
-              keyExtractor={(i) => i.toString()}
-              renderItem={({ item: ch }) => (
-                <Pressable
-                  onPress={() => openBookChapter(item.bookIndex, ch)}
-                  className="w-10 h-10 bg-bg m-2 rounded-xl items-center justify-center"
-                >
-                  <Text className="text-primary">{ch}</Text>
-                </Pressable>
+            <View className="pb-4">
+              <Text className="text-quaternary text-[10px] font-sora-medium uppercase tracking-widest px-5 pb-2">
+                {chapters.length > 0
+                  ? `${chapters.length} chapters \u00b7 tap one to read`
+                  : "Chapters"}
+              </Text>
+              {chapters.length > 0 ? (
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  data={chapters}
+                  keyExtractor={(i) => i.toString()}
+                  contentContainerStyle={{ paddingHorizontal: 12 }}
+                  renderItem={({ item: ch }) => {
+                    const isCurrent =
+                      selectedBookIndex === item.bookIndex &&
+                      selectedChapter === ch;
+                    return (
+                      <Pressable
+                        onPress={() => openBookChapter(item.bookIndex, ch)}
+                        className={`m-1.5 w-11 h-11 rounded-xl items-center justify-center ${
+                          isCurrent ? "bg-amber-500" : "bg-bg"
+                        }`}
+                      >
+                        <Text
+                          className={
+                            isCurrent
+                              ? "text-black font-sora-semibold"
+                              : "text-primary font-sora-medium"
+                          }
+                        >
+                          {ch}
+                        </Text>
+                      </Pressable>
+                    );
+                  }}
+                  removeClippedSubviews
+                  maxToRenderPerBatch={24}
+                  initialNumToRender={18}
+                  windowSize={8}
+                />
+              ) : (
+                <View className="px-5 py-3 items-center">
+                  <ActivityIndicator
+                    color={isDark ? "#fff" : "#888"}
+                    size="small"
+                  />
+                </View>
               )}
-              removeClippedSubviews
-              maxToRenderPerBatch={8}
-              windowSize={5}
-            />
+            </View>
           ) : null}
         </View>
       );
     },
     [
       expandedBook,
-      bookChapters,
+      allChapters,
+      selectedBookIndex,
+      selectedChapter,
       selectBook,
       openBookChapter,
       toggleBookExpand,
