@@ -42,7 +42,7 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
       statusNote?: string;
     } | null>(null);
 
-    const snapPoints = useMemo(() => ["50%"], []);
+    const snapPoints = useMemo(() => ["60%", "80%"], []);
     const color = getStoryColor(user?.uid);
 
     useImperativeHandle(ref, () => ({

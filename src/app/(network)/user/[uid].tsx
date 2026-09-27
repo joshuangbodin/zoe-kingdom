@@ -189,7 +189,7 @@ return (
                 </Text>
               ) : null}
 
-              {/* <View className="flex-row gap-3 mt-4">
+              <View className="flex-row gap-3 mt-4">
                 <View className="bg-card-1 rounded-2xl px-5 py-3 items-center">
                   <Text className="text-primary text-lg font-sora-bold">
                     {profile?.followersCount ?? 0}
@@ -206,16 +206,16 @@ return (
                     Following
                   </Text>
                 </View>
-                <View className="bg-card-1 rounded-2xl px-5 py-3 items-center">
+                {/* <View className="bg-card-1 rounded-2xl px-5 py-3 items-center">
                   <Text className="text-primary text-lg font-sora-bold">
                     {profile?.xp ?? 0}
                   </Text>
                   <Text className="text-tertiary text-[10px] font-sora-medium">
                     XP · Lv {levelData}
                   </Text>
-                </View>
-              </View> */}
-{/* {!isOwn ? (
+                </View> */}
+              </View>
+{!isOwn ? (
                 <Pressable
                   onPress={handleFollow}
                   disabled={toggling}
@@ -240,7 +240,7 @@ return (
                     {toggling ? "…" : following ? "Following" : "Follow"}
                   </Text>
                 </Pressable>
-              ) : null} */}
+              ) : null}
 
               <Text className="text-quaternary text-[10px] font-sora-semibold uppercase tracking-wider mt-6 mb-2 self-start">
                 Their posts

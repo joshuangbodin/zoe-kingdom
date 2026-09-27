@@ -1,5 +1,6 @@
+import { auth } from "@/libs/firebase";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,18 +14,11 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { auth } from "@/libs/firebase";
 
-import {
-  ChevronLeft,
-  Heart,
-  BookOpen,
-  MoreHorizontal,
-  Send,
-  X,
-} from "lucide-react-native";
 import Avatar from "@/components/Avatar";
 import VerseText from "@/components/bible/VerseText";
+import { useToast } from "@/components/Toast";
+import { useApp } from "@/context/app-context";
 import {
   createCommentSmart,
   deletePostSmart,
@@ -34,8 +28,14 @@ import {
   updatePostSmart,
 } from "@/libs/firebase/posts";
 import { getUserProfile, UserProfile } from "@/libs/firebase/users";
-import { useApp } from "@/context/app-context";
-import { useToast } from "@/components/Toast";
+import {
+  BookOpen,
+  ChevronLeft,
+  Heart,
+  MoreHorizontal,
+  Send,
+  X,
+} from "lucide-react-native";
 
 export default function PostDetail() {
   const { id, uid, thought, verseText, verseReference, likesCount } =
@@ -56,7 +56,13 @@ export default function PostDetail() {
   const [commentVisible, setCommentVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
+  const [likeCount, setLikeCount] = useState(
+    parseInt(likesCount || "0", 10) || 0,
+  );
+  const [likeProcessing, setLikeProcessing] = useState(false);
+  const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(
+    null,
+  );
   const { showToast } = useToast();
 
   // Creator edit/delete
@@ -80,8 +86,24 @@ export default function PostDetail() {
   // Check if liked
   useEffect(() => {
     const user = auth.currentUser;
+
     if (!user || !id) return;
-    hasUserLikedPost(id, user.uid).then(setIsLiked);
+
+    let mounted = true;
+
+    hasUserLikedPost(id, user.uid)
+      .then((liked) => {
+        if (mounted) {
+          setIsLiked(liked);
+        }
+      })
+      .catch((err) => {
+        console.error("Error checking like:", err);
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, [id]);
 
   // Subscribe to comments
@@ -94,11 +116,53 @@ export default function PostDetail() {
   const handleLike = useCallback(async () => {
     const user = auth.currentUser;
     const uid = currentUser?.uid || user?.uid;
-    if (!uid || !id) return;
-    await likePostSmart(id, uid, isOnline);
-    setIsLiked(true);
-    showToast(isOnline ? "Post liked!" : "Like saved — will sync", "success");
-  }, [id, showToast, isOnline, currentUser?.uid]);
+
+    if (!uid || !id || likeProcessing) return;
+
+    const previousLiked = isLiked;
+    const previousCount = likeCount;
+
+    const nextLiked = !previousLiked;
+    const nextCount = Math.max(0, previousCount + (nextLiked ? 1 : -1));
+
+    // Optimistic update — UI changes immediately.
+    setIsLiked(nextLiked);
+    setLikeCount(nextCount);
+    setLikeProcessing(true);
+
+    try {
+      await likePostSmart(id, uid, isOnline);
+
+      showToast(
+        nextLiked
+          ? isOnline
+            ? "Post liked!"
+            : "Like saved — will sync"
+          : isOnline
+            ? "Like removed"
+            : "Unlike saved — will sync",
+        "success",
+      );
+    } catch (error) {
+      console.error("Error updating like:", error);
+
+      // Roll back only if the server/local operation fails.
+      setIsLiked(previousLiked);
+      setLikeCount(previousCount);
+
+      showToast("Could not update like", "error");
+    } finally {
+      setLikeProcessing(false);
+    }
+  }, [
+    id,
+    currentUser?.uid,
+    isLiked,
+    likeCount,
+    likeProcessing,
+    isOnline,
+    showToast,
+  ]);
 
   const handleComment = useCallback(async () => {
     if (!commentText.trim() || submitting || !id) return;
@@ -123,7 +187,10 @@ export default function PostDetail() {
       );
       setCommentText("");
       setCommentVisible(false);
-      showToast(isOnline ? "Comment added!" : "Comment saved — will sync", "success");
+      showToast(
+        isOnline ? "Comment added!" : "Comment saved — will sync",
+        "success",
+      );
     } catch (err) {
       console.error("Error commenting:", err);
       showToast("Failed to comment", "error");
@@ -229,104 +296,107 @@ export default function PostDetail() {
           >
             <ChevronLeft color="#888" size={17} />
           </Pressable>
-          <Text className="text-primary text-base font-sora-semibold">Post</Text>
+          <Text className="text-primary text-base font-sora-semibold">
+            Post
+          </Text>
         </View>
 
         <View className="flex-1">
-        <FlatList
-          data={comments}
-          keyExtractor={(item) => item.id}
-          renderItem={renderComment}
-          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-          ListHeaderComponent={
-            <>
-              {/* Post Content */}
-              <View className="mb-6 bg-card-1 p-4 rounded-xl">
-                {/* Author */}
-                <View className="flex-row items-center mb-3">
-                  <Avatar index={author?.avatar} diameter={32} />
-                  <View className="ml-2.5 flex-1">
-                    <Text className="text-primary text-sm font-sora-semibold">
-                      {author?.username || "Loading..."}
-                    </Text>
-                    <Text className="text-tertiary text-[10px] font-sora">
-                      @{author?.username?.toLowerCase() || "..."}
-                    </Text>
+          <FlatList
+            data={comments}
+            keyExtractor={(item) => item.id}
+            renderItem={renderComment}
+            contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+            ListHeaderComponent={
+              <>
+                {/* Post Content */}
+                <View className="mb-6 bg-card-1 p-4 rounded-xl">
+                  {/* Author */}
+                  <View className="flex-row items-center mb-3">
+                    <Avatar index={author?.avatar} diameter={32} />
+                    <View className="ml-2.5 flex-1">
+                      <Text className="text-primary text-sm font-sora-semibold">
+                        {author?.username || "Loading..."}
+                      </Text>
+                      <Text className="text-tertiary text-[10px] font-sora">
+                        @{author?.username?.toLowerCase() || "..."}
+                      </Text>
+                    </View>
+                    {isOwner && (
+                      <Pressable onPress={openPostActions} className="p-1.5">
+                        <MoreHorizontal size={16} color="#666" />
+                      </Pressable>
+                    )}
                   </View>
-                  {isOwner && (
-                    <Pressable onPress={openPostActions} className="p-1.5">
-                      <MoreHorizontal size={16} color="#666" />
+
+                  {/* Thought */}
+                  {thought && (
+                    <Text className="text-primary/85 text-sm leading-6 font-sora mb-3">
+                      {thought}
+                    </Text>
+                  )}
+
+                  {/* Verse Card */}
+                  {!!verseReference && (
+                    <Pressable
+                      onPress={() => openBibleVerse(verseReference)}
+                      className="bg-card-2 rounded-xl overflow-hidden active:opacity-80 mb-3"
+                    >
+                      <View className="p-4">
+                        <View className="flex-row items-center mb-2">
+                          <BookOpen size={12} color="#fbbf24" />
+                          <Text className="text-amber-400/70 text-[10px] font-sora-semibold ml-1.5 uppercase tracking-widest">
+                            Scripture
+                          </Text>
+                        </View>
+                        <Text className="text-primary text-sm font-serif mb-1.5">
+                          {verseReference}
+                        </Text>
+                        <VerseText
+                          text={verseText}
+                          bodyClassName="text-secondary text-[12px] leading-6 font-serif"
+                          noteClassName="text-secondary/60 text-[11px] leading-4 font-serif-italic mt-1"
+                        />
+                      </View>
                     </Pressable>
                   )}
-                </View>
 
-                {/* Thought */}
-                {thought && (
-                  <Text className="text-primary/85 text-sm leading-6 font-sora mb-3">
-                    {thought}
-                  </Text>
-                )}
-
-                {/* Verse Card */}
-                {!!verseReference && (
-                  <Pressable
-                    onPress={() => openBibleVerse(verseReference)}
-                    className="bg-card-2 rounded-xl overflow-hidden active:opacity-80 mb-3"
-                  >
-                    <View className="p-4">
-                      <View className="flex-row items-center mb-2">
-                        <BookOpen size={12} color="#fbbf24" />
-                        <Text className="text-amber-400/70 text-[10px] font-sora-semibold ml-1.5 uppercase tracking-widest">
-                          Scripture
-                        </Text>
-                      </View>
-                      <Text className="text-primary text-sm font-serif mb-1.5">
-                        {verseReference}
-                      </Text>
-                      <VerseText
-                        text={verseText}
-                        bodyClassName="text-secondary text-[12px] leading-6 font-serif"
-                        noteClassName="text-secondary/60 text-[11px] leading-4 font-serif-italic mt-1"
+                  {/* Like */}
+                  <View className="flex-row items-center border-t border-line pt-3">
+                    <Pressable
+                      onPress={handleLike}
+                      disabled={likeProcessing}
+                      className="flex-row items-center active:opacity-70"
+                    >
+                      <Heart
+                        color={isLiked ? "#ef4444" : "#666"}
+                        size={17}
+                        fill={isLiked ? "#ef4444" : "transparent"}
                       />
-                    </View>
-                  </Pressable>
-                )}
 
-                {/* Like */}
-                <View className="flex-row items-center border-t border-line pt-3">
-                  <Pressable
-                    onPress={handleLike}
-                    className="flex-row items-center"
-                  >
-                    <Heart
-                      color={isLiked ? "#ef4444" : "#666"}
-                      size={17}
-                      fill={isLiked ? "#ef4444" : "transparent"}
-                    />
-                    {parseInt(likesCount || "0") > 0 && (
-                      <Text className="text-tertiary text-xs ml-1.5 font-sora">
-                        {likesCount}
-                      </Text>
-                    )}
-                  </Pressable>
+                      {likeCount > 0 && (
+                        <Text className="text-tertiary text-xs ml-1.5 font-sora">
+                          {likeCount}
+                        </Text>
+                      )}
+                    </Pressable>
+                  </View>
                 </View>
+
+                {/* Comments Header */}
+                <Text className="text-primary text-sm font-sora-semibold mb-4">
+                  Comments ({comments.length})
+                </Text>
+              </>
+            }
+            ListEmptyComponent={
+              <View className="items-center pt-8">
+                <Text className="text-tertiary text-xs font-sora">
+                  No comments yet. Be the first to share your thoughts.
+                </Text>
               </View>
-
-              {/* Comments Header */}
-              <Text className="text-primary text-sm font-sora-semibold mb-4">
-                Comments ({comments.length})
-              </Text>
-            </>
-          }
-          ListEmptyComponent={
-            <View className="items-center pt-8">
-              <Text className="text-tertiary text-xs font-sora">
-                No comments yet. Be the first to share your thoughts.
-              </Text>
-            </View>
-          }
-        />
-
+            }
+          />
         </View>
 
         {/* Comment trigger — opens the composer modal */}
@@ -351,10 +421,7 @@ export default function PostDetail() {
         statusBarTranslucent
         onRequestClose={() => setCommentVisible(false)}
       >
-        <KeyboardAvoidingView
-          behavior={"padding"}
-          className="flex-1"
-        >
+        <KeyboardAvoidingView behavior={"padding"} className="flex-1">
           <Pressable
             className="flex-1 bg-black/60 justify-end"
             onPress={() => setCommentVisible(false)}
@@ -412,8 +479,13 @@ export default function PostDetail() {
         <View className="flex-1 bg-black/60 justify-end">
           <View className="bg-card-2 rounded-t-4xl px-5 pt-6 pb-10">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-primary text-base font-sora-semibold">Edit Post</Text>
-              <Pressable onPress={() => setEditVisible(false)} className="p-1.5">
+              <Text className="text-primary text-base font-sora-semibold">
+                Edit Post
+              </Text>
+              <Pressable
+                onPress={() => setEditVisible(false)}
+                className="p-1.5"
+              >
                 <X size={18} color="#888" />
               </Pressable>
             </View>
@@ -425,8 +497,13 @@ export default function PostDetail() {
               placeholderTextColor="#555"
               className="bg-card-1 rounded-xl px-4 py-3.5 text-primary/90 text-sm font-sora min-h-30"
             />
-            <Pressable onPress={saveEdit} className="bg-white rounded-xl py-3.5 items-center mt-4">
-              <Text className="text-black text-sm font-sora-semibold">Save Changes</Text>
+            <Pressable
+              onPress={saveEdit}
+              className="bg-white rounded-xl py-3.5 items-center mt-4"
+            >
+              <Text className="text-black text-sm font-sora-semibold">
+                Save Changes
+              </Text>
             </Pressable>
           </View>
         </View>
