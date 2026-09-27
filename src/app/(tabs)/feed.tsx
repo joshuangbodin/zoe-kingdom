@@ -6,18 +6,22 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Plus } from "lucide-react-native";
 
-import { auth } from "@/libs/firebase";
+import { auth, db } from "@/libs/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/libs/firebase";
 
 import Avatar from "@/components/Avatar";
 import { useToast } from "@/components/Toast";
 import { useTheme } from "@/context/theme-context";
 import {
   deletePostSmart,
+  getSavedPostIds,
   hasUserLikedPost,
-  likePost,
+  likePostSmart,
+  reportPostSmart,
+  savePostSmart,
   subscribeToFeed,
+  unsavePostSmart,
+  unlikePostSmart,
   updatePostSmart,
 } from "@/libs/firebase/posts";
 import { useApp } from "@/context/app-context";
@@ -38,6 +42,10 @@ import StatusNoteSheet, {
 import EditPostSheet, {
   EditPostSheetHandle,
 } from "@/components/feed/EditPostSheet";
+import PostActionsSheet, {
+  PostActionsSheetHandle,
+} from "@/components/feed/PostActionsSheet";
+import ReportSheet, { ReportSheetHandle } from "@/components/feed/ReportSheet";
 
 const TAGS = [
   "All",
@@ -93,10 +101,14 @@ export default function Feed() {
 
   // Creator edit/delete state
   const [editPost, setEditPost] = useState<any>(null);
+  const [menuPost, setMenuPost] = useState<any>(null);
+  const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
 
   // Bottom sheet refs
   const statusNoteSheetRef = useRef<StatusNoteSheetHandle>(null);
   const editPostSheetRef = useRef<EditPostSheetHandle>(null);
+  const postActionsSheetRef = useRef<PostActionsSheetHandle>(null);
+  const reportSheetRef = useRef<ReportSheetHandle>(null);
 
   // Collect all unique uids from posts for user cache
   const postUids = useMemo(
@@ -149,59 +161,166 @@ export default function Feed() {
     return () => unsubscribe();
   }, []);
 
-  const handleLike = useCallback(async (postId: string) => {
+  // Load the current user's saved (bookmarked) posts.
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;
+    getSavedPostIds(user.uid)
+      .then((ids) => setSavedPosts(new Set(ids)))
+      .catch(() => {});
+  }, []);
+
+  const handleLike = useCallback(
+    async (postId: string) => {
+      const user = auth.currentUser;
+      if (!user) {
+        router.push("/(auth)/signin");
+        return;
+      }
+      const wasLiked = likedPosts.has(postId);
+
+      // Optimistic — update the UI instantly, then persist in the background.
+      setLikedPosts((prev) => {
+        const next = new Set(prev);
+        if (wasLiked) next.delete(postId);
+        else next.add(postId);
+        return next;
+      });
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? { ...p, likesCount: Math.max(0, (p.likesCount ?? 0) + (wasLiked ? -1 : 1)) }
+            : p,
+        ),
+      );
+
+      try {
+        if (wasLiked) await unlikePostSmart(postId, user.uid, isOnline);
+        else await likePostSmart(postId, user.uid, isOnline);
+      } catch (err) {
+        console.error("Error toggling like:", err);
+        // Roll back the optimistic change.
+        setLikedPosts((prev) => {
+          const next = new Set(prev);
+          if (wasLiked) next.add(postId);
+          else next.delete(postId);
+          return next;
+        });
+        setPosts((prev) =>
+          prev.map((p) =>
+            p.id === postId
+              ? { ...p, likesCount: Math.max(0, (p.likesCount ?? 0) + (wasLiked ? 1 : -1)) }
+              : p,
+          ),
+        );
+        showToast("Could not update like", "error");
+      }
+    },
+    [likedPosts, isOnline, showToast],
+  );
+
+  const openPostMenu = useCallback(
+    (post: any) => {
+      if (!currentUser) return;
+      setMenuPost(post);
+      postActionsSheetRef.current?.present({
+        isOwn: post.uid === currentUser.uid,
+        isSaved: savedPosts.has(post.id),
+        onShare: () => handleShare(post),
+        onSave: () => handleSave(post),
+        onReport: () => reportSheetRef.current?.present(handleReport),
+        onEdit: () => {
+          setEditPost(post);
+          editPostSheetRef.current?.present(post.thought || "");
+        },
+        onDelete: () => handleDelete(post),
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentUser, savedPosts],
+  );
+
+  const handleSave = useCallback(async (post: any) => {
     const user = auth.currentUser;
     if (!user) {
       router.push("/(auth)/signin");
       return;
     }
+    const wasSaved = savedPosts.has(post.id);
+    setSavedPosts((prev) => {
+      const next = new Set(prev);
+      if (wasSaved) next.delete(post.id);
+      else next.add(post.id);
+      return next;
+    });
     try {
-      await likePost(postId, user.uid);
-      setLikedPosts((prev) => new Set(prev).add(postId));
-      showToast("Post liked!", "success");
+      if (wasSaved) await unsavePostSmart(post.id, user.uid, isOnline);
+      else await savePostSmart(post.id, user.uid, isOnline);
+      showToast(wasSaved ? "Removed from saved" : "Post saved", "success");
     } catch (err) {
-      console.error("Error liking post:", err);
-      showToast("Failed to like post", "error");
+      console.error("Error saving post:", err);
+      setSavedPosts((prev) => {
+        const next = new Set(prev);
+        if (wasSaved) next.add(post.id);
+        else next.delete(post.id);
+        return next;
+      });
     }
-  }, [showToast]);
+  }, [savedPosts, isOnline, showToast]);
 
-  const openPostMenu = useCallback(
+  const handleReport = useCallback(
+    async (reason: string) => {
+      const user = auth.currentUser;
+      if (!user) {
+        router.push("/(auth)/signin");
+        return;
+      }
+      if (!menuPost) return;
+      try {
+        await reportPostSmart(menuPost.id, { uid: user.uid, reason }, isOnline);
+        showToast("Reported. Thank you for keeping Zoe Kingdom safe.", "success");
+      } catch (err) {
+        console.error("Error reporting post:", err);
+        showToast("Could not submit report", "error");
+      }
+    },
+    [menuPost, isOnline, showToast],
+  );
+
+  const handleShare = useCallback((post: any) => {
+    router.push({
+      pathname: "/(network)/share",
+      params: {
+        id: post.id,
+        uid: post.uid,
+        thought: post.thought || "",
+        verseText: post.verseText || "",
+        verseReference: post.verseReference || "",
+      },
+    } as never);
+  }, []);
+
+  const handleDelete = useCallback(
     (post: any) => {
-      if (!currentUser || post.uid !== currentUser.uid) return;
-      Alert.alert("Your Post", "What would you like to do?", [
+      if (!post) return;
+      Alert.alert("Delete Post", "This cannot be undone.", [
         { text: "Cancel", style: "cancel" },
-        {
-          text: "Edit",
-          onPress: () => {
-            setEditPost(post);
-            editPostSheetRef.current?.present(post.thought || "");
-          },
-        },
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => {
-            Alert.alert("Delete Post", "This cannot be undone.", [
-              { text: "Cancel", style: "cancel" },
-              {
-                text: "Delete",
-                style: "destructive",
-                onPress: async () => {
-                  try {
-                    await deletePostSmart(post.id, post.uid, isOnline);
-                    showToast("Post deleted", "success");
-                  } catch (e) {
-                    console.error(e);
-                    showToast("Could not delete post", "error");
-                  }
-                },
-              },
-            ]);
+          onPress: async () => {
+            try {
+              await deletePostSmart(post.id, post.uid, isOnline);
+              showToast("Post deleted", "success");
+            } catch (e) {
+              console.error(e);
+              showToast("Could not delete post", "error");
+            }
           },
         },
       ]);
     },
-    [currentUser, isOnline, showToast],
+    [isOnline, showToast],
   );
 
   const saveEditedPost = useCallback(
@@ -264,6 +383,12 @@ export default function Feed() {
         avatar={avatar}
         onLike={() => handleLike(item.id)}
         onOpenMenu={() => openPostMenu(item)}
+        onOpenProfile={() =>
+          router.push({
+            pathname: "/(network)/user/[uid]",
+            params: { uid: item.uid },
+          } as never)
+        }
         onOpenVerse={openBibleVerse}
         onOpenComments={() => {
           router.push({
@@ -344,6 +469,8 @@ export default function Feed() {
       {/* Bottom sheets */}
       <StatusNoteSheet ref={statusNoteSheetRef} />
       <EditPostSheet ref={editPostSheetRef} onSave={saveEditedPost} />
+      <PostActionsSheet ref={postActionsSheetRef} />
+      <ReportSheet ref={reportSheetRef} />
     </View>
   );
 }

@@ -17,7 +17,12 @@ export type OfflineOpType =
   | "create_comment"
   | "update_post"
   | "delete_post"
-  | "update_profile";
+  | "update_profile"
+  | "follow_user"
+  | "unfollow_user"
+  | "save_post"
+  | "unsave_post"
+  | "report_post";
 
 export type OfflineOp = {
   id: string;

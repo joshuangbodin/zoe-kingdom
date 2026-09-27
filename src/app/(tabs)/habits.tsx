@@ -119,7 +119,8 @@ export default function Habits() {
             {/* Daily Scripture Card */}
             {(() => {
               const dailyVerse = getDailyVerse();
-              const val = Math.floor(Math.random() * 3) ;
+              // Stable within a day so the artwork doesn't flicker on re-render.
+              const val = new Date().getDate() % 3;
 
               const src = [
                 require(`@/assets/images/bgs/bg-1.png`),

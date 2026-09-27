@@ -1,4 +1,4 @@
-import { PenLineIcon, X } from "lucide-react-native";
+import { PenLineIcon, UserRound, X } from "lucide-react-native";
 import React, {
   forwardRef,
   useImperativeHandle,
@@ -112,6 +112,22 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
                 onPress={() => {
                   dismiss();
                   router.push({
+                    pathname: "/(network)/user/[uid]",
+                    params: { uid: user?.uid || "" },
+                  } as never);
+                }}
+                className="w-full h-13 flex-row gap-3 bg-card-1 mt-4 justify-center items-center rounded-2xl"
+              >
+                <UserRound color={isDark ? "#fff" : "#0c0c0c"} size={16} />
+                <Text className="font-sora-medium text-primary text-sm">
+                  View profile
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => {
+                  dismiss();
+                  router.push({
                     pathname: "/sharethought",
                     params: {
                       // Pass primitives only — nested/serialized objects don't
@@ -121,7 +137,7 @@ const StatusNoteSheet = forwardRef<StatusNoteSheetHandle>(
                     },
                   });
                 }}
-                className="w-full h-13 flex-row gap-3  bg-primary mt-5 justify-center items-center rounded-2xl"
+                className="w-full h-13 flex-row gap-3  bg-primary mt-3 justify-center items-center rounded-2xl"
               >
                 <PenLineIcon color={isDark ? "#000" : "#fff"} size={16} />
                 <Text className="font-sora-medium text-bg text-sm">

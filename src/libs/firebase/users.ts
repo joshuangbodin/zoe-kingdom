@@ -1,9 +1,12 @@
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
+  increment,
   limit,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
@@ -12,6 +15,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "./index";
+import { enqueueOp } from "@/libs/offline/queue";
 
 const collectionId = "users";
 
@@ -32,6 +36,11 @@ export type UserProfile = {
   avatar: number;
 
   statusNote: string;
+
+  /** Number of people following this user. */
+  followersCount?: number;
+  /** Number of users this person follows. */
+  followingCount?: number;
 
   lastUploaded: any;
 
@@ -355,4 +364,90 @@ export const getAllUsersSortedByLastUpload = async () => {
   });
 
   return users;
+};
+
+/* -------------------------------------------------------------------------- */
+/*                                   FOLLOW                                    */
+/* -------------------------------------------------------------------------- */
+
+const followsId = (followerUid: string, followeeUid: string) =>
+  `${followerUid}_${followeeUid}`;
+
+/** Start following a user. Counter updates are best-effort and tolerated if they fail. */
+export const followUser = async (followerUid: string, followeeUid: string) => {
+  await setDoc(doc(db, "follows", followsId(followerUid, followeeUid)), {
+    followerUid,
+    followeeUid,
+    createdAt: serverTimestamp(),
+  });
+
+  await updateDoc(doc(db, collectionId, followerUid), {
+    followingCount: increment(1),
+  }).catch(() => {});
+  await updateDoc(doc(db, collectionId, followeeUid), {
+    followersCount: increment(1),
+  }).catch(() => {});
+};
+
+/** Stop following a user. */
+export const unfollowUser = async (followerUid: string, followeeUid: string) => {
+  await deleteDoc(doc(db, "follows", followsId(followerUid, followeeUid)));
+
+  await updateDoc(doc(db, collectionId, followerUid), {
+    followingCount: increment(-1),
+  }).catch(() => {});
+  await updateDoc(doc(db, collectionId, followeeUid), {
+    followersCount: increment(-1),
+  }).catch(() => {});
+};
+
+export const isFollowing = async (followerUid: string, followeeUid: string) => {
+  const snap = await getDoc(doc(db, "follows", followsId(followerUid, followeeUid)));
+  return snap.exists();
+};
+
+/** Real-time subscription for a single follow relationship (returns an unsubscribe fn). */
+export const subscribeToFollow = (
+  followerUid: string,
+  followeeUid: string,
+  onChange: (following: boolean) => void,
+) => {
+  return onSnapshot(
+    doc(db, "follows", followsId(followerUid, followeeUid)),
+    (snap) => onChange(snap.exists()),
+  );
+};
+
+type Online = boolean;
+
+export const followUserSmart = async (
+  followerUid: string,
+  followeeUid: string,
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await followUser(followerUid, followeeUid);
+    return { offline: false };
+  }
+  await enqueueOp({
+    type: "follow_user",
+    payload: { followerUid, followeeUid },
+  });
+  return { offline: true };
+};
+
+export const unfollowUserSmart = async (
+  followerUid: string,
+  followeeUid: string,
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await unfollowUser(followerUid, followeeUid);
+    return { offline: false };
+  }
+  await enqueueOp({
+    type: "unfollow_user",
+    payload: { followerUid, followeeUid },
+  });
+  return { offline: true };
 };

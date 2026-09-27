@@ -6,9 +6,16 @@ import {
   createComment,
   updatePost,
   deletePost,
+  savePostForUser,
+  removeSavedPost,
+  reportPost,
   CreatePostPayload,
 } from "@/libs/firebase/posts";
-import { updateUserProfile } from "@/libs/firebase/users";
+import {
+  updateUserProfile,
+  followUser,
+  unfollowUser,
+} from "@/libs/firebase/users";
 
 /**
  * Replays the offline write queue against Firestore in order. Ops that fail
@@ -64,6 +71,29 @@ async function runOp(op: OfflineOp): Promise<void> {
 
     case "update_profile":
       await updateUserProfile(p.uid as string, p.data);
+      break;
+
+    case "follow_user":
+      await followUser(p.followerUid as string, p.followeeUid as string);
+      break;
+
+    case "unfollow_user":
+      await unfollowUser(p.followerUid as string, p.followeeUid as string);
+      break;
+
+    case "save_post":
+      await savePostForUser(p.userUid as string, p.postId as string);
+      break;
+
+    case "unsave_post":
+      await removeSavedPost(p.userUid as string, p.postId as string);
+      break;
+
+    case "report_post":
+      await reportPost(p.postId as string, {
+        uid: p.uid as string,
+        reason: p.reason as string,
+      });
       break;
 
     default:

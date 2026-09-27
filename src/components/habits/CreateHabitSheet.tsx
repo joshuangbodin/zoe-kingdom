@@ -86,7 +86,7 @@ const CreateHabitSheet = forwardRef<CreateHabitSheetHandle, CreateHabitSheetProp
         dismiss();
         await onCreated?.();
       } catch (err) {
-        console.log(err);
+        console.error("Failed to create habit:", err);
         showToast("Failed to create habit", "error");
       } finally {
         setLoading(false);

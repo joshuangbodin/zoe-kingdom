@@ -1,0 +1,151 @@
+/*
+ * Zoe Kingdom — Firestore Security Rules
+ *
+ * The app is client-only (no backend), writes directly from the mobile client,
+ * and is offline-first. These rules enforce ownership and prevent forgery while
+ * allowing the shared "counter" fields (likes / comments / report counts,
+ * follower / following counts) to be bumped by anyone with `increment()`.
+ *
+ * Deploy with the Firebase CLI:
+ *   firebase deploy --only firestore:rules
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* ------------------------------ helpers ------------------------------ */
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+    // Mark yourself an admin with a custom claim: auth:setCustomUserClaims(uid, { admin: true })
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // A non-owner may only change counter fields on a user doc. Every content /
+    // identity field must be identical before and after the write.
+    function userContentIsPreserved() {
+      return request.resource.data != null
+        && data.uid            == request.resource.data.uid
+        && data.email          == request.resource.data.email
+        && data.username       == request.resource.data.username
+        && data.spiritStage    == request.resource.data.spiritStage
+        && data.avatar         == request.resource.data.avatar
+        && data.level          == request.resource.data.level
+        && data.xp             == request.resource.data.xp
+        && data.seasonXP       == request.resource.data.seasonXP;
+    }
+
+    // Same idea for posts: a non-owner may only touch counters (likesCount,
+    // commentsCount, reportsCount) — never content or authorship fields.
+    function postContentIsPreserved() {
+      return request.resource.data != null
+        && data.uid             == request.resource.data.uid
+        && data.thought         == request.resource.data.thought
+        && data.verseReference  == request.resource.data.verseReference
+        && data.verseText       == request.resource.data.verseText
+        && data.tags            == request.resource.data.tags
+        && data.mentions        == request.resource.data.mentions
+        && data.archived        == request.resource.data.archived
+        && data.createdAt       == request.resource.data.createdAt;
+    }
+
+    /* ------------------------------- admins ------------------------------ */
+
+    match /admins/{uid} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    /* --------------------------- users (public) -------------------------- */
+
+    match /users/{uid} {
+      // Profiles are public so the feed / leaderboard / follow buttons render
+      // for guests and signed-in users alike.
+      allow read: if true;
+
+      // Signed-in user may create their own profile and fully manage it
+      // (username, avatar, spirit stage, xp, level, sync fields).
+      allow create, update: if isSignedIn() && isOwner(uid);
+
+      // Any other signed-in user may ONLY bump follower/following counters on
+      // this doc (used by the follow/unfollow flow); content stays intact.
+      allow update: if isSignedIn() && userContentIsPreserved();
+
+      allow delete: if false;
+
+      // Private bookmarks — only the profile owner.
+      match /savedPosts/{postId} {
+        allow read, write: if isSignedIn() && isOwner(uid);
+      }
+    }
+
+    /* ------------------------------ posts -------------------------------- */
+
+    match /posts/{postId} {
+      // Public feed.
+      allow read: if true;
+
+      // Anyone signed in may create; authorship cannot be forged.
+      allow create: if isSignedIn() && request.auth.uid == data.uid;
+
+      // Owner may edit / soft-delete (archived = true) their own post.
+      allow update, delete: if isSignedIn() && isOwner(request.resource.data.uid);
+
+      // Non-owners may only bump counters (like / comment / report numbers).
+      allow update: if isSignedIn() && postContentIsPreserved();
+
+      match /likes/{uid} {
+        allow read: if true;
+        // A user can only create/remove their own like edge.
+        allow create, delete: if isSignedIn() && isOwner(uid) && data.uid == request.auth.uid;
+        allow update: if false;
+      }
+
+      match /comments/{commentId} {
+        allow read: if true;
+        // Author identity can't be forged.
+        allow create: if isSignedIn() && request.auth.uid == data.uid;
+        allow update, delete: if isSignedIn()
+          && request.resource.data != null
+          && isOwner(request.resource.data.uid);
+      }
+    }
+
+    /* ------------------------------ follows ------------------------------ */
+
+    // Doc id is a single segment shaped "followerUid_followeeUid".
+    match /follows/{edgeId} {
+      // Follow relationships are readable (profile shows followers/following).
+      allow read: if true;
+
+      // Only the follower can create and later remove their own edge. The
+      // prefix check prevents creating an edge on behalf of someone else.
+      allow create: if isSignedIn()
+        && data.followerUid == request.auth.uid
+        && string().startsWith(edgeId, request.auth.uid + "_");
+      allow delete: if isSignedIn()
+        && string().startsWith(edgeId, request.auth.uid + "_");
+
+      allow update: if false;
+    }
+
+    /* ------------------------------ reports ------------------------------ */
+
+    match /reports/{reportId} {
+      // Reports are private: only the author and admins can read them.
+      allow read: if isSignedIn()
+        && (isAdmin() || (request.resource.data != null && isOwner(request.resource.data.uid)));
+
+      // Anyone signed in may file a report; the reporter's id can't be forged.
+      allow create: if isSignedIn() && data.uid == request.auth.uid;
+
+      // Only admins can moderate/destroy reports.
+      allow update, delete: if isAdmin();
+    }
+  }
+}

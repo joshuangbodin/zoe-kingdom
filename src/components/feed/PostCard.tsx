@@ -6,6 +6,15 @@ import Avatar from "@/components/Avatar";
 import VerseText from "@/components/bible/VerseText";
 import { useTheme } from "@/context/theme-context";
 
+/** Deterministic integer in [0, n) derived from a string id (stable across renders). */
+function stableIndex(id: string, n: number): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) {
+    h = (h * 31 + id.charCodeAt(i)) % 100000;
+  }
+  return Math.abs(h) % n;
+}
+
 export type PostCardData = {
   id: string;
   uid: string;
@@ -23,6 +32,7 @@ export type PostCardProps = {
   avatar: number;
   onLike: () => void;
   onOpenMenu: () => void;
+  onOpenProfile: () => void;
   onOpenVerse: (reference: string) => void;
   onOpenComments: () => void;
 };
@@ -35,24 +45,29 @@ export default function PostCard({
   avatar,
   onLike,
   onOpenMenu,
+  onOpenProfile,
   onOpenVerse,
   onOpenComments,
 }: PostCardProps) {
   const { isDark } = useTheme();
   const ACTION_COLOR = isDark ? "#fff" : "#0c0c0c";
 
-              const val = Math.floor(Math.random() * 3) ;
+  // Deterministic index (stable per post, no flicker on re-render).
+  const val = stableIndex(item.id, 3);
 
-              const src = [
-                require(`@/assets/images/bgs/bg-1.png`),
-                require(`@/assets/images/bgs/bg-2.png`),
-                require(`@/assets/images/bgs/bg-3.png`),
-              ];
+  const src = [
+    require(`@/assets/images/bgs/bg-1.png`),
+    require(`@/assets/images/bgs/bg-2.png`),
+    require(`@/assets/images/bgs/bg-3.png`),
+  ];
 
   return (
     <View className="mb-4 mx-4 bg-card-1 p-3 rounded-3xl">
       {/* Author header */}
-      <View className="flex-row items-center mb-3 px-0.5">
+      <Pressable
+        onPress={onOpenProfile}
+        className="flex-row items-center mb-3 px-0.5 active:opacity-70"
+      >
         <Avatar index={avatar} diameter={32} />
         <View className="ml-2.5 flex-1">
           <Text className="text-primary text-xs font-sora-semibold leading-5">
@@ -62,10 +77,10 @@ export default function PostCard({
             @{username?.toLowerCase()}
           </Text>
         </View>
-        <Pressable onPress={onOpenMenu} className="p-1.5">
+        <Pressable onPress={onOpenMenu} className="p-1.5" hitSlop={8}>
           <MoreVertical size={16} color={ACTION_COLOR} />
         </Pressable>
-      </View>
+      </Pressable>
 
       {/* Thought */}
       {item.thought && (

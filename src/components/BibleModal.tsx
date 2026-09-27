@@ -131,6 +131,7 @@ const VerseRow = memo(
     prev.highlighted === next.highlighted &&
     prev.selectionMode === next.selectionMode,
 );
+VerseRow.displayName = "VerseRow";
 
 /* ---------------------------- MAIN MODAL ---------------------------- */
 

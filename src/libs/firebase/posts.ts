@@ -419,3 +419,109 @@ export const deletePostSmart = async (
   await enqueueOp({ type: "delete_post", payload: { postId, creatorUid } });
   return { offline: true };
 };
+
+/* -------------------------------------------------------------------------- */
+/*                            SAVED POSTS (BOOKMARKS)                          */
+/* -------------------------------------------------------------------------- */
+
+const savedPostsCol = (userUid: string) =>
+  collection(db, "users", userUid, "savedPosts");
+
+export const savePostForUser = async (userUid: string, postId: string) => {
+  await setDoc(doc(savedPostsCol(userUid), postId), {
+    postId,
+    savedAt: serverTimestamp(),
+  });
+};
+
+export const removeSavedPost = async (userUid: string, postId: string) => {
+  await deleteDoc(doc(savedPostsCol(userUid), postId));
+};
+
+export const isPostSavedByUser = async (userUid: string, postId: string) => {
+  const snap = await getDoc(doc(savedPostsCol(userUid), postId));
+  return snap.exists();
+};
+
+export const getSavedPostIds = async (userUid: string): Promise<string[]> => {
+  const snap = await getDocs(savedPostsCol(userUid));
+  return snap.docs.map((d) => d.id);
+};
+
+export const savePostSmart = async (
+  postId: string,
+  userUid: string,
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await savePostForUser(userUid, postId);
+    return { offline: false };
+  }
+  await enqueueOp({ type: "save_post", payload: { postId, userUid } });
+  return { offline: true };
+};
+
+export const unsavePostSmart = async (
+  postId: string,
+  userUid: string,
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await removeSavedPost(userUid, postId);
+    return { offline: false };
+  }
+  await enqueueOp({ type: "unsave_post", payload: { postId, userUid } });
+  return { offline: true };
+};
+
+/* -------------------------------------------------------------------------- */
+/*                                 REPORT POST                                */
+/* -------------------------------------------------------------------------- */
+
+export const reportPostSmart = async (
+  postId: string,
+  payload: { uid: string; reason: string },
+  isOnline: Online,
+) => {
+  if (isOnline) {
+    await reportPost(postId, payload);
+    return { offline: false };
+  }
+  await enqueueOp({
+    type: "report_post",
+    payload: { postId, uid: payload.uid, reason: payload.reason },
+  });
+  return { offline: true };
+};
+
+/* -------------------------------------------------------------------------- */
+/*                              SINGLE USER'S POSTS                            */
+/* -------------------------------------------------------------------------- */
+
+/** Get a user's own posts, newest first. Uses a single-field equality query to
+ *  avoid requiring a composite index, sorting by creation time in-memory. */
+export const getUserPosts = async (uid: string, limitN = 50) => {
+  const q = query(
+    collection(db, "posts"),
+    where("uid", "==", uid),
+    limit(100),
+  );
+  const snap = await getDocs(q);
+  const posts = snap.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }))
+    .filter((p: any) => !p.archived)
+    .sort((a: any, b: any) => {
+      if (!a.createdAt) return 1;
+      if (!b.createdAt) return -1;
+      const aTime =
+        typeof a.createdAt.toMillis === "function"
+          ? a.createdAt.toMillis()
+          : new Date(a.createdAt).getTime();
+      const bTime =
+        typeof b.createdAt.toMillis === "function"
+          ? b.createdAt.toMillis()
+          : new Date(b.createdAt).getTime();
+      return bTime - aTime;
+    });
+  return posts.slice(0, limitN);
+};

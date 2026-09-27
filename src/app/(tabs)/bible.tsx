@@ -97,6 +97,7 @@ const VerseRow = memo(
     prev.item.id === next.item.id &&
     prev.item.text === next.item.text,
 );
+VerseRow.displayName = "VerseRow";
 
 /* ---------------------------- MAIN ---------------------------- */
 
