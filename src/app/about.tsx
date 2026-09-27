@@ -1,6 +1,8 @@
 import { useTheme } from "@/context/theme-context";
 import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import {
+  ArrowUpRight,
   BookOpen,
   ChevronLeft,
   Gift,
@@ -9,34 +11,29 @@ import {
   Sparkles,
   Users,
 } from "lucide-react-native";
-import React from "react";
+import React, { useCallback } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /* ----------------------------------------------------------------------
  * GIVINGS
  * ----------------------------------------------------------------------
- * Fill in the rows below with your church's actual giving channels so the
- * "Givings" section reflects your real options. Each object renders one row:
- *   method  -> the label (e.g. "Bank Transfer", "Mobile Money")
- *   detail  -> the account/banking info users need in order to give
+ * Each object renders a tappable giving button that opens `url` (a Flutterwave
+ * payment link) in an in-app browser.
+ *   method  -> the button label, e.g. "Donate to myZoeLife"
+ *   detail  -> a short helper line shown under the label
+ *   url     -> the Flutterwave donate link the button opens
  * -------------------------------------------------------------------- */
-const GIVINGS: { method: string; detail: string }[] = [
+const GIVINGS: { method: string; detail: string; url: string }[] = [
   {
-    method: "Bank Transfer",
-    detail: "Paste your bank name, account number & the account holder here.",
+    method: "Donate to the growth of myZoeLife",
+    detail: "One-time or recurring gift to support the mission.",
+    url: "https://flutterwave.com/donate/zvidbyt7aewe",
   },
   {
-    method: "Mobile Money",
-    detail: "Paste your MoMo/account number and the network here.",
-  },
-  {
-    method: "Online Giving",
-    detail: "Paste your giving URL / PayPal / Paystack link here.",
-  },
-  {
-    method: "Give In-Person",
-    detail: "Join us at a service — ushers and giving boxes are available.",
+    method: "Buy me a coffee",
+    detail: "A small token to keep the coffee (and the app) flowing.",
+    url: "https://flutterwave.com/donate/3vatswrmxliw",
   },
 ];
 
@@ -75,6 +72,15 @@ export default function About() {
   const { top, bottom } = useSafeAreaInsets();
   const { isDark } = useTheme();
   const iconColor = isDark ? "#fff" : "#0c0c0c";
+
+  // Open a giving link (Flutterwave) in an in-app browser.
+  const openGivingLink = useCallback(async (url: string) => {
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch (e) {
+      console.warn("Unable to open giving link", e);
+    }
+  }, []);
 
   return (
     <View style={{ paddingTop: top + 8 }} className="flex-1 bg-bg">
@@ -190,17 +196,23 @@ export default function About() {
           </Text>
 
           {GIVINGS.map((g) => (
-            <View
+            <Pressable
               key={g.method}
-              className="bg-card-2 rounded-2xl px-4 py-4 mb-3"
+              onPress={() => openGivingLink(g.url)}
+              className="bg-card-2 rounded-2xl px-4 py-4 mb-3 flex-row items-center active:opacity-80"
             >
-              <Text className="text-primary text-sm font-sora-semibold">
-                {g.method}
-              </Text>
-              <Text className="text-secondary text-xs font-sora leading-5 mt-1">
-                {g.detail}
-              </Text>
-            </View>
+              <View className="flex-1">
+                <Text className="text-primary text-sm font-sora-semibold">
+                  {g.method}
+                </Text>
+                <Text className="text-secondary text-xs font-sora leading-5 mt-1">
+                  {g.detail}
+                </Text>
+              </View>
+              <View className="w-9 h-9 rounded-xl bg-amber-500/15 items-center justify-center ml-3">
+                <ArrowUpRight size={18} color="#fbbf24" />
+              </View>
+            </Pressable>
           ))}
 
           <View className="mt-2 flex-row items-start">
