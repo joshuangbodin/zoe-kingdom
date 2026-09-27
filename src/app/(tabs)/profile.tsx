@@ -422,11 +422,7 @@ export default function Profile() {
                     icon: (
                       <Info size={16} color={isDark ? "#fff" : "#0c0c0c"} />
                     ),
-                    action: () =>
-                      Alert.alert(
-                        "Zoe Kingdom",
-                        "Version 1.0.0\n\nA spiritual growth app.\n\nPowered by Christ.",
-                      ),
+                    action: () => router.push("/about"),
                   },
                 ].map((item, index) => (
                   <Pressable

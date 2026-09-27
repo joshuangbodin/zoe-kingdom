@@ -271,7 +271,7 @@ export default function BibleModal({
 
   /* ---------------------------- LOAD CHAPTERS ---------------------------- */
 
-  const loadChapters = async (bookIndex: number) => {
+  const loadChapters = useCallback(async (bookIndex: number) => {
     const res = await sqlite.getAllAsync(
       `SELECT DISTINCT chapter
        FROM bible_verses
@@ -281,11 +281,11 @@ export default function BibleModal({
     );
 
     setChapters(res.map((r: any) => r.chapter));
-  };
+  }, []);
 
   /* ---------------------------- LOAD VERSES (WITH CACHE) ---------------------------- */
 
-  const loadVerses = async (bookIndex: number, chapter: number) => {
+  const loadVerses = useCallback(async (bookIndex: number, chapter: number) => {
     const key = `${bookIndex}-${chapter}`;
 
     if (verseCache.current.has(key)) {
@@ -302,7 +302,48 @@ export default function BibleModal({
 
     verseCache.current.set(key, res);
     setVerses(res);
-  };
+  }, []);
+
+  /* -------------------- LOAD CHAPTERS FOR A SPECIFIC BOOK -------------------- */
+  // Each expanded book in the picker needs its OWN chapter list. The global
+  // `chapters` state always reflects the currently active book, so expanding a
+  // non-active book previously showed the wrong book's chapters (the "jank").
+  // We keep a per-book cache here so every book displays the correct set.
+
+  const [bookChapters, setBookChapters] = useState<Record<number, number[]>>({});
+  const bookChaptersLoaded = useRef(new Set<number>());
+
+  const loadChaptersForBook = useCallback(
+    async (bookIndex: number) => {
+      if (bookChaptersLoaded.current.has(bookIndex)) return;
+      bookChaptersLoaded.current.add(bookIndex);
+      try {
+        const res = await sqlite.getAllAsync(
+          `SELECT DISTINCT chapter
+           FROM bible_verses
+           WHERE bookIndex = ?
+           ORDER BY chapter ASC`,
+          [bookIndex],
+        );
+        setBookChapters((prev) => ({
+          ...prev,
+          [bookIndex]: res.map((r: any) => r.chapter),
+        }));
+      } catch (e) {
+        console.warn("load book chapters failed", e);
+        bookChaptersLoaded.current.delete(bookIndex);
+      }
+    },
+    [],
+  );
+
+  const toggleBookExpand = useCallback(
+    (bookIndex: number) => {
+      setExpandedBook((prev) => (prev === bookIndex ? null : bookIndex));
+      loadChaptersForBook(bookIndex);
+    },
+    [loadChaptersForBook],
+  );
 
   const goToChapter = async (
     bookIndex: number,
@@ -378,15 +419,18 @@ export default function BibleModal({
 
     await loadChapters(bookIndex);
     await loadVerses(bookIndex, 1);
-  }, []);
+  }, [loadChapters, loadVerses]);
 
-  const selectChapter = useCallback(
-    async (ch: number) => {
+  const openBookChapter = useCallback(
+    async (bookIndex: number, ch: number) => {
+      setSelectedBookIndex(bookIndex);
       setSelectedChapter(ch);
       setOpen(false);
-      await loadVerses(selectedBookIndex, ch);
+
+      await loadChapters(bookIndex);
+      await loadVerses(bookIndex, ch);
     },
-    [selectedBookIndex],
+    [loadChapters, loadVerses],
   );
 
   /* ---------------------------- CONFIRM SELECTION ---------------------------- */
@@ -469,6 +513,9 @@ export default function BibleModal({
 
   const renderBook = useCallback(
     ({ item }: any) => {
+      const expanded = expandedBook === item.bookIndex;
+      const bookChaptersList = bookChapters[item.bookIndex] ?? [];
+
       return (
         <View className="mb-3 rounded-3xl bg-card-1 overflow-hidden">
           <Pressable
@@ -485,13 +532,10 @@ export default function BibleModal({
             </Text>
 
             <Pressable
-              onPress={() =>
-                setExpandedBook((prev) =>
-                  prev === item.bookIndex ? null : item.bookIndex,
-                )
-              }
+              onPress={() => toggleBookExpand(item.bookIndex)}
+              hitSlop={8}
             >
-              {expandedBook === item.bookIndex ? (
+              {expanded ? (
                 <ChevronDown color={isDark ? "#fff" : "#0c0c0c"} />
               ) : (
                 <ChevronRight color={isDark ? "#fff" : "#0c0c0c"} />
@@ -499,17 +543,14 @@ export default function BibleModal({
             </Pressable>
           </Pressable>
 
-          {expandedBook === item.bookIndex ? (
+          {expanded ? (
             <FlatList
               horizontal
-              data={chapters}
+              data={bookChaptersList}
               keyExtractor={(i) => i.toString()}
               renderItem={({ item: ch }) => (
                 <Pressable
-                  onPress={() => {
-                    selectBook(item.bookIndex);
-                    selectChapter(ch);
-                  }}
+                  onPress={() => openBookChapter(item.bookIndex, ch)}
                   className="w-10 h-10 bg-bg m-2 rounded-xl items-center justify-center"
                 >
                   <Text className="text-primary">{ch}</Text>
@@ -523,7 +564,14 @@ export default function BibleModal({
         </View>
       );
     },
-    [expandedBook, chapters, selectBook, selectChapter],
+    [
+      expandedBook,
+      bookChapters,
+      selectBook,
+      openBookChapter,
+      toggleBookExpand,
+      isDark,
+    ],
   );
 
   /* ---------------------------- LOADING ---------------------------- */

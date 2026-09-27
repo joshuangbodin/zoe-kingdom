@@ -103,7 +103,7 @@ const EditPostSheet = forwardRef<EditPostSheetHandle, EditPostSheetProps>(
               paddingBottom: 14,
               color: isDark ? "#ffffffcc" : "#000000cc",
               fontSize: 14,
-              fontFamily: "Geist-Regular",
+              fontFamily: "Poppins-Regular",
               minHeight: 140,
               textAlignVertical: "top",
             }}

@@ -87,7 +87,7 @@ export default function TabLayout() {
           tabBarLabelStyle: {
             fontSize: 10,
             marginTop: 1,
-            fontFamily: "Geist-Regular",
+            fontFamily: "Poppins-Regular",
           },
         }}
       >

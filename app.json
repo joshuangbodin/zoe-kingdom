@@ -57,12 +57,11 @@
         "expo-font",
         {
           "fonts": [
-            "./assets/font/Geist/Geist-Regular.ttf",
-            "./assets/font/Geist/Geist-Medium.ttf",
-            "./assets/font/Geist/Geist-SemiBold.ttf",
-            "./assets/font/Geist/Geist-Bold.ttf",
-            "./assets/font/Serif/NotoSerif-Regular.ttf",
-            "./assets/font/Serif/NotoSerif-Italic.ttf"
+            "./assets/font/Poppins/Poppins-Regular.ttf",
+            "./assets/font/Poppins/Poppins-Medium.ttf",
+            "./assets/font/Poppins/Poppins-SemiBold.ttf",
+            "./assets/font/Poppins/Poppins-Bold.ttf",
+            "./assets/font/Academy/AcademyEngravedLetPlain.ttf"
           ]
         }
       ],

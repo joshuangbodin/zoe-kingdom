@@ -39,14 +39,16 @@ export default function TabLayout() {
 
   // load fonts
   const [loaded, error] = useFonts({
-    "Geist-Regular": require("@/assets/font/Geist/Geist-Regular.ttf"),
-    "Geist-Medium": require("@/assets/font/Geist/Geist-Medium.ttf"),
-    "Geist-SemiBold": require("@/assets/font/Geist/Geist-SemiBold.ttf"),
-    "Geist-Bold": require("@/assets/font/Geist/Geist-Bold.ttf"),
+    "Poppins-Regular": require("@/assets/font/Poppins/Poppins-Regular.ttf"),
+    "Poppins-Medium": require("@/assets/font/Poppins/Poppins-Medium.ttf"),
+    "Poppins-SemiBold": require("@/assets/font/Poppins/Poppins-SemiBold.ttf"),
+    "Poppins-Bold": require("@/assets/font/Poppins/Poppins-Bold.ttf"),
 
-    // serif
-    "Serif-Regular": require("@/assets/font/Serif/NotoSerif-Regular.ttf"),
-    "Serif-Italic": require("@/assets/font/Serif/NotoSerif-Italic.ttf"),
+    // serif — Academy Engraved LET ships a single "Plain" face on Apple
+    // platforms, so the italic slot resolves to the same file to keep
+    // font-serif-italic usages working.
+    "Serif-Regular": require("@/assets/font/Academy/AcademyEngravedLetPlain.ttf"),
+    "Serif-Italic": require("@/assets/font/Academy/AcademyEngravedLetPlain.ttf"),
   });
 
   useEffect(() => {

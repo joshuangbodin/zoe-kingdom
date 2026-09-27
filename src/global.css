@@ -2,15 +2,15 @@
 @import "uniwind";
 
 @theme {
-  /* Geist */
-  --font-sora: "Geist-Regular";
-  --font-sora-medium: "Geist-Medium";
-  --font-sora-semibold: "Geist-SemiBold";
-  --font-sora-bold: "Geist-Bold";
+  /* Poppins (replaces Geist) */
+  --font-sora: "Poppins-Regular";
+  --font-sora-medium: "Poppins-Medium";
+  --font-sora-semibold: "Poppins-SemiBold";
+  --font-sora-bold: "Poppins-Bold";
 
-  /* Serif */
-  --font-serif: "NotoSerif-Regular";
-  --font-serif-italic: "NotoSerif-Italic";
+  /* Serif — Academy Engraved LET */
+  --font-serif: "Serif-Regular";
+  --font-serif-italic: "Serif-Italic";
 
   /* Dark (default) palette */
   --color-bg: #0c0c0c;
