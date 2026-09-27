@@ -8,6 +8,7 @@ import {
   Home,
   Newspaper,
   User,
+  WifiOff,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
@@ -19,6 +20,7 @@ const OFFLINE_AUTO_HIDE_MS = 12000; // ~3 minutes
 
 function SyncBanner() {
   const { isOnline, pendingSync } = useApp();
+  const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const [offlineHidden, setOfflineHidden] = useState(false);
 
@@ -38,24 +40,29 @@ function SyncBanner() {
   if (isOnline && pendingSync === 0) return null;
   if (!isOnline && offlineHidden) return null;
 
+  // Offline: a tiny, quiet icon in the corner — no banner, no text.
+  if (!isOnline) {
+    return (
+      <View
+        style={{ top: insets.top + 8, right: 14, zIndex: 100 }}
+        className="absolute"
+        pointerEvents="none"
+      >
+        <WifiOff size={14} color={isDark ? "#8a8a8a" : "#b0a393"} strokeWidth={2} />
+      </View>
+    );
+  }
+
+  // Online with pending writes: brief sync pill.
   return (
     <View
       style={{ top: insets.top + 6, zIndex: 100 }}
       className="absolute left-4 right-4 rounded-full px-4 py-1.5 bg-card-1/90 self-start"
       pointerEvents="none"
     >
-      {isOnline ? (
-        <Text className="text-tertiary text-[10px] font-sora-medium text-center">
-          Syncing {pendingSync} change{pendingSync === 1 ? "" : "s"}…
-        </Text>
-      ) : (
-        <View className="flex-row items-center justify-center">
-          <View className="w-1.5 h-1.5 rounded-full bg-tertiary mr-2" />
-          <Text className="text-tertiary text-[10px] font-sora-medium text-center">
-            Offline — saving locally
-          </Text>
-        </View>
-      )}
+      <Text className="text-tertiary text-[10px] font-sora-medium text-center">
+        Syncing {pendingSync} change{pendingSync === 1 ? "" : "s"}…
+      </Text>
     </View>
   );
 }
