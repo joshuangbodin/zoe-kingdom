@@ -30,15 +30,17 @@ import {
   X,
 } from "lucide-react-native";
 
-import { isRedLetterVerse } from "@/constants/red-text";
-import { useTheme } from "@/context/theme-context";
-import SelectionActionBar from "@/components/bible/SelectionActionBar";
 import SaveVerseSheet, {
   SaveVerseSheetHandle,
 } from "@/components/bible/SaveVerseSheet";
-import VersionSheet, { VersionSheetHandle } from "@/components/bible/VersionSheet";
+import SelectionActionBar from "@/components/bible/SelectionActionBar";
 import VerseText from "@/components/bible/VerseText";
+import VersionSheet, {
+  VersionSheetHandle,
+} from "@/components/bible/VersionSheet";
 import { useToast } from "@/components/Toast";
+import { isRedLetterVerse } from "@/constants/red-text";
+import { useTheme } from "@/context/theme-context";
 import { cleanVerseText } from "@/libs/bible/verse-annotations";
 import { ensureBibleSeeded } from "@/libs/sqlite/bible";
 import { sqlite } from "@/libs/sqlite/db";
@@ -51,12 +53,8 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import Animated, {
   FadeIn,
-  FadeInUp,
   FadeOut,
-  FadeOutDown,
-  FadeOutUp,
   RotateInUpRight,
-  SlideInUp,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -103,7 +101,7 @@ VerseRow.displayName = "VerseRow";
 
 export default function Bible() {
   const { top, bottom } = useSafeAreaInsets();
-  const version = "KJV"
+  const version = "KJV";
   const { isDark } = useTheme();
   const { showToast } = useToast();
   const params = useLocalSearchParams<{
@@ -255,9 +253,13 @@ export default function Bible() {
   /* ---------------------------- LOAD BOOKS ---------------------------- */
 
   const loadBooks = async () => {
+    // Each book carries its exact `chapterCount` so the picker can render any
+    // book's chapters from just the book row — no need to load the active
+    // book's chapters for a different book (which caused the wrong count).
     const res: any = await sqlite.getAllAsync(
-      `SELECT DISTINCT book, bookIndex
+      `SELECT book, bookIndex, COUNT(DISTINCT chapter) AS chapterCount
        FROM bible_verses
+       GROUP BY bookIndex
        ORDER BY bookIndex ASC`,
     );
 
@@ -274,7 +276,7 @@ export default function Bible() {
 
   /* ---------------------------- LOAD CHAPTERS ---------------------------- */
 
-  const loadChapters = async (bookIndex: number) => {
+  const loadChapters = useCallback(async (bookIndex: number) => {
     const res = await sqlite.getAllAsync(
       `SELECT DISTINCT chapter
        FROM bible_verses
@@ -284,11 +286,11 @@ export default function Bible() {
     );
 
     setChapters(res.map((r: any) => r.chapter));
-  };
+  }, []);
 
   /* ---------------------------- LOAD VERSES (WITH CACHE) ---------------------------- */
 
-  const loadVerses = async (bookIndex: number, chapter: number) => {
+  const loadVerses = useCallback(async (bookIndex: number, chapter: number) => {
     const key = `${bookIndex}-${chapter}`;
 
     if (verseCache.current.has(key)) {
@@ -305,7 +307,7 @@ export default function Bible() {
 
     verseCache.current.set(key, res);
     setVerses(res);
-  };
+  }, []);
 
   const goToChapter = async (
     bookIndex: number,
@@ -373,22 +375,16 @@ export default function Bible() {
 
   /* ---------------------------- ACTIONS ---------------------------- */
 
-  const selectBook = useCallback(async (bookIndex: number) => {
-    setSelectedBookIndex(bookIndex);
-    setSelectedChapter(1);
-    bookSheetRef.current?.dismiss();
-
-    await loadChapters(bookIndex);
-    await loadVerses(bookIndex, 1);
-  }, []);
-
-  const selectChapter = useCallback(
-    async (ch: number) => {
-      setSelectedChapter(ch);
+  const openBookChapter = useCallback(
+    async (bookIndex: number, chapter: number) => {
+      setSelectedBookIndex(bookIndex);
+      setSelectedChapter(chapter);
       bookSheetRef.current?.dismiss();
-      await loadVerses(selectedBookIndex, ch);
+
+      await loadChapters(bookIndex);
+      await loadVerses(bookIndex, chapter);
     },
-    [selectedBookIndex],
+    [loadChapters, loadVerses],
   );
 
   /* ---------------------------- SELECTION ACTIONS ---------------------------- */
@@ -506,9 +502,7 @@ export default function Bible() {
   };
 
   const allSelectedSaved = useMemo(() => {
-    const ids = verses
-      .filter((v) => selectedVerses[v.id])
-      .map((v) => v.id);
+    const ids = verses.filter((v) => selectedVerses[v.id]).map((v) => v.id);
     return ids.length > 0 && ids.every((id) => savedIds.has(id));
   }, [verses, selectedVerses, savedIds]);
 
@@ -524,8 +518,8 @@ export default function Bible() {
 
   // Books grouped by Old / New Testament for the picker bottom sheet.
   const bookSections = useMemo(() => {
-    const ot = filteredBooks.filter((b: any) => b.bookIndex < 40);
-    const nt = filteredBooks.filter((b: any) => b.bookIndex >= 40);
+    const ot = filteredBooks.filter((b: any) => b.bookIndex < 39);
+    const nt = filteredBooks.filter((b: any) => b.bookIndex >= 39);
     return [
       { title: "Old Testament", data: ot },
       { title: "New Testament", data: nt },
@@ -551,18 +545,23 @@ export default function Bible() {
   const renderBook = useCallback(
     ({ item }: any) => {
       const isSelected = selectedBookIndex === item.bookIndex;
+      const expanded = expandedBook === item.bookIndex;
+      // Build the chapter list from THIS book's own count, so expanding any
+      // book shows its real chapters regardless of what's currently active.
+      const totalChapters = item.chapterCount ?? 0;
+      const chapterNumbers = Array.from(
+        { length: totalChapters },
+        (_, i) => i + 1,
+      );
+
       return (
-        <View className="mb-3 ">
-          <Pressable
-            onPress={() => {
-              // selectBook(item.bookIndex);
-              setExpandedBook((prev) =>
-                prev === item.bookIndex ? null : item.bookIndex,
-              );
-            }}
-            className={` py-1 flex-row items-center justify-between`}
-          >
-            <View className="flex-row items-center flex-1">
+        <View className="mb-3">
+          <View className="flex-row items-center">
+            {/* Book name — tapping reads the book */}
+            <Pressable
+              onPress={() => openBookChapter(item.bookIndex, 1)}
+              className="py-1 flex-1 flex-row items-center"
+            >
               <Text
                 className={`font-sora-semibold ${
                   isSelected ? "text-amber-500" : "text-primary"
@@ -570,17 +569,23 @@ export default function Bible() {
               >
                 {item.book}
               </Text>
-            </View>
+              {totalChapters > 0 ? (
+                <Text className="ml-2 text-tertiary text-[11px] font-sora">
+                  {totalChapters} ch.
+                </Text>
+              ) : null}
+            </Pressable>
 
+            {/* Chevron — expands this book's chapters without leaving the list */}
             <Pressable
               onPress={() =>
                 setExpandedBook((prev) =>
                   prev === item.bookIndex ? null : item.bookIndex,
                 )
               }
-              className="p-1"
+              className="p-2"
             >
-              {expandedBook === item.bookIndex ? (
+              {expanded ? (
                 <Animated.View entering={RotateInUpRight}>
                   <ChevronDown color={isDark ? "#fff" : "#0c0c0c"} size={16} />
                 </Animated.View>
@@ -588,21 +593,18 @@ export default function Bible() {
                 <ChevronRight color={isDark ? "#fff" : "#0c0c0c"} size={16} />
               )}
             </Pressable>
-          </Pressable>
+          </View>
 
-          {expandedBook === item.bookIndex ? (
+          {expanded ? (
             <Animated.View
               entering={FadeIn}
               exiting={FadeOut}
               className="pb-4 flex-row flex-wrap"
             >
-              {chapters.map((ch) => (
+              {chapterNumbers.map((ch) => (
                 <Pressable
                   key={ch}
-                  onPress={() => {
-                    selectBook(item.bookIndex);
-                    selectChapter(ch);
-                  }}
+                  onPress={() => openBookChapter(item.bookIndex, ch)}
                   className="w-13 h-13 bg-bg m-1 rounded-xl items-center justify-center"
                 >
                   <Text className="text-primary text-xs">{ch}</Text>
@@ -613,14 +615,7 @@ export default function Bible() {
         </View>
       );
     },
-    [
-      expandedBook,
-      chapters,
-      selectBook,
-      selectChapter,
-      selectedBookIndex,
-      isDark,
-    ],
+    [expandedBook, selectedBookIndex, openBookChapter, isDark],
   );
 
   /* ---------------------------- LOADING ---------------------------- */
@@ -652,7 +647,9 @@ export default function Bible() {
             onPress={() => versionSheetRef.current?.present()}
             className="bg-card-1 px-3 py-2 rounded-3xl"
           >
-            <Text className="text-tertiary text-sm font-sora-semibold">{version}</Text>
+            <Text className="text-tertiary text-sm font-sora-semibold">
+              {version}
+            </Text>
           </Pressable>
           <Pressable
             onPress={() => bookSheetRef.current?.present()}
