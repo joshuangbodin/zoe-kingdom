@@ -12,7 +12,7 @@ import {
   Users,
 } from "lucide-react-native";
 import React, { useCallback } from "react";
-import { ScrollView, Text, View, Pressable } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /* ----------------------------------------------------------------------
@@ -110,10 +110,10 @@ export default function About() {
           <Text className="text-amber-500 text-[11px] font-sora-semibold uppercase tracking-widest">
             Our Mission
           </Text>
-          <Text className="text-primary text-xl font-sora-semibold leading-8 mt-3">
+          <Text className="text-primary text-xl font-sora-semibold  8 mt-3">
             To help every believer grow their{" "}
-            <Text className="font-serif">spirit man</Text> — steadily,
-            daily, and together.
+            <Text className="font-serif">spirit man</Text> — steadily, daily,
+            and together.
           </Text>
           <Text className="text-secondary text-sm font-sora leading-6 mt-3">
             Zoe Kingdom is a spiritual-growth companion built around three
