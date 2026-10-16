@@ -1,0 +1,156 @@
+{
+  "meta": {
+    "id": "zoe-journey",
+    "title": "The Five Power Verses",
+    "subtitle": "A faith-based puzzle adventure through the land of Zoe",
+    "version": 3,
+    "storyBanner": "The land of Zoe is dimming. The Shadow of Dread has torn pages from the Five Power Verses — the only words strong enough to break its hold. You are the Believer. Restore what was stolen, word by word.",
+    "theme": {
+      "sky": "#0b1026",
+      "skyLight": "#1b2a5b",
+      "ember": "#f59e0b",
+      "gold": "#fbbf24",
+      "hope": "#22c55e",
+      "dread": "#7c3aed",
+      "star": "#fde68a"
+    }
+  },
+
+  "energy": {
+    "maxEnergy": 30,
+    "perHabit": 10,
+    "dailyRefill": 6,
+    "costPerLevel": 2,
+    "hintCost": 1,
+    "warnBelow": 4
+  },
+
+  "stars": {
+    "perfectMistakes": 0,
+    "okMistakes": 2,
+    "hintPenalty": true
+  },
+
+  "characters": [
+    {
+      "id": "narrator",
+      "name": "The Storyteller",
+      "role": "narrator",
+      "emoji": "📖",
+      "tint": "#a78bfa",
+      "tagline": "Every land has a song. Some forget how to sing it."
+    },
+    {
+      "id": "keeper",
+      "name": "Keeper Miriam",
+      "role": "mentor",
+      "emoji": "🕯️",
+      "tint": "#fbbf24",
+      "tagline": "Guardian of the Power Verses. Old, unhurried, unafraid."
+    },
+    {
+      "id": "believer",
+      "name": "You, the Believer",
+      "role": "player",
+      "emoji": "🛡️",
+      "tint": "#22c55e",
+      "tagline": "Carrying the lamp the others are afraid to lift."
+    },
+    {
+      "id": "shadow",
+      "name": "The Shadow of Dread",
+      "role": "antagonist",
+      "emoji": "🌑",
+      "tint": "#7c3aed",
+      "tagline": "It does not shout. It simply makes you forget the words."
+    },
+    {
+      "id": "sara",
+      "name": "Sara of the Wells",
+      "role": "villager",
+      "emoji": "👩‍🌾",
+      "tint": "#38bdf8",
+      "tagline": "Draws water every morning even when the well looks empty."
+    },
+    {
+      "id": "thomas",
+      "name": "Thomas the Smith",
+      "role": "villager",
+      "emoji": "🔨",
+      "tint": "#f97316",
+      "tagline": "Hammers by day, doubts by night, shows up anyway."
+    },
+    {
+      "id": "ada",
+      "name": "Little Ada",
+      "role": "villager",
+      "emoji": "🧒",
+      "tint": "#f472b6",
+      "tagline": "Seven years old. The only one who still laughs out loud."
+    }
+  ],
+
+  "feedback": {
+    "praise": [
+      "WOW!",
+      "AWESOME!",
+      "YES! THAT'S IT!",
+      "BEAUTIFUL!",
+      "THE LIGHT RETURNS!",
+      "PERFECT!",
+      "REMARKABLE!",
+      "THE PAGE HEALS!",
+      "INCREDIBLE!"
+    ],
+    "streakPraise": [
+      "FLAWLESS! UNSTOPPABLE!",
+      "YOU'RE ON FIRE!",
+      "THE SHADOW RECOILS!",
+      "HEAVEN IS CHEERING!",
+      "NOTHING CAN STOP YOU!"
+    ],
+    "onProgress": [
+      "Good! Keep going.",
+      "One more piece…",
+      "You're getting warmer.",
+      "The ink is coming back.",
+      "Almost there!"
+    ],
+    "onMistake": [
+      "Not quite — the ink smudges. Try again.",
+      "That word won't fit here.",
+      "Close, but the page resists.",
+      "Listen to the verse again."
+    ],
+    "onHint": [
+      "A whisper of help:",
+      "Keeper Miriam leans in:",
+      "The lamp flickers to show you:"
+    ],
+    "streakThreshold": 3,
+    "starNotes": {
+      "3": "Flawless restoration!",
+      "2": "Restored, with a few smudges.",
+      "1": "The page holds — barely."
+    }
+  },
+
+  "difficultyRamp": [
+    { "level": 1, "tier": "kindling", "label": "Kindling", "blanks": 1, "crosswordWords": 3, "wordsearchWords": 3, "wordsearchSize": 6, "allowDiagonal": false, "allowReverse": false, "distractors": 3 },
+    { "level": 6, "tier": "kindling", "label": "Kindling", "blanks": 2, "crosswordWords": 3, "wordsearchWords": 4, "wordsearchSize": 7, "allowDiagonal": true, "allowReverse": false, "distractors": 4 },
+    { "level": 11, "tier": "ignited", "label": "Ignited", "blanks": 2, "crosswordWords": 4, "wordsearchWords": 5, "wordsearchSize": 8, "allowDiagonal": true, "allowReverse": true, "distractors": 5 },
+    { "level": 16, "tier": "ignited", "label": "Ignited", "blanks": 3, "crosswordWords": 5, "wordsearchWords": 6, "wordsearchSize": 9, "allowDiagonal": true, "allowReverse": true, "distractors": 6 },
+    { "level": 21, "tier": "burning", "label": "Burning", "blanks": 3, "crosswordWords": 5, "wordsearchWords": 7, "wordsearchSize": 10, "allowDiagonal": true, "allowReverse": true, "distractors": 7 },
+    { "level": 26, "tier": "crowned", "label": "Crowned", "blanks": 4, "crosswordWords": 6, "wordsearchWords": 8, "wordsearchSize": 11, "allowDiagonal": true, "allowReverse": true, "distractors": 8 }
+  ],
+
+  "levelUpTitles": [
+    "Kindling",
+    "Torchbearer",
+    "Wordkeeper",
+    "Lamplighter",
+    "Verse Restorer",
+    "Shield of Zoe",
+    "Crowned in Light"
+  ]
+}

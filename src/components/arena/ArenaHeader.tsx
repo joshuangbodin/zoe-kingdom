@@ -5,7 +5,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-export type ArenaSection = "challenges" | "leaderboard";
+export type ArenaSection = "challenges" | "journey";
 
 type Props = {
   section: ArenaSection;
@@ -15,7 +15,7 @@ type Props = {
 
 const SEGMENTS: { id: ArenaSection; label: string }[] = [
   { id: "challenges", label: "Challenges" },
-  { id: "leaderboard", label: "Leaderboard" },
+  { id: "journey", label: "Journey" },
 ];
 
 const SPRING_CONFIG = {

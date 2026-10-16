@@ -22,8 +22,18 @@ export const sqlite = SQLite.openDatabaseSync("zoe-kingdom.db");
  * v4 -> v5: adds `note` and `color` (color tag) columns to `saved_verses` so a
  * saved verse can carry a personal note and a highlight color. Added via a
  * non-destructive `ALTER TABLE ... ADD COLUMN` migration below.
+ *
+ * v5 -> v6: adds the story-game tables (`story_energy` and `story_progress`)
+ * powering the "Journey" experience. Energy is earned by completing habits and
+ * spent to advance faith-based story puzzles; progress + earned XP persist
+ * locally so the game works fully offline. Added via `CREATE TABLE IF NOT
+ * EXISTS`, so existing v5 databases pick them up on next launch.
+ * v6 -> v7: the story game became a full puzzle campaign. `story_progress` gains
+ * `stars`, `mistakes` and `hintsUsed` so each level can be replayed for a better
+ * 1-3 star rating. Reconciled with unconditional ALTERs (same self-healing
+ * pattern as saved_verses) so a v6 database migrates without data loss.
  */
-const SCHEMA_VERSION = 5;
+const SCHEMA_VERSION = 7;
 
 const CREATE_TABLES = `
   CREATE TABLE IF NOT EXISTS spirit_state (
@@ -101,6 +111,30 @@ const CREATE_TABLES = `
 
   CREATE INDEX IF NOT EXISTS idx_challenge_logs
   ON challenge_logs(challengeId, period);
+
+  /* ------------------------------- Story game ------------------------------
+   * story_energy   - a single row (id = 1) tracking the energy balance that
+   *                 gates story progression. Earned by completing habits,
+   *                 spent to solve story puzzles. lastSeen backs a gentle
+   *                 daily refill so the game never dead-ends.
+   * story_progress - one row per solved story node, recording the XP awarded
+   *                 so the game's rewards stay auditable and offline-safe.
+   */
+  CREATE TABLE IF NOT EXISTS story_energy (
+    id INTEGER PRIMARY KEY NOT NULL,
+    energy INTEGER DEFAULT 0,
+    lastSeen TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS story_progress (
+    nodeId TEXT PRIMARY KEY NOT NULL,
+    chapterId TEXT NOT NULL,
+    xpEarned INTEGER DEFAULT 0,
+    stars INTEGER DEFAULT 1,
+    mistakes INTEGER DEFAULT 0,
+    hintsUsed INTEGER DEFAULT 0,
+    completedAt TEXT NOT NULL
+  );
 `;
 
 let initDBPromise: Promise<void> | null = null;
@@ -168,6 +202,36 @@ export const initDB = (): Promise<void> => {
         }
       } catch (err) {
         console.error("saved_verses reconcile error:", err);
+      }
+
+      // Reconcile story_progress columns UNCONDITIONALLY (idempotent), the same
+      // self-healing pattern as saved_verses above: a v6 database already has
+      // the table but not the star columns, so we check the live column list and
+      // ALTER when missing. Existing progress rows are preserved.
+      try {
+        const storyCols = (await sqlite.getAllAsync(
+          "PRAGMA table_info(story_progress);",
+        )) as { name: string }[];
+        const storyHas = (name: string) => storyCols.some((c) => c.name === name);
+        if (storyCols.length > 0) {
+          if (!storyHas("stars")) {
+            await sqlite.execAsync(
+              "ALTER TABLE story_progress ADD COLUMN stars INTEGER DEFAULT 1;",
+            );
+          }
+          if (!storyHas("mistakes")) {
+            await sqlite.execAsync(
+              "ALTER TABLE story_progress ADD COLUMN mistakes INTEGER DEFAULT 0;",
+            );
+          }
+          if (!storyHas("hintsUsed")) {
+            await sqlite.execAsync(
+              "ALTER TABLE story_progress ADD COLUMN hintsUsed INTEGER DEFAULT 0;",
+            );
+          }
+        }
+      } catch (err) {
+        console.error("story_progress reconcile error:", err);
       }
 
       await sqlite.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);

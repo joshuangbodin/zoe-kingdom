@@ -1,0 +1,158 @@
+{
+  "id": "ch1",
+  "index": 1,
+  "title": "The Dimming",
+  "subtitle": "Something has gone quiet in the land of Zoe",
+  "emoji": "🌑",
+  "color": "#7c3aed",
+  "kind": "story",
+  "intro": [
+    { "who": "narrator", "emotion": "somber", "text": "The land of Zoe was green, and its people sang while they worked. That was before the quiet came." },
+    { "who": "shadow", "emotion": "menacing", "text": "Sing? Oh, little ones. You have forgotten the words. And a song you cannot remember is not a song at all." },
+    { "who": "narrator", "emotion": "somber", "text": "It tore five pages from the Great Book — the Five Power Verses — and scattered them across the kingdoms. Without them, fear spread like frost." },
+    { "who": "keeper", "emotion": "hopeful", "text": "Not without them, Believer. Only lost. And what is lost can be restored by one willing to read aloud." }
+  ],
+  "levels": [
+    {
+      "id": "ch1-l1",
+      "index": 1,
+      "title": "A Light in the Square",
+      "kind": "normal",
+      "setting": "The village square, first morning of the dimming",
+      "cost": 2,
+      "reward": 20,
+      "dialogue": [
+        { "who": "narrator", "emotion": "somber", "text": "You wake in the village square of Zoe. The market stalls stand open, but no one is trading." },
+        { "who": "sara", "emotion": "afraid", "text": "The well is full, the fields are full… and still I'm afraid to draw the water. I can't explain it." },
+        { "who": "ada", "emotion": "curious", "text": "Are you the one Keeper Miriam said was coming? She says you carry a lamp that doesn't go out." },
+        { "who": "keeper", "emotion": "hopeful", "text": "I do. And I say the dark ends where the Word is spoken. But the first page is torn right down the middle." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Believer — finish the verse our shepherds have sung for a thousand years. One word. Speak it, and let the light come back." }
+      ],
+      "mission": "Restore the torn verse of the Shepherd.",
+      "puzzle": {
+        "kind": "blanks",
+        "reference": "Psalm 23:1",
+        "verse": "The LORD is my shepherd; I shall not ____.",
+        "answer": ["want"],
+        "bank": ["want", "wander", "weep", "wait"],
+        "hints": ["It means 'to be in need of'.", "The verse promises nothing is lacking."],
+        "reveal": "\"The LORD is my shepherd; I shall not want.\" When He leads, lack has no address."
+      }
+    },
+    {
+      "id": "ch1-l2",
+      "index": 2,
+      "title": "The Smith Who Stopped Hammering",
+      "kind": "normal",
+      "setting": "Thomas's forge, cold for three days",
+      "cost": 2,
+      "reward": 22,
+      "dialogue": [
+        { "who": "thomas", "emotion": "afraid", "text": "Don't mind the cold forge. I lit it yesterday and it felt like… like someone was watching the fire with me." },
+        { "who": "shadow", "emotion": "menacing", "text": "He is not imagining it, Believer. I sit beside every frightened man. It is comfortable here." },
+        { "who": "keeper", "emotion": "stern", "text": "You are not welcome at this forge, Shadow. Thomas, what do you do when the iron comes out crooked?" },
+        { "who": "thomas", "emotion": "thoughtful", "text": "…I put it back in the fire. You don't throw crooked iron away. You heat it and work it again." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Exactly. And what does the Word do to a crooked heart? Find the missing word and say it out loud." }
+      ],
+      "mission": "Find the word that returns crooked things to the fire.",
+      "puzzle": {
+        "kind": "blanks",
+        "reference": "Psalm 119:105",
+        "verse": "Thy word is a ____ unto my feet, and a light unto my path.",
+        "answer": ["lamp"],
+        "bank": ["lamp", "shield", "sword", "tower"],
+        "hints": ["You carry it in your hand, not on your back.", "It shows the next single step — nothing more."],
+        "reveal": "\"Thy word is a lamp unto my feet.\" Not a floodlight for the whole road. Just enough light for the next step."
+      }
+    },
+    {
+      "id": "ch1-l3",
+      "index": 3,
+      "title": "Words Scattered in the Dust",
+      "kind": "normal",
+      "setting": "The road out of the square, where the page burned",
+      "cost": 2,
+      "reward": 26,
+      "dialogue": [
+        { "who": "narrator", "emotion": "somber", "text": "On the road out of the square, the torn page has burned down to scattered phrases." },
+        { "who": "sara", "emotion": "sad", "text": "I swept them into a pile this morning. Look — the promise is all tangled up." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Tangled is not destroyed. Believer, put the promise back in the order it was first spoken." },
+        { "who": "shadow", "emotion": "menacing", "text": "Four pieces out of order means many ways to be wrong. Give up, little lamp." },
+        { "who": "ada", "emotion": "determined", "text": "I counted them. There's only ONE right way. I like those odds!" }
+      ],
+      "mission": "Rebuild the scattered promise in its spoken order.",
+      "puzzle": {
+        "kind": "order",
+        "prompt": "Arrange the promise as it was first spoken.",
+        "items": [
+          "Trust in the LORD",
+          "with all thine heart",
+          "and lean not",
+          "unto thine own understanding"
+        ],
+        "correctOrder": [
+          "Trust in the LORD",
+          "with all thine heart",
+          "and lean not",
+          "unto thine own understanding"
+        ],
+        "hints": ["It begins with an instruction to the heart, not the mind.", "The last words are what we must NOT lean on."],
+        "reveal": "\"Trust in the LORD with all thine heart; and lean not unto thine own understanding.\" — Proverbs 3:5"
+      }
+    },
+    {
+      "id": "ch1-l4",
+      "index": 4,
+      "title": "The Grid of Fear",
+      "kind": "normal",
+      "setting": "The burned page, frozen into a lattice",
+      "cost": 2,
+      "reward": 30,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "The Shadow has done something worse than tearing. It has woven the verse into a lattice of crossing words." },
+        { "who": "shadow", "emotion": "menacing", "text": "Across and down, Believer. Every word now holds up another word. Cut one and the whole thing remembers its shape." },
+        { "who": "keeper", "emotion": "stern", "text": "Then we will read it the way it was written — across, and down. Take the clues and rebuild the lattice." },
+        { "who": "thomas", "emotion": "thoughtful", "text": "Like a forge joint. Nothing stands alone. Every piece carries its neighbour." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Beautifully said. Begin, Believer — and watch how one true letter makes the next one certain." }
+      ],
+      "mission": "Rebuild the woven verse across and down.",
+      "puzzle": {
+        "kind": "crossword",
+        "reference": "The lattice of Psalm 27:1",
+        "clues": [
+          { "dir": "across", "clue": "\"The LORD is my ____ and my salvation\"", "answer": "LIGHT" },
+          { "dir": "across", "clue": "\"whom shall I ____?\"", "answer": "FEAR" },
+          { "dir": "across", "clue": "\"The LORD is the ____ of my life\"", "answer": "STRENGTH" },
+          { "dir": "down", "clue": "\"the LORD is the strength of my ____\"", "answer": "LIFE" }
+        ],
+        "hints": ["LIGHT and LIFE share the L.", "FEAR crosses both of them."],
+        "reveal": "\"The LORD is my light and my salvation; whom shall I fear? the LORD is the strength of my life.\" — Psalm 27:1"
+      }
+    },
+    {
+      "id": "ch1-l5",
+      "index": 5,
+      "title": "Dread in the Square",
+      "kind": "boss",
+      "setting": "The village square, midnight — the Shadow shows itself",
+      "cost": 2,
+      "reward": 60,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "At midnight the Shadow steps out of the fog and stands in the middle of the square. It is taller than the chapel door." },
+        { "who": "shadow", "emotion": "menacing", "text": "You have recovered three words, Believer. Three. Do you know what I am? I am the thing you feel at 3am." },
+        { "who": "shadow", "emotion": "menacing", "text": "I am not beaten by courage. I am not beaten by effort. I am beaten only by a love you do not believe you have." },
+        { "who": "keeper", "emotion": "stern", "text": "Then let us test that, Shadow. Believer — hide these words in your heart where the Shadow cannot reach them." },
+        { "who": "ada", "emotion": "determined", "text": "I'll help you look! Sara says if you find one, the rest get scared!" },
+        { "who": "shadow", "emotion": "menacing", "text": "Find them. Find them, and I will simply wait for tomorrow." }
+      ],
+      "mission": "Hunt down the hidden words before dread settles.",
+      "puzzle": {
+        "kind": "wordsearch",
+        "reference": "The armour of Ephesians 6",
+        "words": ["FAITH", "PEACE", "TRUTH", "HOPE", "LOVE"],
+        "hints": ["Work from the outside of the grid inward.", "Words may run in any of eight directions."],
+        "reveal": "Faith, truth, peace, hope, love — five words the Shadow cannot hold. You have pushed it back to the edge of Zoe."
+      }
+    }
+  ]
+}

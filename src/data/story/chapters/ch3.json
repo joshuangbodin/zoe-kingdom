@@ -1,0 +1,157 @@
+{
+  "id": "ch3",
+  "index": 3,
+  "title": "The Sea That Would Not Part",
+  "subtitle": "Where faith is asked to walk before the water moves",
+  "emoji": "🌊",
+  "color": "#38bdf8",
+  "kind": "story",
+  "intro": [
+    { "who": "narrator", "emotion": "somber", "text": "Past the wilderness the road runs into water. Not a river — a sea, black and loud, with no visible other side." },
+    { "who": "shadow", "emotion": "menacing", "text": "Look at it, Believer. I do not have to push you in. You simply have to agree that it is too wide." },
+    { "who": "keeper", "emotion": "hopeful", "text": "Every sea that ever parted had one thing in common: someone stepped in while it was still water." },
+    { "who": "keeper", "emotion": "hopeful", "text": "The third Power Verse is about that step. Restore it, and we will see what the water does." }
+  ],
+  "levels": [
+    {
+      "id": "ch3-l1",
+      "index": 11,
+      "title": "The Shore of No",
+      "kind": "normal",
+      "setting": "The black shoreline, night one",
+      "cost": 2,
+      "reward": 44,
+      "dialogue": [
+        { "who": "thomas", "emotion": "afraid", "text": "I've measured it twice. There's no ford. No shallow. Just… no." },
+        { "who": "shadow", "emotion": "menacing", "text": "Thomas is right, Believer. And being right about the obstacle is the most respectable way to never move." },
+        { "who": "ada", "emotion": "curious", "text": "Why does it get quieter when I say 'fear not' out loud? Listen — fear… not." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Because it is an instruction, not a feeling. Rebuild the reason it is given." }
+      ],
+      "mission": "Rebuild the reason fear is refused.",
+      "puzzle": {
+        "kind": "blanks",
+        "reference": "Isaiah 41:10",
+        "verse": "Fear thou not; for I am with ____: be not dismayed; for I am thy ____.",
+        "answer": ["thee", "God"],
+        "bank": ["thee", "God", "here", "friend", "strong", "near"],
+        "hints": ["The first blank is an old word for 'you'.", "The second blank names who is speaking."],
+        "reveal": "\"Fear thou not; for I am with thee: be not dismayed; for I am thy God.\" — Isaiah 41:10"
+      }
+    },
+    {
+      "id": "ch3-l2",
+      "index": 12,
+      "title": "The Moth and the Flame",
+      "kind": "normal",
+      "setting": "Night four, the shore fire",
+      "cost": 2,
+      "reward": 46,
+      "dialogue": [
+        { "who": "sara", "emotion": "thoughtful", "text": "A moth keeps flying into our fire. Over and over. It never learns that the flame will take it." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Or it knows exactly what it is flying toward. Sara — which of these is the word our people actually live by?" },
+        { "who": "shadow", "emotion": "menacing", "text": "Choose carefully, Believer. The wrong answer sounds very much like wisdom." },
+        { "who": "thomas", "emotion": "determined", "text": "Pick the one you'd want carved on your forge door." }
+      ],
+      "mission": "Choose the word the faithful actually walk in.",
+      "puzzle": {
+        "kind": "choice",
+        "prompt": "\"For God hath not given us the spirit of ____; but of power, and of love, and of a sound mind.\"",
+        "options": [
+          { "label": "fear", "correct": true },
+          { "label": "power", "correct": false },
+          { "label": "love", "correct": false },
+          { "label": "a sound mind", "correct": false }
+        ],
+        "hints": ["The verse lists three things you were given — the blank is the one you were NOT given.", "It is the thing the Shadow has been whispering since the square."],
+        "reveal": "\"For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.\" — 2 Timothy 1:7"
+      }
+    },
+    {
+      "id": "ch3-l3",
+      "index": 13,
+      "title": "The Wind on the Water",
+      "kind": "normal",
+      "setting": "Night nine, the waves learn to spell",
+      "cost": 2,
+      "reward": 50,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "On the ninth night the waves rise and write again — across, and down, crossing into each other." },
+        { "who": "shadow", "emotion": "menacing", "text": "The sea is older than your Book, Believer. It has drowned stronger faith than yours." },
+        { "who": "keeper", "emotion": "stern", "text": "It has also carried a man asleep in its stern while the wind obeyed Him. Rebuild the lattice." },
+        { "who": "ada", "emotion": "determined", "text": "Crossing words! Thomas says those are the strong kind — like his forge joints!" }
+      ],
+      "mission": "Rebuild the lattice written by the waves.",
+      "puzzle": {
+        "kind": "crossword",
+        "reference": "The lattice of Mark 4:39",
+        "clues": [
+          { "dir": "across", "clue": "\"Peace, be ____\"", "answer": "STILL" },
+          { "dir": "across", "clue": "\"and there was a great ____\"", "answer": "CALM" },
+          { "dir": "across", "clue": "\"why are ye so ____?\"", "answer": "FEARFUL" },
+          { "dir": "down", "clue": "\"how is it that ye have no ____?\"", "answer": "FAITH" }
+        ],
+        "hints": ["STILL is five letters and sits in the top row.", "FAITH is the down answer that crosses three of them."],
+        "reveal": "\"Peace, be still. And the wind ceased, and there was a great calm.\" — Mark 4:39"
+      }
+    },
+    {
+      "id": "ch3-l4",
+      "index": 14,
+      "title": "Torn by the Undertow",
+      "kind": "normal",
+      "setting": "Night fourteen, the page goes under",
+      "cost": 2,
+      "reward": 54,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "An undertow takes the page from your pack and shreds it against the rocks." },
+        { "who": "thomas", "emotion": "determined", "text": "The pieces are on the sand. All of them. Salt-soaked, but all of them." },
+        { "who": "shadow", "emotion": "menacing", "text": "Reassemble it, then. Salt does not forgive mistakes." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Neither does it care how many attempts it takes. Put the promise back in its spoken order." }
+      ],
+      "mission": "Rebuild the promise the undertow shredded.",
+      "puzzle": {
+        "kind": "order",
+        "prompt": "Arrange the promise as it was first spoken.",
+        "items": [
+          "Be strong and of a good courage;",
+          "be not afraid,",
+          "neither be thou dismayed:",
+          "for the LORD thy God is with thee"
+        ],
+        "correctOrder": [
+          "Be strong and of a good courage;",
+          "be not afraid,",
+          "neither be thou dismayed:",
+          "for the LORD thy God is with thee"
+        ],
+        "hints": ["Courage comes first, then the two things to refuse.", "It ends with a reason, not a command."],
+        "reveal": "\"Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee.\" — Joshua 1:9"
+      }
+    },
+    {
+      "id": "ch3-l5",
+      "index": 15,
+      "title": "Dread Rides the Tide",
+      "kind": "boss",
+      "setting": "Night twenty-one, the sea stands up",
+      "cost": 2,
+      "reward": 70,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "On the twenty-first night the sea itself stands up. The Shadow rides the crest, ankle-deep in the storm." },
+        { "who": "shadow", "emotion": "menacing", "text": "Three verses recovered, Believer. Two left. And I have all the water in the world." },
+        { "who": "shadow", "emotion": "menacing", "text": "Peter walked. Peter also sank. Remember that the same man did both." },
+        { "who": "keeper", "emotion": "stern", "text": "He sank reaching down, and rose reaching up. Believer — the words are drifting in the spray. Find them." },
+        { "who": "sara", "emotion": "determined", "text": "I'm not letting go of this rope. Whatever happens out there." },
+        { "who": "ada", "emotion": "determined", "text": "Shout them when you find them! It worked in the wilderness!" }
+      ],
+      "mission": "Hunt the words drifting in the spray.",
+      "puzzle": {
+        "kind": "wordsearch",
+        "reference": "The promises on the water",
+        "words": ["STILL", "CALM", "FAITH", "COURAGE", "ARISE"],
+        "hints": ["One of them is the word that stopped a storm.", "Five words, eight directions."],
+        "reveal": "Still, calm, faith, courage, arise — the sea has no answer for any of them. The third Power Verse is restored."
+      }
+    }
+  ]
+}

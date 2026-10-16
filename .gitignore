@@ -39,6 +39,9 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# scratch output for the puzzle-engine unit tests (scripts/test-puzzles.js)
+.puzzletest/
+
 app-example
 
 # generated native folders

@@ -1,0 +1,158 @@
+{
+  "id": "ch2",
+  "index": 2,
+  "title": "The Wilderness of Want",
+  "subtitle": "Where the promise is tested by hunger",
+  "emoji": "🏜️",
+  "color": "#f59e0b",
+  "kind": "story",
+  "intro": [
+    { "who": "narrator", "emotion": "somber", "text": "Beyond the last house of Zoe lies the Wilderness of Want — forty days wide, and every one of them hungry." },
+    { "who": "shadow", "emotion": "menacing", "text": "Here I do not need to frighten you, Believer. Here I only need to wait. Everyone gets hungry eventually." },
+    { "who": "keeper", "emotion": "hopeful", "text": "And everyone eventually hears a voice. The question is whether they answer it, or answer the hunger instead." },
+    { "who": "keeper", "emotion": "hopeful", "text": "The second Power Verse is out here, Believer. It is the verse that fed a man for forty days." }
+  ],
+  "levels": [
+    {
+      "id": "ch2-l1",
+      "index": 6,
+      "title": "Stones on the Ground",
+      "kind": "normal",
+      "setting": "Day twelve, the dust road",
+      "cost": 2,
+      "reward": 32,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "On the twelfth day you find stones on the ground, and the Shadow sitting on one of them, looking pleased." },
+        { "who": "shadow", "emotion": "menacing", "text": "They look like loaves, don't they? Just from a distance. Just in this light. Say the word and they will be bread." },
+        { "who": "shadow", "emotion": "menacing", "text": "No one would blame you. Hunger is not a sin. Hunger is just… a reason." },
+        { "who": "keeper", "emotion": "stern", "text": "There was a Man who stood exactly here, Believer. He answered the stone with a sentence, not a miracle." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Rebuild that sentence. Both halves of it." }
+      ],
+      "mission": "Rebuild the answer given to the stones.",
+      "puzzle": {
+        "kind": "blanks",
+        "reference": "Matthew 4:4",
+        "verse": "Man shall not live by ____ alone, but by every ____ that proceedeth out of the mouth of God.",
+        "answer": ["bread", "word"],
+        "bank": ["bread", "word", "water", "stone", "spirit", "light"],
+        "hints": ["The first blank is the thing stones only look like.", "The second blank is what the mouth of God produces."],
+        "reveal": "\"Man shall not live by bread alone, but by every word that proceedeth out of the mouth of God.\" — Matthew 4:4"
+      }
+    },
+    {
+      "id": "ch2-l2",
+      "index": 7,
+      "title": "The Dry Valley",
+      "kind": "normal",
+      "setting": "Day twenty, the valley of dry wells",
+      "cost": 2,
+      "reward": 34,
+      "dialogue": [
+        { "who": "sara", "emotion": "sad", "text": "I walked three days to bring you water. Look — the valley drank every well before I arrived." },
+        { "who": "thomas", "emotion": "afraid", "text": "I've been in worse places. But never this quiet. The quiet is the part that gets you." },
+        { "who": "shadow", "emotion": "menacing", "text": "Sit down, Believer. The valley is honest. It does not pretend to be anything but empty." },
+        { "who": "keeper", "emotion": "hopeful", "text": "The valley is not empty. It is a corridor. Choose the words that describe the One walking through it with you." }
+      ],
+      "mission": "Identify what accompanies you through the valley.",
+      "puzzle": {
+        "kind": "choice",
+        "prompt": "\"Yea, though I walk through the valley of the shadow of death…\" — which ending was written?",
+        "options": [
+          { "label": "I will fear no evil: for thou art with me", "correct": true },
+          { "label": "I will hurry to the other side alone", "correct": false },
+          { "label": "I will wait until the valley fills first", "correct": false },
+          { "label": "I will ask the shadow for directions", "correct": false }
+        ],
+        "hints": ["The answer names the reason fear is refused.", "It is a phrase about presence, not escape."],
+        "reveal": "\"Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me.\" — Psalm 23:4"
+      }
+    },
+    {
+      "id": "ch2-l3",
+      "index": 8,
+      "title": "The Weaving Winds",
+      "kind": "normal",
+      "setting": "Day twenty-six, where the wind writes",
+      "cost": 2,
+      "reward": 38,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "On the twenty-sixth day the wind blows so hard it writes on the sand — across and down, crossing itself." },
+        { "who": "shadow", "emotion": "menacing", "text": "The wind is mine, Believer. Watch how it tangles the words into each other. Read them now." },
+        { "who": "keeper", "emotion": "stern", "text": "Read them the way they were written, then. Across. And down. Take the clues." },
+        { "who": "ada", "emotion": "determined", "text": "I'll read them out loud! Loud words don't blow away!" }
+      ],
+      "mission": "Untangle the wind-written lattice.",
+      "puzzle": {
+        "kind": "crossword",
+        "reference": "The lattice of Isaiah 41:10",
+        "clues": [
+          { "dir": "across", "clue": "\"Fear thou not; for I am with ____\"", "answer": "THEE" },
+          { "dir": "across", "clue": "\"The LORD is the ____ of my life\"", "answer": "STRENGTH" },
+          { "dir": "across", "clue": "\"Yea, I will ____ thee\"", "answer": "HELP" },
+          { "dir": "down", "clue": "\"whom shall I ____?\"", "answer": "FEAR" }
+        ],
+        "hints": ["STRENGTH is the longest word and runs across the middle.", "FEAR crosses STRENGTH, and HELP crosses THEE."],
+        "reveal": "\"Fear thou not; for I am with thee… I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.\" — Isaiah 41:10"
+      }
+    },
+    {
+      "id": "ch2-l4",
+      "index": 9,
+      "title": "Scattered by the Storm",
+      "kind": "normal",
+      "setting": "Day thirty-three, the storm that tore the page",
+      "cost": 2,
+      "reward": 42,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "A storm tears the second verse out of your hands and throws the pieces across the dunes." },
+        { "who": "thomas", "emotion": "determined", "text": "I'll take the north dunes. Believer, you take the south. Nobody rests until the page is whole." },
+        { "who": "shadow", "emotion": "menacing", "text": "It is only sand now. Sand and syllables." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Then gather the syllables, Believer, and set them back in the order they were first spoken." }
+      ],
+      "mission": "Rebuild the promise the storm tore apart.",
+      "puzzle": {
+        "kind": "order",
+        "prompt": "Arrange the promise as it was first spoken.",
+        "items": [
+          "And we know that",
+          "all things work together",
+          "for good",
+          "to them that love God"
+        ],
+        "correctOrder": [
+          "And we know that",
+          "all things work together",
+          "for good",
+          "to them that love God"
+        ],
+        "hints": ["It opens with certainty, not hope.", "The shortest piece is the middle one."],
+        "reveal": "\"And we know that all things work together for good to them that love God.\" — Romans 8:28"
+      }
+    },
+    {
+      "id": "ch2-l5",
+      "index": 10,
+      "title": "Want, Personified",
+      "kind": "boss",
+      "setting": "Day forty, the far edge of the wilderness",
+      "cost": 2,
+      "reward": 65,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "On the fortieth day the Shadow stops pretending to be the wilderness and stands up as Want itself." },
+        { "who": "shadow", "emotion": "menacing", "text": "Forty days, Believer. Forty days of me whispering 'not yet, not enough, not you.' And you are tired." },
+        { "who": "shadow", "emotion": "menacing", "text": "Tired people do not finish. Tired people go home and call it peace." },
+        { "who": "keeper", "emotion": "stern", "text": "Tired people who keep reading are the only kind who ever cross a wilderness. Believer — the words are hidden in the dunes." },
+        { "who": "sara", "emotion": "determined", "text": "Find them. I'll carry the water. I carried it forty days for exactly this." },
+        { "who": "ada", "emotion": "determined", "text": "And I'll shout every one we find!" }
+      ],
+      "mission": "Hunt the words hidden across the dunes.",
+      "puzzle": {
+        "kind": "wordsearch",
+        "reference": "The provisions of the wilderness",
+        "words": ["MANNA", "WATER", "PILLAR", "SHOE", "QUAIL"],
+        "hints": ["These are what He provided, not what He withheld.", "Five words, eight directions."],
+        "reveal": "Manna, water, the pillar, unworn shoes, quail — the wilderness was provision in disguise. The second Power Verse is yours."
+      }
+    }
+  ]
+}

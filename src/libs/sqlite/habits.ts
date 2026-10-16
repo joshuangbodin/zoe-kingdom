@@ -1,5 +1,6 @@
 import { sqlite } from "./db";
 import { addXP } from "./spirit";
+import { addEnergy, ENERGY_PER_HABIT } from "./story";
 import { rescheduleAllHabitReminders } from "@/libs/reminders/scheduleHabitNotifications";
 
 export type Habit = {
@@ -377,6 +378,10 @@ export const completeHabit = async (habit: any) => {
   );
 
   await addXP(habit.xpReward);
+
+  // Completing a habit also fuels the story game's energy — the primary way
+  // players earn the energy needed to advance "Zoe's Journey".
+  await addEnergy(ENERGY_PER_HABIT).catch(() => {});
 
   return { success: true };
 };

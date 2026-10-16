@@ -1,0 +1,155 @@
+{
+  "id": "ch6",
+  "index": 6,
+  "title": "The Song Returns to Zoe",
+  "subtitle": "Where the verses are given away, not kept",
+  "emoji": "👑",
+  "color": "#a855f7",
+  "kind": "story",
+  "intro": [
+    { "who": "narrator", "emotion": "hopeful", "text": "You come down the mountain carrying five whole pages, and the land of Zoe is still dim." },
+    { "who": "keeper", "emotion": "hopeful", "text": "Of course it is. The verses were never yours to keep, Believer. They were yours to carry back." },
+    { "who": "shadow", "emotion": "menacing", "text": "Carry them, then. Carry them alone. That has always been enough for you." },
+    { "who": "keeper", "emotion": "stern", "text": "It has never once been enough. Not for anyone. Read them out loud, and let the others read them back." }
+  ],
+  "levels": [
+    {
+      "id": "ch6-l1",
+      "index": 26,
+      "title": "Reading Aloud in the Square",
+      "kind": "normal",
+      "setting": "The village square, one week later",
+      "cost": 2,
+      "reward": 92,
+      "dialogue": [
+        { "who": "ada", "emotion": "hopeful", "text": "Read it! Read the first one! I want to hear what a whole verse sounds like!" },
+        { "who": "sara", "emotion": "hopeful", "text": "Everyone's here. Even the ones who stopped coming to the well." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Read it, Believer — and let them finish it with you. A verse two people know is twice as hard to tear." }
+      ],
+      "mission": "Restore the verse the whole village will learn together.",
+      "puzzle": {
+        "kind": "blanks",
+        "reference": "Psalm 118:24",
+        "verse": "This is the ____ which the LORD hath made; we will ____ and be glad in it.",
+        "answer": ["day", "rejoice"],
+        "bank": ["day", "rejoice", "night", "endure", "hour", "weep"],
+        "hints": ["The first blank is the one you are standing in.", "The second blank is the verb that fills a square with singing."],
+        "reveal": "\"This is the day which the LORD hath made; we will rejoice and be glad in it.\" — Psalm 118:24"
+      }
+    },
+    {
+      "id": "ch6-l2",
+      "index": 27,
+      "title": "The Village Lattice",
+      "kind": "normal",
+      "setting": "The chapel wall, where the verses are painted",
+      "cost": 2,
+      "reward": 96,
+      "dialogue": [
+        { "who": "thomas", "emotion": "hopeful", "text": "I've started painting them on the chapel wall. Across, and down, so they hold each other up." },
+        { "who": "shadow", "emotion": "menacing", "text": "Paint will fade. Stone will crack. You are decorating a ruin." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Then let us make the ruin say something true while it stands. Rebuild the lattice, Believer." },
+        { "who": "ada", "emotion": "determined", "text": "I'll hold the paint! I'm good at holding paint!" }
+      ],
+      "mission": "Rebuild the lattice painted on the chapel wall.",
+      "puzzle": {
+        "kind": "crossword",
+        "reference": "The lattice of Psalm 46:10",
+        "clues": [
+          { "dir": "across", "clue": "\"Be ____, and know that I am God\"", "answer": "STILL" },
+          { "dir": "across", "clue": "\"The LORD of ____ is with us\"", "answer": "HOSTS" },
+          { "dir": "across", "clue": "\"God is our ____ and strength\"", "answer": "REFUGE" },
+          { "dir": "down", "clue": "\"a very present help in ____\"", "answer": "TROUBLE" }
+        ],
+        "hints": ["STILL is the top row again — stillness keeps coming back.", "REFUGE crosses HOSTS, and TROUBLE runs across the fourth row."],
+        "reveal": "\"Be still, and know that I am God… The LORD of hosts is with us; the God of Jacob is our refuge.\" — Psalm 46:10-11"
+      }
+    },
+    {
+      "id": "ch6-l3",
+      "index": 28,
+      "title": "The Pages, Given Away",
+      "kind": "normal",
+      "setting": "The square, the morning of the giving",
+      "cost": 2,
+      "reward": 100,
+      "dialogue": [
+        { "who": "narrator", "emotion": "hopeful", "text": "The next morning you tear the five pages into thirty pieces and hand one to every person in the square." },
+        { "who": "shadow", "emotion": "menacing", "text": "You have destroyed them. You have given away the only weapon you had." },
+        { "who": "keeper", "emotion": "hopeful", "text": "Weapon? No. Seed. Put the promise back in the order it was first given, Believer." },
+        { "who": "sara", "emotion": "hopeful", "text": "My piece says 'love'. Just that. One word, and I've never needed it more." }
+      ],
+      "mission": "Rebuild the promise as it is handed from person to person.",
+      "puzzle": {
+        "kind": "order",
+        "prompt": "Arrange the promise as it was first spoken.",
+        "items": [
+          "And let us consider",
+          "one another",
+          "to provoke unto love",
+          "and to good works"
+        ],
+        "correctOrder": [
+          "And let us consider",
+          "one another",
+          "to provoke unto love",
+          "and to good works"
+        ],
+        "hints": ["It begins with consideration, not instruction.", "Love comes before works, never after."],
+        "reveal": "\"And let us consider one another to provoke unto love and to good works.\" — Hebrews 10:24"
+      }
+    },
+    {
+      "id": "ch6-l4",
+      "index": 29,
+      "title": "The Last Dark Corner",
+      "kind": "normal",
+      "setting": "Under the chapel, where the Shadow retreated",
+      "cost": 2,
+      "reward": 110,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "One corner of Zoe is still dark. Under the chapel, where the Shadow went to wait out the singing." },
+        { "who": "shadow", "emotion": "menacing", "text": "One corner, Believer. You have never once managed a whole land. Not in thirty levels." },
+        { "who": "shadow", "emotion": "menacing", "text": "And I only need one corner. I have always only needed one corner." },
+        { "who": "keeper", "emotion": "stern", "text": "Then take even that from it. Find the words hiding in the dark under the chapel." },
+        { "who": "thomas", "emotion": "determined", "text": "I'll bring the forge light. It's brighter than it used to be." }
+      ],
+      "mission": "Hunt the words hidden in the last dark corner.",
+      "puzzle": {
+        "kind": "wordsearch",
+        "reference": "The words that end the story",
+        "words": ["WORSHIP", "SING", "RISE", "SHINE", "LIFE"],
+        "hints": ["Zoe means LIFE — one of these is the meaning of your own name.", "Eight directions, eleven rows."],
+        "reveal": "Worship, sing, rise, shine, life — the last dark corner has nothing left to hold. Zoe is singing again."
+      }
+    },
+    {
+      "id": "ch6-l5",
+      "index": 30,
+      "title": "The Song of Zoe",
+      "kind": "finale",
+      "setting": "The village square, dusk, the whole land restored",
+      "cost": 2,
+      "reward": 200,
+      "dialogue": [
+        { "who": "narrator", "emotion": "hopeful", "text": "At dusk the whole land is lit — not by torches, but by the sound of thirty people reading at once." },
+        { "who": "shadow", "emotion": "fading", "text": "I will be back tomorrow. I am always back tomorrow. That has never failed me." },
+        { "who": "keeper", "emotion": "hopeful", "text": "And we will be here tomorrow, with the words already in our mouths. That has never failed us." },
+        { "who": "ada", "emotion": "hopeful", "text": "Believer! Sing the last one! The one you've been building the whole time!" },
+        { "who": "sara", "emotion": "hopeful", "text": "We know our piece. You say yours, and we'll say it back." },
+        { "who": "thomas", "emotion": "hopeful", "text": "Thirty levels, Believer. One more word." },
+        { "who": "narrator", "emotion": "hopeful", "text": "So finish the verse that was torn out on your very first morning in the square. Finish the song of Zoe." }
+      ],
+      "mission": "Restore the verse the whole story has been building toward.",
+      "puzzle": {
+        "kind": "blanks",
+        "reference": "Isaiah 41:13",
+        "verse": "For I the LORD thy God will hold thy right ____, saying unto thee, Fear not; I will ____ thee.",
+        "answer": ["hand", "help"],
+        "bank": ["hand", "help", "heart", "hide", "send", "keep"],
+        "hints": ["The first blank is the one He holds, and it is also where the sun rises.", "The second blank is three promises long in the original verse."],
+        "reveal": "\"For I the LORD thy God will hold thy right hand, saying unto thee, Fear not; I will help thee.\" — Isaiah 41:13. The song of Zoe never stops. It only waits for someone to read it aloud."
+      }
+    }
+  ]
+}

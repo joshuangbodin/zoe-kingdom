@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -11,50 +11,77 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useToast } from "@/components/Toast";
 import { getChallengePeriod } from "@/constants/challenges";
-import { getLevelFromXP, getProgressPercentage } from "@/constants/levels";
+import { LEVELS, getGameRank, getStoryProgress } from "@/data/story";
+import type { StoryLevel } from "@/data/story";
 import { useApp } from "@/context/app-context";
 import { useTheme } from "@/context/theme-context";
-import { getLeaderboard } from "@/libs/firebase/leaderboard";
 import type { ChallengeProgress } from "@/libs/sqlite/challenges";
 import {
   claimChallenge,
   getChallengesWithProgress,
 } from "@/libs/sqlite/challenges";
+import {
+  getCompletedNodeIds,
+  getEnergy,
+  getStarsByNode,
+  type EnergyState,
+} from "@/libs/sqlite/story";
 
 import ArenaHeader, {
   ArenaSection,
 } from "@/components/arena/ArenaHeader";
 import ChallengeCard from "@/components/arena/ChallengeCard";
-import LeaderboardPodium from "@/components/arena/LeaderboardPodium";
-import LeaderboardRow from "@/components/arena/LeaderboardRow";
-import LeaderboardEmptyState from "@/components/arena/LeaderboardEmptyState";
+import DialogueSheet, {
+  type DialogueSheetHandle,
+} from "@/components/story/DialogueSheet";
+import EnergyBar from "@/components/story/EnergyBar";
+import PuzzleSheet, {
+  type PuzzleSheetHandle,
+} from "@/components/story/PuzzleSheet";
+import StoryMap from "@/components/story/StoryMap";
+import StoryProgressCard from "@/components/story/StoryProgressCard";
 
 export default function Games() {
   const { top } = useSafeAreaInsets();
-  const { user, refreshUser, isOnline } = useApp();
+  const { refreshUser } = useApp();
   const { showToast } = useToast();
   const { isDark } = useTheme();
 
-  const [section, setSection] = useState<ArenaSection>("challenges");
+  const [section, setSection] = useState<ArenaSection>("journey");
   const [challenges, setChallenges] = useState<ChallengeProgress[]>([]);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
-  // True when the leaderboard is being served from the last cached snapshot
-  // (offline or a transient fetch failure) so we can show a subtle note.
-  const [lbFromCache, setLbFromCache] = useState(false);
+  const [energy, setEnergy] = useState<EnergyState>({
+    energy: 0,
+    maxEnergy: 30,
+    refilledToday: false,
+    levelsAffordable: 0,
+  });
+  const [completed, setCompleted] = useState<Set<string>>(new Set());
+  const [stars, setStars] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [claimingId, setClaimingId] = useState<string | null>(null);
+  const dialogueRef = useRef<DialogueSheetHandle>(null);
+  const puzzleRef = useRef<PuzzleSheetHandle>(null);
+
+  const loadStory = useCallback(async () => {
+    const [e, c, s] = await Promise.all([
+      getEnergy(),
+      getCompletedNodeIds(),
+      getStarsByNode(),
+    ]);
+    setEnergy(e);
+    setCompleted(c);
+    setStars(s);
+  }, []);
+
+  const loadChallenges = useCallback(async () => {
+    setChallenges(await getChallengesWithProgress());
+  }, []);
 
   const loadData = useCallback(async () => {
-    const [ch, lb] = await Promise.all([
-      getChallengesWithProgress(),
-      getLeaderboard(user?.uid, 50),
-    ]);
-    setChallenges(ch);
-    setLeaderboard(lb.entries);
-    setLbFromCache(lb.fromCache);
+    await Promise.all([loadChallenges(), loadStory()]);
     setLoading(false);
-  }, [user?.uid]);
+  }, [loadChallenges, loadStory]);
 
   useEffect(() => {
     loadData().catch((e) => {
@@ -63,7 +90,7 @@ export default function Games() {
     });
     refreshUser().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid]);
+  }, []);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -81,7 +108,7 @@ export default function Games() {
       const res = await claimChallenge(ch);
       if (res.success) {
         showToast(`+${ch.reward} XP claimed!`, "success");
-        await loadData();
+        await loadChallenges();
         refreshUser().catch(() => {});
       } else {
         showToast("Already claimed", "info");
@@ -94,6 +121,36 @@ export default function Games() {
     }
   };
 
+  /* ------------------------------- Story flow ------------------------------ */
+
+  /**
+   * Tapping a map node opens its animated dialogue first — the player always
+   * hears the story and their mission before spending any energy.
+   */
+  const openLevel = useCallback((level: StoryLevel) => {
+    dialogueRef.current?.present(level);
+  }, []);
+
+  /** The player accepted the mission: hand over to the puzzle. */
+  const beginPuzzle = useCallback((level: StoryLevel) => {
+    requestAnimationFrame(() => puzzleRef.current?.present(level));
+  }, []);
+
+  const handleSolved = useCallback(
+    async (reward: number) => {
+      showToast(`+${reward} XP — the verse is restored!`, "success");
+      await Promise.all([loadStory(), refreshUser().catch(() => {})]);
+    },
+    [loadStory, refreshUser, showToast],
+  );
+
+  const period = getChallengePeriod();
+
+  // Journey header stats: story progress and the player's game rank.
+  const progressPct = getStoryProgress(completed);
+  const rank = getGameRank(completed.size);
+  const totalStars = Object.values(stars).reduce((a, b) => a + b, 0);
+
   if (loading) {
     return (
       <View className="flex-1 bg-bg items-center justify-center">
@@ -102,36 +159,23 @@ export default function Games() {
     );
   }
 
-  const period = getChallengePeriod();
-  const userLevel = getLevelFromXP(user?.xp ?? 0);
-  const userXpProgress = getProgressPercentage(user?.xp ?? 0);
-
-  // Top-3 go on the podium; the rest render as compact rows below.
-  const podUsers = leaderboard.filter((r: any) => r.rank <= 3);
-  const listRows = section === "leaderboard"
-    ? leaderboard.filter((r: any) => r.rank > 3)
-    : challenges;
-  const data = section === "challenges" ? challenges : listRows;
+  // Only the Challenges segment renders a scrolling list; the Journey section
+  // is fully rendered in the header (energy bar + story map).
+  const data = section === "challenges" ? challenges : [];
 
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: top + 6 }}>
       <FlatList
         data={data as any[]}
-        keyExtractor={(item: any) =>
-          section === "challenges" ? item.id : item.uid
-        }
+        keyExtractor={(item: any) => item.id}
         contentContainerClassName="px-3"
-        renderItem={
-          section === "challenges"
-            ? ({ item }: { item: ChallengeProgress }) => (
-                <ChallengeCard
-                  item={item}
-                  claiming={claimingId === item.id}
-                  onClaim={() => handleClaim(item)}
-                />
-              )
-            : ({ item }: { item: any }) => <LeaderboardRow item={item} />
-        }
+        renderItem={({ item }: { item: ChallengeProgress }) => (
+          <ChallengeCard
+            item={item}
+            claiming={claimingId === item.id}
+            onClaim={() => handleClaim(item)}
+          />
+        )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -145,52 +189,38 @@ export default function Games() {
             <ArenaHeader
               section={section}
               onSectionChange={setSection}
-              rightMeta={section === "challenges" ? period : "Lifetime XP"}
+              rightMeta={section === "challenges" ? period : "Zoe's Journey"}
             />
-            {section === "leaderboard" && (
-              <LeaderboardPodium users={podUsers} />
-            )}
-            {/* Subtle, offline-first note when showing the last saved board. */}
-            {section === "leaderboard" && lbFromCache && (
-              <View className="flex-row items-center justify-center mt-1.5">
-                <View className="w-1.5 h-1.5 rounded-full bg-tertiary mr-1.5" />
-                <Text className="text-tertiary text-[9px] font-sora-medium text-center">
-                  {isOnline
-                    ? "Showing last saved leaderboard"
-                    : "Offline — showing saved leaderboard"}
-                </Text>
+
+            {section === "journey" && (
+              <View>
+                <StoryProgressCard
+                  progressPct={progressPct}
+                  rankTitle={rank.title}
+                  nextRank={rank.next}
+                  levelsDone={completed.size}
+                  levelsTotal={LEVELS.length}
+                  totalStars={totalStars}
+                  maxStars={LEVELS.length * 3}
+                />
+
+                <EnergyBar energy={energy.energy} maxEnergy={energy.maxEnergy} />
+
+                <StoryMap
+                  completed={completed}
+                  stars={stars}
+                  energy={energy.energy}
+                  onNodePress={openLevel}
+                />
               </View>
             )}
           </View>
         }
-        ListEmptyComponent={
-          section === "leaderboard" ? <LeaderboardEmptyState /> : null
-        }
         contentContainerStyle={{ paddingBottom: 140 }}
       />
 
-      {/* User progress footer (your path to the next level) */}
-      {/* <View
-        className="absolute bottom-0 left-0 right-0 bg-card-1/95 border-t border-line px-5 py-3 flex-row items-center"
-        style={{ paddingBottom: 12 }}
-      >
-        <View className="flex-1">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-primary text-[10px] font-sora-semibold">
-              Level {userLevel}
-            </Text>
-            <Text className="text-quaternary text-[9px] font-sora-medium">
-              {Math.round(userXpProgress)}% to {userLevel + 1}
-            </Text>
-          </View>
-          <View className="h-[3px] mt-1.5 bg-overlay rounded-full overflow-hidden">
-            <View
-              style={{ width: `${userXpProgress}%` }}
-              className="h-full bg-amber-500 rounded-full"
-            />
-          </View>
-        </View>
-      </View> */}
+      <DialogueSheet ref={dialogueRef} onBegin={beginPuzzle} />
+      <PuzzleSheet ref={puzzleRef} onSolved={handleSolved} />
     </View>
   );
 }

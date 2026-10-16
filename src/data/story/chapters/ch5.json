@@ -1,0 +1,157 @@
+{
+  "id": "ch5",
+  "index": 5,
+  "title": "The Final Ascent",
+  "subtitle": "Where the last page waits, and the Shadow is desperate",
+  "emoji": "⛰️",
+  "color": "#f97316",
+  "kind": "story",
+  "intro": [
+    { "who": "narrator", "emotion": "tense", "text": "One page remains, and the Shadow knows it. The road turns upward into cold, thin air." },
+    { "who": "shadow", "emotion": "menacing", "text": "You have taken four pages from me, Believer. Four. Do you know how long it took me to tear them out?" },
+    { "who": "shadow", "emotion": "menacing", "text": "Centuries. I am patient. You are not. Climb anyway — I enjoy watching patient things arrive late." },
+    { "who": "keeper", "emotion": "hopeful", "text": "Then let us not arrive late. The fifth Power Verse is at the summit, and it is the shortest one." }
+  ],
+  "levels": [
+    {
+      "id": "ch5-l1",
+      "index": 21,
+      "title": "The Thin Air",
+      "kind": "normal",
+      "setting": "The ascent, first ridge",
+      "cost": 2,
+      "reward": 72,
+      "dialogue": [
+        { "who": "thomas", "emotion": "afraid", "text": "The air's so thin my hammer-arm aches. I didn't think fear could climb this high with me." },
+        { "who": "shadow", "emotion": "menacing", "text": "It climbed this high because you carried it, Thomas. You have carried it every step." },
+        { "who": "keeper", "emotion": "stern", "text": "Then put it down here. Rebuild the verse that names what perfect affection does to fear." }
+      ],
+      "mission": "Rebuild the verse that casts out fear.",
+      "puzzle": {
+        "kind": "blanks",
+        "reference": "1 John 4:18",
+        "verse": "There is no ____ in love; but perfect love casteth out ____.",
+        "answer": ["fear", "fear"],
+        "bank": ["fear", "doubt", "love", "pain", "shame", "terror"],
+        "hints": ["The same word goes in both blanks — that is the whole point of the verse.", "It is the only thing the Shadow has ever given you."],
+        "reveal": "\"There is no fear in love; but perfect love casteth out fear: because fear hath torment.\" — 1 John 4:18"
+      }
+    },
+    {
+      "id": "ch5-l2",
+      "index": 22,
+      "title": "The Narrow Ledge",
+      "kind": "normal",
+      "setting": "Second ridge, the ledge with no rail",
+      "cost": 2,
+      "reward": 76,
+      "dialogue": [
+        { "who": "sara", "emotion": "afraid", "text": "There's no rail. Just a ledge the width of my hand, and a long way down." },
+        { "who": "shadow", "emotion": "menacing", "text": "Look down, Believer. Not at the ledge. At the drop. That is the more useful view." },
+        { "who": "keeper", "emotion": "stern", "text": "Ignore it. Choose the words that actually hold a person up on a ledge like this." }
+      ],
+      "mission": "Choose the word that holds the ledge-walker up.",
+      "puzzle": {
+        "kind": "choice",
+        "prompt": "\"The name of the LORD is a strong ____: the righteous runneth into it, and is safe.\"",
+        "options": [
+          { "label": "tower", "correct": true },
+          { "label": "wind", "correct": false },
+          { "label": "rumour", "correct": false },
+          { "label": "rumour mill", "correct": false }
+        ],
+        "hints": ["You run INTO it, and running into something implies it stands still and tall.", "It is a building, and it is the same one the Shadow fears."],
+        "reveal": "\"The name of the LORD is a strong tower: the righteous runneth into it, and is safe.\" — Proverbs 18:10"
+      }
+    },
+    {
+      "id": "ch5-l3",
+      "index": 23,
+      "title": "The Cloud That Writes",
+      "kind": "normal",
+      "setting": "Third ridge, inside the cloud",
+      "cost": 2,
+      "reward": 82,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "You climb into a cloud, and inside the cloud the words are written on the mist — across, and down." },
+        { "who": "shadow", "emotion": "menacing", "text": "I have followed you the whole way, Believer. That is not obsession. That is arithmetic." },
+        { "who": "keeper", "emotion": "stern", "text": "Then do the arithmetic on this lattice. Across. And down." },
+        { "who": "ada", "emotion": "determined", "text": "The mist moves but the letters stay! Letters are stronger than weather!" }
+      ],
+      "mission": "Rebuild the lattice written on the mist.",
+      "puzzle": {
+        "kind": "crossword",
+        "reference": "The lattice of Philippians 4:6-7",
+        "clues": [
+          { "dir": "across", "clue": "\"...by prayer and supplication with thanksgiving\"", "answer": "PRAYER" },
+          { "dir": "across", "clue": "\"shall keep your ____ and minds through Christ Jesus\"", "answer": "HEART" },
+          { "dir": "across", "clue": "\"...shall keep your heart and ____\"", "answer": "KEEP" },
+          { "dir": "down", "clue": "\"the ____ of God, which passeth all understanding\"", "answer": "PEACE" },
+          { "dir": "down", "clue": "\"...rejoice in the Lord alway: and again I say, ____\"", "answer": "HOPE" }
+        ],
+        "hints": ["PRAYER runs across the second row.", "PEACE and HOPE are the two down answers."],
+        "reveal": "\"Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts.\" — Philippians 4:6-7"
+      }
+    },
+    {
+      "id": "ch5-l4",
+      "index": 24,
+      "title": "The Wind Takes the Page",
+      "kind": "normal",
+      "setting": "Fourth ridge, the page escapes your hands",
+      "cost": 2,
+      "reward": 88,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "A wind tears the last page from your hands and scatters the phrases down the mountainside." },
+        { "who": "shadow", "emotion": "menacing", "text": "Beautiful. Four ridges of climbing, and the mountain keeps the page for me." },
+        { "who": "keeper", "emotion": "hopeful", "text": "The mountain is not keeping it. It is only holding it while you read. Rebuild the promise." },
+        { "who": "thomas", "emotion": "determined", "text": "I'll climb down for the pieces. Nobody has come this far to stop at the top." }
+      ],
+      "mission": "Rebuild the promise the wind scattered.",
+      "puzzle": {
+        "kind": "order",
+        "prompt": "Arrange the promise as it was first spoken.",
+        "items": [
+          "I can do all things",
+          "through Christ",
+          "which strengtheneth me",
+          "— Philippians 4:13"
+        ],
+        "correctOrder": [
+          "I can do all things",
+          "through Christ",
+          "which strengtheneth me",
+          "— Philippians 4:13"
+        ],
+        "hints": ["Ability comes first, then the source, then what the source does.", "The reference is always last."],
+        "reveal": "\"I can do all things through Christ which strengtheneth me.\" — Philippians 4:13"
+      }
+    },
+    {
+      "id": "ch5-l5",
+      "index": 25,
+      "title": "The Summit, and the Shadow's Last Lie",
+      "kind": "boss",
+      "setting": "The summit, where the fifth page burns",
+      "cost": 2,
+      "reward": 100,
+      "dialogue": [
+        { "who": "narrator", "emotion": "tense", "text": "You reach the summit. The fifth page is there — burning, but not consumed." },
+        { "who": "shadow", "emotion": "menacing", "text": "Take it, then. Take it and go home and be ordinary. One page does not make you a warrior." },
+        { "who": "shadow", "emotion": "menacing", "text": "You will be afraid again tomorrow. I am certain of it. I have never once been wrong about tomorrow." },
+        { "who": "keeper", "emotion": "stern", "text": "You have been wrong about every today. Believer — the words are in the fire. Find them before it dies down." },
+        { "who": "ada", "emotion": "determined", "text": "Everyone! All of you! Shout them out!" },
+        { "who": "sara", "emotion": "determined", "text": "We're all here. We climbed too." },
+        { "who": "thomas", "emotion": "determined", "text": "Finish it, Believer. Finish it for all of us." }
+      ],
+      "mission": "Hunt the words burning in the page.",
+      "puzzle": {
+        "kind": "wordsearch",
+        "reference": "The Five Power Verses, restored",
+        "words": ["SHEPHERD", "LAMP", "STILL", "FORGIVE", "LOVE"],
+        "hints": ["These are the first word of each restored verse.", "Eight directions, eleven rows."],
+        "reveal": "Shepherd, lamp, still, forgive, love — the Five Power Verses are whole again. But the summit is not the end of the story."
+      }
+    }
+  ]
+}
