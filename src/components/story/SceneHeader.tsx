@@ -1,15 +1,9 @@
-/**
- * SceneHeader + SpeechBubble — the two presentational halves of the level
- * cut-scene. Split out of DialogueSheet so the sheet itself stays readable.
- */
 
 import React from "react";
 import { Pressable, Text, View } from "react-native";
-import Animated, { FadeInDown, FadeOut } from "react-native-reanimated";
 
+import { useTheme } from "@/context/theme-context";
 import type { Character } from "@/data/story";
-
-/* ------------------------------- SceneHeader ------------------------------ */
 
 export default function SceneHeader({
   title,
@@ -23,67 +17,82 @@ export default function SceneHeader({
   chapterIndex?: number;
 }) {
   return (
-    <View className="mb-4">
-      <Text className="text-quaternary text-[9px] font-sora-bold tracking-widest">
+    <View className="mb-5">
+      <Text className="text-quaternary text-xs font-sora">
         {chapterTitle
-          ? `CHAPTER ${chapterIndex} · ${chapterTitle.toUpperCase()}`
+          ? `Chapter ${chapterIndex} · ${chapterTitle}`
           : "ZOE'S JOURNEY"}
       </Text>
+
       <Text className="text-primary text-[19px] font-sora-semibold mt-1">
         {title}
       </Text>
-      <Text className="text-tertiary text-[11px] font-sora mt-1 italic">
+
+      <Text className="text-tertiary text-xs font-sora mt-3 italic">
         {setting}
       </Text>
     </View>
   );
 }
 
-/* ------------------------------- SpeechBubble ----------------------------- */
+type SpeechBubbleProps = {
+  speaker: Character;
+  beat: number;
+  total: number;
+  emotion: string;
+  text: string;
+  revealedChars: number;
+  doneTyping: boolean;
+  accent: string;
+  onPrimaryPress: () => void;
+  onSkipStory: () => void;
+};
 
-/**
- * One line of dialogue: speaker identity on top, the (possibly still typing)
- * line beneath, and a tap target that covers the whole card so advancing never
- * requires hitting a small button.
- */
 export function SpeechBubble({
   speaker,
   beat,
   total,
   emotion,
-  typed,
+  text,
+  revealedChars,
   doneTyping,
   accent,
-  onPress,
-}: {
-  speaker: Character;
-  beat: number;
-  total: number;
-  emotion: string;
-  typed: string;
-  doneTyping: boolean;
-  accent: string;
-  onPress: () => void;
-}) {
+  onPrimaryPress,
+  onSkipStory,
+}: SpeechBubbleProps) {
+  const { isDark } = useTheme();
+
+  const vividColor = isDark ? "#F5F5F1" : "#292D28";
+
+  const mutedColor = isDark
+    ? "rgba(245,245,241,0.28)"
+    : "rgba(41,45,40,0.28)";
+
+  const characters = Array.from(text);
+
   return (
-    <Pressable onPress={onPress} accessibilityRole="button">
-      <Animated.View
-        entering={FadeInDown.springify().damping(18)}
-        exiting={FadeOut.duration(120)}
-        className="rounded-3xl p-4 border"
+    <View>
+      <View
+        className="rounded-3xl p-4 "
         style={{
-          backgroundColor: speaker.tint + "14",
-          borderColor: speaker.tint + "33",
+          backgroundColor: speaker.tint + "20",
+      
           minHeight: 180,
         }}
       >
-        <View className="flex-row items-center mb-3">
+        {/* Speaker */}
+        <View className="flex-row items-center mb-4">
           <View
             className="w-10 h-10 rounded-full items-center justify-center mr-2.5"
-            style={{ backgroundColor: speaker.tint + "2E" }}
+            style={{
+              backgroundColor: speaker.tint + "2E",
+            }}
           >
-            <Text style={{ fontSize: 19 }}>{speaker.emoji}</Text>
+            <Text style={{ fontSize: 19 }}>
+              {speaker.emoji}
+            </Text>
           </View>
+
           <View className="flex-1 min-w-0">
             <Text
               numberOfLines={1}
@@ -92,24 +101,73 @@ export function SpeechBubble({
             >
               {speaker.name}
             </Text>
-            <Text className="text-quaternary text-[10px] font-sora capitalize">
+
+            <Text className="text-primary/80 text-[10px] font-sora capitalize">
               {emotion}
             </Text>
           </View>
-          <Text className="text-quaternary text-[10px] font-sora tabular-nums">
+
+          <Text className="text-primary/80 text-[10px] font-sora tabular-nums">
             {beat}/{total}
           </Text>
         </View>
 
-        <Text className="text-primary text-[15px] font-sora leading-6">
-          {typed}
-          {!doneTyping && <Text style={{ color: accent }}>▌</Text>}
+        {/* Dialogue text: all characters remain visible */}
+        <Text
+          accessibilityLabel={text}
+          className="text-[15px] font-sora leading-6"
+        >
+          {characters.map((character, index) => (
+            <Text
+              key={index}
+              style={{
+                color:
+                  index < revealedChars
+                    ? vividColor
+                    : mutedColor,
+              }}
+            >
+              {character}
+            </Text>
+          ))}
         </Text>
-      </Animated.View>
+      </View>
 
-      <Text className="text-quaternary text-[10px] font-sora text-center mt-3">
-        Tap to {doneTyping ? "continue" : "skip"} ▸
-      </Text>
-    </Pressable>
+      {/* Explicit dialogue controls */}
+      <View className="flex-row items-center justify-between mt-4">
+        <Pressable
+          onPress={onPrimaryPress}
+          accessibilityRole="button"
+          accessibilityLabel={
+            doneTyping ? "Continue dialogue" : "Reveal complete line"
+          }
+          className="flex-row items-center justify-center rounded-full px-5 py-3"
+          style={{
+            backgroundColor: speaker.tint,
+            
+            minWidth: 130,
+          }}
+        >
+          <Text
+            className="text-[11px] font-sora-semibold"
+            style={{ color: "#fff" }}
+          >
+            {doneTyping ? "Continue" : "Tap to skip"}
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={onSkipStory}
+          accessibilityRole="button"
+          accessibilityLabel="Skip the remaining story"
+          hitSlop={8}
+          className="px-3 py-3"
+        >
+          <Text className="text-tertiary text-[11px] font-sora-medium">
+            Skip story
+          </Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }

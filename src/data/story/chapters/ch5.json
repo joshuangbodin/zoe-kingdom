@@ -144,12 +144,12 @@
         { "who": "sara", "emotion": "determined", "text": "We're all here. We climbed too." },
         { "who": "thomas", "emotion": "determined", "text": "Finish it, Believer. Finish it for all of us." }
       ],
-      "mission": "Hunt the words burning in the page.",
+      "mission": "Match the Five Power Verse word pairs.",
       "puzzle": {
-        "kind": "wordsearch",
+        "kind": "memory",
         "reference": "The Five Power Verses, restored",
-        "words": ["SHEPHERD", "LAMP", "STILL", "FORGIVE", "LOVE"],
-        "hints": ["These are the first word of each restored verse.", "Eight directions, eleven rows."],
+        "pairs": ["SHEPHERD", "LAMP", "STILL", "FORGIVE", "LOVE"],
+        "hints": ["Find each matching pair of words.", "Remember where you saw each word."],
         "reveal": "Shepherd, lamp, still, forgive, love — the Five Power Verses are whole again. But the summit is not the end of the story."
       }
     }

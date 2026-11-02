@@ -114,12 +114,12 @@
         { "who": "keeper", "emotion": "stern", "text": "Then take even that from it. Find the words hiding in the dark under the chapel." },
         { "who": "thomas", "emotion": "determined", "text": "I'll bring the forge light. It's brighter than it used to be." }
       ],
-      "mission": "Hunt the words hidden in the last dark corner.",
+      "mission": "Match the word pairs in the last dark corner.",
       "puzzle": {
-        "kind": "wordsearch",
+        "kind": "memory",
         "reference": "The words that end the story",
-        "words": ["WORSHIP", "SING", "RISE", "SHINE", "LIFE"],
-        "hints": ["Zoe means LIFE — one of these is the meaning of your own name.", "Eight directions, eleven rows."],
+        "pairs": ["WORSHIP", "SING", "RISE", "SHINE", "LIFE"],
+        "hints": ["Find each matching pair of words.", "Remember where you saw each word."],
         "reveal": "Worship, sing, rise, shine, life — the last dark corner has nothing left to hold. Zoe is singing again."
       }
     },

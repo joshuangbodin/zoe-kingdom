@@ -144,12 +144,12 @@
         { "who": "sara", "emotion": "determined", "text": "I'm not letting go of this rope. Whatever happens out there." },
         { "who": "ada", "emotion": "determined", "text": "Shout them when you find them! It worked in the wilderness!" }
       ],
-      "mission": "Hunt the words drifting in the spray.",
+      "mission": "Match the promise word pairs drifting in the spray.",
       "puzzle": {
-        "kind": "wordsearch",
+        "kind": "memory",
         "reference": "The promises on the water",
-        "words": ["STILL", "CALM", "FAITH", "COURAGE", "ARISE"],
-        "hints": ["One of them is the word that stopped a storm.", "Five words, eight directions."],
+        "pairs": ["STILL", "CALM", "FAITH", "COURAGE", "ARISE"],
+        "hints": ["Find each matching pair of words.", "Remember where you saw each word."],
         "reveal": "Still, calm, faith, courage, arise — the sea has no answer for any of them. The third Power Verse is restored."
       }
     }

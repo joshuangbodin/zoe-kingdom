@@ -28,6 +28,8 @@ type Props = {
   isDark: boolean;
   hintsLeft: number;
   hintText: string | null;
+  /** Only reveal the active cell's letter (gold border on the tray) when a hint was used. */
+  hintActive: boolean;
   onHint: () => void;
   /** Report a letter placement + whether it was right, for praise handling. */
   onType: (row: number, col: number, letter: string, correct: boolean) => void;
@@ -43,6 +45,7 @@ export default function CrosswordBody({
   isDark,
   hintsLeft,
   hintText,
+  hintActive,
   onHint,
   onType,
   onSelectClue,
@@ -129,9 +132,8 @@ export default function CrosswordBody({
         disabled={!activeCell}
         isDark={isDark}
         onType={type}
-        preferred={
-          activeCell ? grid.cells[activeCell.row][activeCell.col].solution : null
-        }
+        // Only surface the next-letter assist when the player has used a hint.
+        preferred={hintActive && activeCell ? grid.cells[activeCell.row][activeCell.col].solution : null}
       />
 
       <ClueList

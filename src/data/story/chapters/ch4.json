@@ -144,12 +144,12 @@
         { "who": "ada", "emotion": "determined", "text": "I'm not scared of it anymore! It only looks like you!" },
         { "who": "sara", "emotion": "determined", "text": "Find them, Believer. The whole valley is listening for the sound of you winning." }
       ],
-      "mission": "Hunt the words scattered through the silence.",
+      "mission": "Match the word pairs spoken over you.",
       "puzzle": {
-        "kind": "wordsearch",
+        "kind": "memory",
         "reference": "The words spoken over you",
-        "words": ["GRACE", "MERCY", "CHOSEN", "RANSOM", "HEIR"],
-        "hints": ["All five are things you are, not things you must become.", "Eight directions."],
+        "pairs": ["GRACE", "MERCY", "CHOSEN", "RANSOM", "HEIR"],
+        "hints": ["Find each matching pair of words.", "Remember where you saw each word."],
         "reveal": "Grace, mercy, chosen, ransomed, heir — the Accuser has no vocabulary for any of them. The fourth Power Verse is restored."
       }
     }

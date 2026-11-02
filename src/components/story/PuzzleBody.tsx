@@ -14,15 +14,15 @@ import { View } from "react-native";
 import type { StoryLevel } from "@/data/story";
 import {
   type CrosswordSession,
+  type MemorySession,
   type PuzzleSession,
-  type WordSearchSession,
 } from "@/libs/puzzles";
 import { wordsMatch } from "@/libs/puzzles/blanks";
 
 import BlanksBody from "./puzzle/BlanksBody";
 import { ChoiceBody, OrderBody } from "./puzzle/ChoiceAndOrderBody";
 import CrosswordBody from "./puzzle/CrosswordBody";
-import WordSearchBody from "./puzzle/WordSearchBody";
+import MemoryBody from "./puzzle/MemoryBody";
 import SubmitBar from "./SubmitBar";
 
 export const puzzleLabel = (kind: string): string =>
@@ -31,7 +31,7 @@ export const puzzleLabel = (kind: string): string =>
     choice: "Choose the Response",
     order: "Rebuild the Promise",
     crossword: "Crossword Lattice",
-    wordsearch: "Word Hunt",
+    memory: "Verse Memory",
   })[kind] ?? kind;
 
 type Props = {
@@ -41,6 +41,7 @@ type Props = {
   isDark: boolean;
   hintsLeft: number;
   hintText: string | null;
+  hintActive: boolean;
   onHint: () => void;
   /** Praise/mistake reporting. */
   onFeedback: (correct: boolean) => void;
@@ -56,6 +57,7 @@ export default function PuzzleBody({
   isDark,
   hintsLeft,
   hintText,
+  hintActive,
   onHint,
   onFeedback,
   onChange,
@@ -178,6 +180,7 @@ export default function PuzzleBody({
           isDark={isDark}
           hintsLeft={hintsLeft}
           hintText={hintText}
+          hintActive={hintActive}
           onHint={onHint}
           onType={(row, col, letter, correct) => {
             const entries = cw.state.entries.map((r) => [...r]);
@@ -206,29 +209,24 @@ export default function PuzzleBody({
     );
   }
 
-  /* ------------------------------ Word search ----------------------------- */
+  /* -------------------------------- Memory -------------------------------- */
 
-  const ws = session as WordSearchSession;
+  const mem = session as MemorySession;
   return (
     <View>
-      <WordSearchBody
-        session={ws}
+      <MemoryBody
+        session={mem}
         mission={mission}
         reference={(puzzle as { reference?: string }).reference ?? ""}
-        targetWords={(puzzle as { words: string[] }).words}
         accent={accent}
         isDark={isDark}
         hintsLeft={hintsLeft}
         hintText={hintText}
         onHint={onHint}
-        onSelect={(word, _cells, found) => {
-          if (!found) {
-            onFeedback(false);
-            return;
-          }
-          onChange({ ...ws, found: [...ws.found, word] });
-          onFeedback(true);
+        onMatch={(indices) => {
+          onChange({ ...mem, matched: [...mem.matched, ...indices] });
         }}
+        onFeedback={onFeedback}
       />
       <SubmitBar
         complete={complete}

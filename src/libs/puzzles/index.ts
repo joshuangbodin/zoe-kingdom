@@ -32,7 +32,6 @@ import {
   type CrosswordState,
 } from "./crossword";
 import { createRng } from "./rng";
-import { buildWordSearch, type WordSearchGrid } from "./wordsearch";
 
 /* ------------------------------- Sessions -------------------------------- */
 
@@ -69,11 +68,13 @@ export type CrosswordSession = {
   hintsUsed: number;
 };
 
-export type WordSearchSession = {
-  kind: "wordsearch";
-  grid: WordSearchGrid;
-  /** Words already found. */
-  found: string[];
+export type MemorySession = {
+  kind: "memory";
+  pairs: string[];
+  /** Shuffled deck — each pair word appears twice. */
+  cards: string[];
+  /** Card indices already matched. */
+  matched: number[];
   hintsUsed: number;
 };
 
@@ -82,7 +83,7 @@ export type PuzzleSession =
   | ChoiceSession
   | OrderSession
   | CrosswordSession
-  | WordSearchSession;
+  | MemorySession;
 
 export type SessionGrade = {
   /** 0..1 */
@@ -144,18 +145,16 @@ const buildCrosswordSession = (level: StoryLevel): CrosswordSession => {
   };
 };
 
-const buildWordSearchSession = (level: StoryLevel): WordSearchSession => {
-  const p = level.puzzle as Extract<Puzzle, { kind: "wordsearch" }>;
+const buildMemorySession = (level: StoryLevel): MemorySession => {
+  const p = level.puzzle as Extract<Puzzle, { kind: "memory" }>;
   const tier = getDifficultyForIndex(level.index);
-  // Never smaller than the longest word plus one, or a word could be unplaceable.
-  const size = Math.max(tier.wordsearchSize, longest(p.words) + 1);
+  const pairs = p.pairs.slice(0, tier.memoryPairs);
+  const cards = shuffled([...pairs, ...pairs], level.id + "-memory");
   return {
-    kind: "wordsearch",
-    grid: buildWordSearch(p.words, size, level.id, {
-      diagonal: tier.allowDiagonal,
-      reverse: tier.allowReverse,
-    }),
-    found: [],
+    kind: "memory",
+    pairs,
+    cards,
+    matched: [],
     hintsUsed: 0,
   };
 };
@@ -171,8 +170,8 @@ export const buildSession = (level: StoryLevel): PuzzleSession => {
       return buildOrderSession(level);
     case "crossword":
       return buildCrosswordSession(level);
-    case "wordsearch":
-      return buildWordSearchSession(level);
+    case "memory":
+      return buildMemorySession(level);
   }
 };
 
@@ -211,12 +210,12 @@ export const gradeSession = (s: PuzzleSession): SessionGrade => {
         hintLabel: remaining(g.totalCells - g.correctCells, "letter"),
       };
     }
-    case "wordsearch": {
-      const total = s.grid.placements.length;
+    case "memory": {
+      const total = s.cards.length;
       return {
-        progress: total === 0 ? 0 : s.found.length / total,
-        complete: total > 0 && s.found.length === total,
-        hintLabel: remaining(total - s.found.length, "word"),
+        progress: total === 0 ? 0 : s.matched.length / total,
+        complete: total > 0 && s.matched.length === total,
+        hintLabel: remaining((total - s.matched.length) / 2, "pair"),
       };
     }
   }
@@ -273,12 +272,20 @@ export const applyHint = (s: PuzzleSession): PuzzleSession => {
         activeClue: target,
       };
     }
-    case "wordsearch": {
-      const left = s.grid.placements.filter((p) => !s.found.includes(p.word));
-      if (left.length === 0) return s;
+    case "memory": {
+      const word = s.pairs.find((w) => {
+        const indices = s.cards
+          .map((c, i) => (c === w ? i : -1))
+          .filter((i) => i >= 0);
+        return !indices.every((i) => s.matched.includes(i));
+      });
+      if (!word) return s;
+      const indices = s.cards
+        .map((c, i) => (c === word ? i : -1))
+        .filter((i) => i >= 0);
       return {
         ...s,
-        found: [...s.found, left[0].word],
+        matched: [...s.matched, ...indices],
         hintsUsed: s.hintsUsed + 1,
       };
     }
@@ -288,6 +295,6 @@ export const applyHint = (s: PuzzleSession): PuzzleSession => {
 /** Hints consumed so far (drives the star penalty). */
 export const hintCount = (s: PuzzleSession): number => {
   if (s.kind === "crossword") return s.hintsUsed;
-  if (s.kind === "wordsearch") return s.hintsUsed;
+  if (s.kind === "memory") return s.hintsUsed;
   return 0;
 };

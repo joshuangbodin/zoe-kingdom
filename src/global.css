@@ -1,51 +1,54 @@
+
 @import "tailwindcss";
 @import "uniwind";
 
 @theme {
-  /* Poppins (replaces Geist) */
   --font-sora: "Poppins-Regular";
   --font-sora-medium: "Poppins-Medium";
   --font-sora-semibold: "Poppins-SemiBold";
   --font-sora-bold: "Poppins-Bold";
 
-  /* Serif — Academy Engraved LET */
   --font-serif: "NotoSerif-Regular";
   --font-serif-italic: "NotoSerif-Italic";
 
-  /* Dark (default) palette */
+  /* Dark theme */
   --color-bg: #0c0c0c;
   --color-card-1: #121111;
   --color-card-2: #1c1a1a;
 
-  --color-muted: #c7c7c7; /* secondary text */
-  --color-primary: #ffffff; /* main text */
-  --color-secondary: #9ca3af; /* zinc-400 */
-  --color-tertiary: #71717a; /* zinc-500 */
-  --color-quaternary: #52525b; /* zinc-600 */
+  --color-muted: #c7c7c7;
+  --color-primary: #ffffff;
+  --color-secondary: #9ca3af;
+  --color-tertiary: #71717a;
+  --color-quaternary: #52525b;
 
-  --color-line: rgba(255, 255, 255, 0.08); /* hairline borders */
-  --color-overlay: rgba(255, 255, 255, 0.08); /* subtle fills (bg-white/10) */
-  --color-accent: #fff
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-overlay: rgba(255, 255, 255, 0.08);
+  --color-accent: #ffffff;
 }
 
-/* ------------------------------ Light theme ------------------------------ */
 @layer theme {
   :root {
-    @variant light {
-      --color-bg: #f6efe5;
-      --color-card-1: #fbf6ee;
-      --color-card-2: #efe6d8;
 
-      --color-muted: #8b7f6e;
-      --color-primary: #3f372d;
-      --color-secondary: #6d6253;
-      --color-tertiary: #9a8c7a;
-      --color-quaternary: #b9ac9a;
+@variant light {
+  /* Backgrounds */
+  --color-bg: #F5F5F1;
+  --color-card-1: #ECEDE7;
+  --color-card-2: #FAFAF7;
 
-      --color-line: rgba(94, 76, 58, 0.14);
-      --color-overlay: rgba(122, 96, 70, 0.08);
-      --color-accent: #3f372d
-    }
+  /* Typography */
+  --color-primary: #292D28;
+  --color-muted: #626A60;
+  --color-secondary: #747B70;
+  --color-tertiary: #969B90;
+  --color-quaternary: #B1B5AA;
+
+  /* Details */
+  --color-line: rgba(55, 65, 52, 0.09);
+  --color-overlay: rgba(55, 65, 52, 0.045);
+  --color-accent: #66765B;
+}
+
 
     @variant dark {
       --color-bg: #0c0c0c;
@@ -60,11 +63,7 @@
 
       --color-line: rgba(255, 255, 255, 0.08);
       --color-overlay: rgba(255, 255, 255, 0.08);
-      --color-accent: #fff
+      --color-accent: #ffffff;
     }
   }
-}
-
-test{
-  color: #fdfdf6;
 }

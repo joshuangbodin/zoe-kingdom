@@ -136,12 +136,12 @@
   },
 
   "difficultyRamp": [
-    { "level": 1, "tier": "kindling", "label": "Kindling", "blanks": 1, "crosswordWords": 3, "wordsearchWords": 3, "wordsearchSize": 6, "allowDiagonal": false, "allowReverse": false, "distractors": 3 },
-    { "level": 6, "tier": "kindling", "label": "Kindling", "blanks": 2, "crosswordWords": 3, "wordsearchWords": 4, "wordsearchSize": 7, "allowDiagonal": true, "allowReverse": false, "distractors": 4 },
-    { "level": 11, "tier": "ignited", "label": "Ignited", "blanks": 2, "crosswordWords": 4, "wordsearchWords": 5, "wordsearchSize": 8, "allowDiagonal": true, "allowReverse": true, "distractors": 5 },
-    { "level": 16, "tier": "ignited", "label": "Ignited", "blanks": 3, "crosswordWords": 5, "wordsearchWords": 6, "wordsearchSize": 9, "allowDiagonal": true, "allowReverse": true, "distractors": 6 },
-    { "level": 21, "tier": "burning", "label": "Burning", "blanks": 3, "crosswordWords": 5, "wordsearchWords": 7, "wordsearchSize": 10, "allowDiagonal": true, "allowReverse": true, "distractors": 7 },
-    { "level": 26, "tier": "crowned", "label": "Crowned", "blanks": 4, "crosswordWords": 6, "wordsearchWords": 8, "wordsearchSize": 11, "allowDiagonal": true, "allowReverse": true, "distractors": 8 }
+    { "level": 1, "tier": "kindling", "label": "Kindling", "blanks": 1, "crosswordWords": 3, "memoryPairs": 3, "distractors": 3 },
+    { "level": 6, "tier": "kindling", "label": "Kindling", "blanks": 2, "crosswordWords": 3, "memoryPairs": 4, "distractors": 4 },
+    { "level": 11, "tier": "ignited", "label": "Ignited", "blanks": 2, "crosswordWords": 4, "memoryPairs": 5, "distractors": 5 },
+    { "level": 16, "tier": "ignited", "label": "Ignited", "blanks": 3, "crosswordWords": 5, "memoryPairs": 6, "distractors": 6 },
+    { "level": 21, "tier": "burning", "label": "Burning", "blanks": 3, "crosswordWords": 5, "memoryPairs": 7, "distractors": 7 },
+    { "level": 26, "tier": "crowned", "label": "Crowned", "blanks": 4, "crosswordWords": 6, "memoryPairs": 8, "distractors": 8 }
   ],
 
   "levelUpTitles": [

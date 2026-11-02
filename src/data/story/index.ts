@@ -61,11 +61,12 @@ export type CrosswordPuzzle = {
   reveal: string;
 };
 
-/** Hidden words inside a generated letter grid. */
-export type WordSearchPuzzle = {
-  kind: "wordsearch";
+/** Match pairs of hidden words in a memory/concentration game. */
+export type MemoryPuzzle = {
+  kind: "memory";
   reference: string;
-  words: string[];
+  /** Unique words — each appears on two cards. */
+  pairs: string[];
   hints: string[];
   reveal: string;
 };
@@ -75,7 +76,7 @@ export type Puzzle =
   | ChoicePuzzle
   | OrderPuzzle
   | CrosswordPuzzle
-  | WordSearchPuzzle;
+  | MemoryPuzzle;
 
 export type PuzzleKind = Puzzle["kind"];
 
@@ -183,10 +184,7 @@ export type DifficultyTier = {
   label: string;
   blanks: number;
   crosswordWords: number;
-  wordsearchWords: number;
-  wordsearchSize: number;
-  allowDiagonal: boolean;
-  allowReverse: boolean;
+  memoryPairs: number;
   distractors: number;
 };
 

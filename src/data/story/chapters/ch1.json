@@ -145,12 +145,12 @@
         { "who": "ada", "emotion": "determined", "text": "I'll help you look! Sara says if you find one, the rest get scared!" },
         { "who": "shadow", "emotion": "menacing", "text": "Find them. Find them, and I will simply wait for tomorrow." }
       ],
-      "mission": "Hunt down the hidden words before dread settles.",
+      "mission": "Match the hidden word pairs before dread settles.",
       "puzzle": {
-        "kind": "wordsearch",
+        "kind": "memory",
         "reference": "The armour of Ephesians 6",
-        "words": ["FAITH", "PEACE", "TRUTH", "HOPE", "LOVE"],
-        "hints": ["Work from the outside of the grid inward.", "Words may run in any of eight directions."],
+        "pairs": ["FAITH", "PEACE", "TRUTH", "HOPE", "LOVE"],
+        "hints": ["Find each matching pair of words.", "Remember where you saw each word."],
         "reveal": "Faith, truth, peace, hope, love — five words the Shadow cannot hold. You have pushed it back to the edge of Zoe."
       }
     }

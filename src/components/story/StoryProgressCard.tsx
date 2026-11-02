@@ -32,11 +32,11 @@ export default function StoryProgressCard({
   maxStars,
 }: Props) {
   return (
-    <View className="bg-card-1 rounded-3xl p-4 mb-4 border border-line">
+    <View className="bg-card-2 shadow-sm rounded-3xl p-4 mb-4 ">
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-1 min-w-0">
-          <Text className="text-quaternary text-[9px] font-sora-bold tracking-widest">
-            GAME RANK
+          <Text className="text-quaternary text-[9px] font-sora-bold ">
+            Game Rank
           </Text>
           <Text className="text-primary text-[17px] font-sora-semibold mt-0.5">
             {rankTitle}
@@ -64,7 +64,7 @@ export default function StoryProgressCard({
         </View>
       </View>
 
-      <View className="h-2 bg-overlay rounded-full overflow-hidden mb-2">
+      <View className="h-4 bg-overlay rounded-full mt-4 overflow-hidden mb-2">
         <View
           className="h-full rounded-full"
           style={{ width: `${Math.min(progressPct, 100)}%`, backgroundColor: "#a855f7" }}

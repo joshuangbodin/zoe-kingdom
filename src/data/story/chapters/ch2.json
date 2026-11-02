@@ -145,12 +145,12 @@
         { "who": "sara", "emotion": "determined", "text": "Find them. I'll carry the water. I carried it forty days for exactly this." },
         { "who": "ada", "emotion": "determined", "text": "And I'll shout every one we find!" }
       ],
-      "mission": "Hunt the words hidden across the dunes.",
+      "mission": "Match the provision word pairs across the dunes.",
       "puzzle": {
-        "kind": "wordsearch",
+        "kind": "memory",
         "reference": "The provisions of the wilderness",
-        "words": ["MANNA", "WATER", "PILLAR", "SHOE", "QUAIL"],
-        "hints": ["These are what He provided, not what He withheld.", "Five words, eight directions."],
+        "pairs": ["MANNA", "WATER", "PILLAR", "SHOE", "QUAIL"],
+        "hints": ["Find each matching pair of words.", "Remember where you saw each word."],
         "reveal": "Manna, water, the pillar, unworn shoes, quail — the wilderness was provision in disguise. The second Power Verse is yours."
       }
     }

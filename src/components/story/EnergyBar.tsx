@@ -59,7 +59,7 @@ export default function EnergyBar({
   const low = energy < COST_PER_LEVEL;
 
   const body = (
-    <View className="bg-card-1 rounded-3xl p-3.5 mb-4 border border-line">
+    <View className="bg-card-1 rounded-3xl p-3.5 mb-4 overflow-hidden">
       <View className="flex-row items-center justify-between mb-2.5">
         <View className="flex-row items-center">
           <View className="w-7 h-7 rounded-full bg-amber-500/15 items-center justify-center mr-2">
@@ -75,7 +75,7 @@ export default function EnergyBar({
           style={counterStyle}
         >
           {energy}
-          <Text className="text-tertiary text-[11px] font-sora">
+          <Text className="text-tertiary text-xs font-sora">
             {" "}
             / {maxEnergy}
           </Text>
@@ -83,14 +83,14 @@ export default function EnergyBar({
       </View>
 
       {/* Pips: one per level of play available */}
-      <View className="flex-row items-center" style={{ gap: 3 }}>
+      <View className="flex-row items-center mt-5" style={{ gap: 3 }}>
         {Array.from({ length: pips }).map((_, i) => (
           <Pip key={i} on={i < filled} />
         ))}
       </View>
 
       {caption && (
-        <Text className="text-tertiary text-[10px] font-sora mt-2.5">
+        <Text className="text-tertiary text-xs font-sora mt-2.5">
           {low
             ? "Out of energy — complete a habit to earn more."
             : `Each level costs ${COST_PER_LEVEL} energy. You can play ${filled} more.`}

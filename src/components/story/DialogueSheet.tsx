@@ -1,12 +1,3 @@
-/**
- * DialogueSheet — the animated cut-scene that plays when a level is tapped.
- *
- * Each level opens with a real conversation between the cast (the Keeper, the
- * villagers, the Shadow) that establishes the scene, makes the stakes personal,
- * and ends on an explicit MISSION BRIEF telling the player exactly what to do.
- * Lines reveal with a typewriter effect; tapping advances, or first completes
- * the current line so nobody gets rushed.
- */
 
 import {
   BottomSheetModal,
@@ -23,7 +14,6 @@ import React, {
 } from "react";
 import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { FadeInDown, FadeOut } from "react-native-reanimated";
 
 import { useTheme } from "@/context/theme-context";
 import {
@@ -41,73 +31,108 @@ export type DialogueSheetHandle = {
 };
 
 type Props = {
-  /** Fired when the player accepts the mission and wants to play. */
   onBegin: (level: StoryLevel) => void;
 };
 
-const TYPE_MS = 18;
+const TYPE_MS = 22;
+const TYPE_STEPS = 60;
 
 export default forwardRef<DialogueSheetHandle, Props>(
   function DialogueSheet({ onBegin }, ref) {
     const sheetRef = useRef<BottomSheetModal>(null);
+
     const { isDark } = useTheme();
     const insets = useSafeAreaInsets();
+
     const snapPoints = useMemo(() => ["78%"], []);
 
     const [level, setLevel] = useState<StoryLevel | null>(null);
     const [beat, setBeat] = useState(0);
-    const [typed, setTyped] = useState("");
+    const [revealedChars, setRevealedChars] = useState(0);
     const [phase, setPhase] = useState<"dialogue" | "brief">("dialogue");
 
-    const reset = useCallback((l: StoryLevel | null) => {
-      setLevel(l);
+    const reset = useCallback((nextLevel: StoryLevel | null) => {
+      setLevel(nextLevel);
       setBeat(0);
-      setTyped("");
-      setPhase("dialogue");
+      setRevealedChars(0);
+      setPhase(
+        nextLevel?.dialogue?.length ? "dialogue" : "brief",
+      );
     }, []);
 
-    useImperativeHandle(ref, () => ({
-      present: (l) => {
-        reset(l);
-        requestAnimationFrame(() => sheetRef.current?.present());
-      },
-      dismiss: () => sheetRef.current?.dismiss(),
-    }));
+    useImperativeHandle(
+      ref,
+      () => ({
+        present: (nextLevel) => {
+          reset(nextLevel);
+          requestAnimationFrame(() => {
+            sheetRef.current?.present();
+          });
+        },
+        dismiss: () => sheetRef.current?.dismiss(),
+      }),
+      [reset],
+    );
 
     const dialogue = level?.dialogue ?? [];
     const current = dialogue[beat];
     const fullText = current?.text ?? "";
 
+    // Reveal the existing text progressively by character count.
     useEffect(() => {
-      if (!fullText) return;
-      setTyped("");
-      let i = 0;
-      // Reveal in chunks so even a long line finishes in well under a second.
-      const step = Math.max(1, Math.ceil(fullText.length / 70));
+      if (phase !== "dialogue" || !fullText) return;
+
+      setRevealedChars(0);
+
+      let index = 0;
+      const step = Math.max(
+        1,
+        Math.ceil(fullText.length / TYPE_STEPS),
+      );
+
       const timer = setInterval(() => {
-        i += step;
-        setTyped(fullText.slice(0, i));
-        if (i >= fullText.length) clearInterval(timer);
+        index = Math.min(index + step, fullText.length);
+        setRevealedChars(index);
+
+        if (index >= fullText.length) {
+          clearInterval(timer);
+        }
       }, TYPE_MS);
+
       return () => clearInterval(timer);
-    }, [fullText, beat]);
+    }, [fullText, beat, phase]);
 
-    const doneTyping = typed.length >= fullText.length;
+    const doneTyping = revealedChars >= fullText.length;
 
+    // The first action completes the current line.
+    // Once complete, it advances to the next line.
     const advance = useCallback(() => {
-      // First tap completes the line, second tap moves on — never skip a line.
       if (!doneTyping) {
-        setTyped(fullText);
+        setRevealedChars(fullText.length);
         return;
       }
-      if (beat + 1 < dialogue.length) setBeat(beat + 1);
-      else setPhase("brief");
-    }, [beat, dialogue.length, doneTyping, fullText]);
 
-    const bg = isDark ? "#121111" : "#fbf6ee";
-    const chapter = level ? getChapterOfLevel(level.id) : undefined;
-    const accent = chapter?.color ?? "#f59e0b";
-    const speaker = current ? getCharacter(current.who) : null;
+      if (beat + 1 < dialogue.length) {
+        setBeat((previous) => previous + 1);
+      } else {
+        setPhase("brief");
+      }
+    }, [doneTyping, fullText, beat, dialogue.length]);
+
+    // Skip the remaining conversation and open the mission brief.
+    const skipStory = useCallback(() => {
+      setPhase("brief");
+    }, []);
+
+    const bg = isDark ? "#121111" : "#FBF6EE";
+    const chapter = level
+      ? getChapterOfLevel(level.id)
+      : undefined;
+
+    const accent = chapter?.color ?? "#F59E0B";
+    const speaker = current
+      ? getCharacter(current.who)
+      : null;
 
     return (
       <BottomSheetModal
@@ -118,12 +143,15 @@ export default forwardRef<DialogueSheetHandle, Props>(
         enableDynamicSizing={false}
         backgroundStyle={{ backgroundColor: bg }}
         handleIndicatorStyle={{
-          backgroundColor: isDark ? "#3a3a3a" : "#d9cbb5",
+          backgroundColor: isDark ? "#3A3A3A" : "#D9CBB5",
           width: 42,
         }}
       >
         <BottomSheetScrollView
-          contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 24 }}
+          contentContainerStyle={{
+            padding: 20,
+            paddingBottom: insets.bottom + 24,
+          }}
         >
           {level && (
             <SceneHeader
@@ -136,15 +164,16 @@ export default forwardRef<DialogueSheetHandle, Props>(
 
           {phase === "dialogue" && current && speaker ? (
             <SpeechBubble
-              key={beat}
               speaker={speaker}
               beat={beat + 1}
               total={dialogue.length}
               emotion={current.emotion}
-              typed={typed}
+              text={fullText}
+              revealedChars={revealedChars}
               doneTyping={doneTyping}
               accent={accent}
-              onPress={advance}
+              onPrimaryPress={advance}
+              onSkipStory={skipStory}
             />
           ) : level ? (
             <MissionBrief
