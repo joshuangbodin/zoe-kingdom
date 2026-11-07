@@ -1,16 +1,17 @@
 import { useApp } from "@/context/app-context";
 import { useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 
-const man = require("@/assets/images/man.png");
-const woman = require("@/assets/images/woman.png");
+const man = require("@/assets/images/Frame.png");
+
+
+const StyledSafeAreaView = withUniwind(SafeAreaView);
 
 export default function Onboarding() {
   const router = useRouter();
-  const StyledSafeAreaView = withUniwind(SafeAreaView);
   const { continueAsGuest } = useApp();
 
   const handleContinueAsGuest = async () => {
@@ -19,68 +20,67 @@ export default function Onboarding() {
   };
 
   return (
-    <StyledSafeAreaView className="flex-1 relative bg-bg pt-8 px-4 ">
-      {/* BRAND SECTION */}
-      <View className=" mb-9">
-        <View>
-          <Text className="text-primary/80 text-[33px]  font-sora-bold">
-            Consistent
-          </Text>
-          <Text className="text-primary/80 text-[33px]  font-sora-bold">
-            <Text className="text-primary">Christian</Text> Spiritual
-          </Text>
-
-          <Text className="text-primary/80 text-[33px]  font-sora-bold">
-            Growth <Text className="text-primary">With my Zoe</Text>
-          </Text>
-
-          <Text className="text-primary/80 text-[33px]  font-sora-bold">
-            <Text className="text-primary">Life</Text> App
-          </Text>
+    <StyledSafeAreaView className="flex-1 bg-black  justify-between">
+      {/* HERO IMAGES SECTION (TOP) */}
+      <View className="flex-1 relative justify-end  items-center overflow-hidden">
+        <View className="flex-row justify-center items-end w-full  -mb-4">
+          <Animated.Image
+            entering={FadeInUp.duration(600)}
+            className="flex-1 resize-contain  z-10"
+            source={man}
+          />
+         
         </View>
-
-        <Text className="text-primary/80  mt-8 text-base font-sora  ">
-          Grow your Spirit Man.{"\n"}
-          Join the community & Share thought.{"\n"}
-          Build Holy Habits.
-        </Text>
       </View>
 
-      {/* PRIMARY ACTION */}
-      <Pressable
-        onPress={() => router.push("/(auth)/signin")}
-        className="bg-primary py-4 z-10 rounded-xl items-center"
+      {/* CONTENT SHEET (BOTTOM) */}
+      <Animated.View 
+        entering={FadeInDown.duration(600)}
+        className="bg-bg rounded-t-[32px] px-6 pt-8 pb-6 justify-between"
       >
-        <Text className="text-bg font-semibold text-base">Get Started</Text>
-      </Pressable>
-      {/* <Pressable
-        onPress={() => router.push("/(auth)/signin")}
-        className="bg-card-2 mt-3 py-4 z-10 rounded-xl items-center"
-      >
-        <Text className="text-primary font-semibold text-base">
-          Sign in with Google
-        </Text>
-      </Pressable> */}
+        {/* BRAND TITLE & TAGLINES */}
+        <View className="mb-8">
+          <Text className="text-3xl font-sora-bold text-primary ">
+            Consistent{"\n"}
+            <Text className="text-primary-muted">Christian </Text>Spiritual{"\n"}
+            Growth <Text className="text-primary-muted">with My Zoe</Text>{"\n"}
+            Life <Text className="text-primary-muted">App</Text>
+          </Text>
 
-      <Pressable
-        onPress={handleContinueAsGuest}
-        className="mt-4 py-2 z-10 items-center"
-      >
-        <Text className="text-primary/80 font-sora text-xs underline">
-          Continue without an account
-        </Text>
-      </Pressable>
+          <View className="mt-6 gap-2">
+            <Text className="text-primary/70 text-sm font-sora">
+               Spiritual Activity Tracker
+            </Text>
+            <Text className="text-primary/70 text-sm font-sora">
+               Join the community
+            </Text>
+            <Text className="text-primary/70 text-sm font-sora">
+               Bible and thought journaling
+            </Text>
+          </View>
+        </View>
 
-      <Animated.Image
-        entering={FadeInDown}
-        className={"absolute -bottom-5"}
-        source={man}
-      />
-      <Animated.Image
-        entering={FadeInDown}
-        className={" absolute -bottom-5 right-0"}
-        source={woman}
-      />
+        {/* ACTIONS */}
+        <View className="w-full space-y-3">
+          <Pressable
+            onPress={() => router.push("/(auth)/signin")}
+            className="bg-white py-4 rounded-full items-center active:opacity-90"
+          >
+            <Text className="text-black font-sora-bold text-base">
+              Get Started
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handleContinueAsGuest}
+            className="py-3 items-center"
+          >
+            <Text className="text-primary/60 font-sora text-xs underline">
+              Continue without an account
+            </Text>
+          </Pressable>
+        </View>
+      </Animated.View>
     </StyledSafeAreaView>
   );
 }
