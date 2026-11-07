@@ -1,22 +1,24 @@
+
 /**
- * PuzzleBody — routes a session to its presentation and owns the submit button.
+ * PuzzleBody
  *
- * This is the only place that knows all five puzzle kinds exist. Each body
- * reports intent back up ("place this word", "type this letter"), the router
- * applies it to the session through the pure helpers in `libs/puzzles`, and
- * re-grades so the SUBMIT button unlocks exactly when the puzzle is genuinely
- * complete.
+ * Routes each puzzle session to its presentation component.
+ * Owns submission controls and coordinates session updates,
+ * feedback and puzzle interactions.
  */
 
 import React from "react";
 import { View } from "react-native";
 
 import type { StoryLevel } from "@/data/story";
+
 import {
+  type ChoiceSession,
   type CrosswordSession,
   type MemorySession,
   type PuzzleSession,
 } from "@/libs/puzzles";
+
 import { wordsMatch } from "@/libs/puzzles/blanks";
 
 import BlanksBody from "./puzzle/BlanksBody";
@@ -24,6 +26,8 @@ import { ChoiceBody, OrderBody } from "./puzzle/ChoiceAndOrderBody";
 import CrosswordBody from "./puzzle/CrosswordBody";
 import MemoryBody from "./puzzle/MemoryBody";
 import SubmitBar from "./SubmitBar";
+
+/* --------------------------------- Helpers -------------------------------- */
 
 export const puzzleLabel = (kind: string): string =>
   ({
@@ -34,6 +38,8 @@ export const puzzleLabel = (kind: string): string =>
     memory: "Verse Memory",
   })[kind] ?? kind;
 
+/* --------------------------------- Props ---------------------------------- */
+
 type Props = {
   session: PuzzleSession;
   level: StoryLevel;
@@ -43,12 +49,13 @@ type Props = {
   hintText: string | null;
   hintActive: boolean;
   onHint: () => void;
-  /** Praise/mistake reporting. */
   onFeedback: (correct: boolean) => void;
   onChange: (session: PuzzleSession) => void;
   onSubmit: () => void;
   complete: boolean;
 };
+
+/* -------------------------------- Component ------------------------------- */
 
 export default function PuzzleBody({
   session,
@@ -67,7 +74,11 @@ export default function PuzzleBody({
   const puzzle = level.puzzle;
   const mission = level.mission;
 
-  /* ------------------------------- Blanks --------------------------------- */
+  // Keep the latest session available to delayed interactions.
+  const sessionRef = React.useRef(session);
+  sessionRef.current = session;
+
+  /* -------------------------------- Blanks -------------------------------- */
 
   if (session.kind === "blanks") {
     return (
@@ -82,20 +93,30 @@ export default function PuzzleBody({
           hintText={hintText}
           onHint={onHint}
           onPlace={(word) => {
-            // Fill the next empty blank, then report whether it was right.
             const answers = [...session.answers];
-            const next = answers.findIndex((a) => a === null);
+            const next = answers.findIndex((answer) => answer === null);
+
             if (next < 0) return;
+
             answers[next] = word;
+
             const blank = session.model.tokens.filter(
-              (t) => t.type === "blank",
+              (token) => token.type === "blank",
             )[next];
-            const right =
-              blank?.type === "blank" && wordsMatch(word, blank.answer);
-            onChange({ ...session, answers });
-            onFeedback(right);
+
+            const correct =
+              blank?.type === "blank" &&
+              wordsMatch(word, blank.answer);
+
+            onChange({
+              ...session,
+              answers,
+            });
+
+            onFeedback(correct);
           }}
         />
+
         <SubmitBar
           complete={complete}
           accent={accent}
@@ -109,18 +130,37 @@ export default function PuzzleBody({
   /* -------------------------------- Choice -------------------------------- */
 
   if (session.kind === "choice") {
-    return (
+    const choiceSession: ChoiceSession = session;
+
+    
+/* -------------------------------- Choice -------------------------------- */
+
+if (session.kind === "choice") {
+  return (
+    <View>
       <ChoiceBody
         session={session}
         mission={mission}
         accent={accent}
         isDark={isDark}
         reveal={(puzzle as { reveal: string }).reveal}
+        onChange={onChange}
+        onFeedback={onFeedback}
       />
-    );
+
+      <SubmitBar
+        complete={complete}
+        accent={accent}
+        cost={level.cost}
+        onSubmit={onSubmit}
+      />
+    </View>
+  );
+}
+
   }
 
-  /* --------------------------------- Order -------------------------------- */
+  /* --------------------------------- Order --------------------------------- */
 
   if (session.kind === "order") {
     return (
@@ -132,30 +172,54 @@ export default function PuzzleBody({
           accent={accent}
           isDark={isDark}
           onPlace={(itemIndex) => {
-            const wanted = session.puzzle.items.indexOf(
-              session.puzzle.correctOrder[session.placed.length],
-            );
-            onChange({
+            // Ignore fragments that are no longer available.
+            if (!session.pool.includes(itemIndex)) return;
+
+            const expectedItem =
+              session.puzzle.correctOrder[session.placed.length];
+
+            const wanted = session.puzzle.items.indexOf(expectedItem);
+
+            const updatedSession = {
               ...session,
-              pool: session.pool.filter((i) => i !== itemIndex),
+              pool: session.pool.filter((index) => index !== itemIndex),
               placed: [...session.placed, itemIndex],
-            });
+            };
+
+            onChange(updatedSession);
             onFeedback(itemIndex === wanted);
           }}
           onRemove={(position) => {
+            if (position < 0 || position >= session.placed.length) return;
+
             const placed = [...session.placed];
             const [removed] = placed.splice(position, 1);
-            onChange({ ...session, placed, pool: [...session.pool, removed] });
+
+            if (removed === undefined) return;
+
+            onChange({
+              ...session,
+              placed,
+              pool: [...session.pool, removed],
+            });
           }}
           onMoveUp={(position) => {
+            if (position <= 0 || position >= session.placed.length) return;
+
             const placed = [...session.placed];
+
             [placed[position - 1], placed[position]] = [
               placed[position],
               placed[position - 1],
             ];
-            onChange({ ...session, placed });
+
+            onChange({
+              ...session,
+              placed,
+            });
           }}
         />
+
         <SubmitBar
           complete={complete}
           accent={accent}
@@ -169,11 +233,12 @@ export default function PuzzleBody({
   /* ------------------------------- Crossword ------------------------------ */
 
   if (session.kind === "crossword") {
-    const cw = session as CrosswordSession;
+    const crosswordSession: CrosswordSession = session;
+
     return (
       <View>
         <CrosswordBody
-          session={cw}
+          session={crosswordSession}
           mission={mission}
           reference={(puzzle as { reference?: string }).reference ?? ""}
           accent={accent}
@@ -183,22 +248,57 @@ export default function PuzzleBody({
           hintActive={hintActive}
           onHint={onHint}
           onType={(row, col, letter, correct) => {
-            const entries = cw.state.entries.map((r) => [...r]);
+            const entries = crosswordSession.state.entries.map(
+              (currentRow) => [...currentRow],
+            );
+
+            if (!entries[row] || col < 0 || col >= entries[row].length) {
+              return;
+            }
+
             entries[row][col] = letter;
-            onChange({ ...cw, state: { entries } });
+
+            onChange({
+              ...crosswordSession,
+              state: { entries },
+            });
+
             onFeedback(correct);
 
-            // A wrong letter flashes, then clears, so the grid never lies.
+            // Clear an incorrect letter after its brief feedback flash.
             if (!correct) {
               setTimeout(() => {
-                const cleared = cw.state.entries.map((r) => [...r]);
-                cleared[row][col] = "";
-                onChange({ ...cw, state: { entries: cleared } });
+                const latest = sessionRef.current;
+
+                if (latest.kind !== "crossword") return;
+
+                const currentEntries = latest.state.entries.map(
+                  (currentRow) => [...currentRow],
+                );
+
+                // Do not clear the cell if the player has already changed it.
+                if (currentEntries[row]?.[col] !== letter) return;
+
+                currentEntries[row][col] = "";
+
+                onChange({
+                  ...latest,
+                  state: {
+                    ...latest.state,
+                    entries: currentEntries,
+                  },
+                });
               }, 420);
             }
           }}
-          onSelectClue={(clueIndex) => onChange({ ...cw, activeClue: clueIndex })}
+          onSelectClue={(clueIndex) => {
+            onChange({
+              ...crosswordSession,
+              activeClue: clueIndex,
+            });
+          }}
         />
+
         <SubmitBar
           complete={complete}
           accent={accent}
@@ -211,11 +311,12 @@ export default function PuzzleBody({
 
   /* -------------------------------- Memory -------------------------------- */
 
-  const mem = session as MemorySession;
+  const memorySession: MemorySession = session;
+
   return (
     <View>
       <MemoryBody
-        session={mem}
+        session={memorySession}
         mission={mission}
         reference={(puzzle as { reference?: string }).reference ?? ""}
         accent={accent}
@@ -224,10 +325,14 @@ export default function PuzzleBody({
         hintText={hintText}
         onHint={onHint}
         onMatch={(indices) => {
-          onChange({ ...mem, matched: [...mem.matched, ...indices] });
+          onChange({
+            ...memorySession,
+            matched: [...memorySession.matched, ...indices],
+          });
         }}
         onFeedback={onFeedback}
       />
+
       <SubmitBar
         complete={complete}
         accent={accent}

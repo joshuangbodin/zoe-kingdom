@@ -197,7 +197,7 @@ export default forwardRef<PuzzleSheetHandle, Props>(function PuzzleSheet(
       }}
     >
       <BottomSheetScrollView
-        scrollEnabled={false}
+        scrollEnabled={true}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: 20,
@@ -290,35 +290,29 @@ function SheetBody({
         <View className="flex-row items-start justify-between">
           <View className="flex-1 min-w-0 pr-4">
             <View className="flex-row items-center mb-2">
-              <View
-                className="w-2 h-2 rounded-full mr-2"
-                style={{ backgroundColor: accent }}
-              />
-
+             
               <Text
-                className="text-[10px] font-sora-bold tracking-[1.8px]"
+                className="text-xs font-sora-medium"
                 style={{ color: accent }}
               >
-                LEVEL {level.index}
+                Level {level.index}
               </Text>
 
-              <Text className="text-quaternary text-[10px] mx-2">/</Text>
+              <Text className="text-primary/70  text-[10px] mx-2">/</Text>
 
-              <Text className="text-tertiary text-[10px] font-sora-medium tracking-wider">
-                {puzzleLabel(session.kind).toUpperCase()}
+              <Text className="text-primary/70   font-sora-medium text-xs">
+                {puzzleLabel(session.kind)}
               </Text>
             </View>
 
             <Text
-              className="text-primary text-[23px] font-sora-bold leading-[30px]"
+              className="text-primary text-[23px] font-sora-bold leading-7.5"
               numberOfLines={2}
             >
               {level.title}
             </Text>
 
-            <Text className="text-tertiary text-[11px] font-sora mt-1">
-              Take your time. Think it through.
-            </Text>
+           
           </View>
 
           <Pressable
@@ -338,94 +332,7 @@ function SheetBody({
           </Pressable>
         </View>
 
-        {/* activity indicators */}
-        <View
-          className="flex-row items-center mt-4 rounded-2xl px-3 py-3 border"
-          style={{
-            backgroundColor: isDark ? "#1C1A1A" : "#ECEDE7",
-            borderColor: isDark
-              ? "rgba(255,255,255,0.05)"
-              : "rgba(55,65,52,0.07)",
-          }}
-        >
-          <View className="flex-1 flex-row items-center">
-            <View
-              className="w-7 h-7 rounded-xl items-center justify-center mr-2"
-              style={{
-                backgroundColor:
-                  streak >= 2 ? "rgba(245,158,11,0.14)" : "rgba(150,155,144,0.12)",
-              }}
-            >
-              <Flame
-                size={14}
-                color={streak >= 2 ? "#F59E0B" : "#969B90"}
-              />
-            </View>
-
-            <View>
-              <Text className="text-primary text-[11px] font-sora-bold">
-                {streak}
-              </Text>
-              <Text className="text-tertiary text-[9px] font-sora">
-                Streak
-              </Text>
-            </View>
-          </View>
-
-          <View
-            className="w-px h-7"
-            style={{
-              backgroundColor: isDark
-                ? "rgba(255,255,255,0.08)"
-                : "rgba(55,65,52,0.10)",
-            }}
-          />
-
-          <View className="flex-1 flex-row items-center justify-center">
-            <View
-              className="w-7 h-7 rounded-xl items-center justify-center mr-2"
-              style={{ backgroundColor: "rgba(239,68,68,0.10)" }}
-            >
-              <AlertCircle size={14} color="#E87979" />
-            </View>
-
-            <View>
-              <Text className="text-primary text-[11px] font-sora-bold">
-                {mistakes}
-              </Text>
-              <Text className="text-tertiary text-[9px] font-sora">
-                Mistakes
-              </Text>
-            </View>
-          </View>
-
-          <View
-            className="w-px h-7"
-            style={{
-              backgroundColor: isDark
-                ? "rgba(255,255,255,0.08)"
-                : "rgba(55,65,52,0.10)",
-            }}
-          />
-
-          <View className="flex-1 flex-row items-center justify-end">
-            <View
-              className="w-7 h-7 rounded-xl items-center justify-center mr-2"
-              style={{ backgroundColor: accent + "20" }}
-            >
-              <Lightbulb size={14} color={accent} />
-            </View>
-
-            <View>
-              <Text className="text-primary text-[11px] font-sora-bold">
-                {hintsLeft}
-              </Text>
-              <Text className="text-tertiary text-[9px] font-sora">
-                Hints left
-              </Text>
-            </View>
-          </View>
-        </View>
+       
       </View>
 
       {/* puzzle section */}
@@ -433,8 +340,8 @@ function SheetBody({
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-row items-center">
             <Target size={13} color={accent} />
-            <Text className="text-secondary text-[10px] font-sora-bold tracking-[1.5px] ml-2">
-              YOUR CHALLENGE
+            <Text className="text-secondary text-xs font-sora-medium ml-2">
+              Your Challenge
             </Text>
           </View>
 
@@ -445,7 +352,7 @@ function SheetBody({
             >
               <Flame size={11} color="#F59E0B" />
               <Text className="text-amber-500 text-[9px] font-sora-bold ml-1.5">
-                {streak} IN A ROW
+                {streak} in a row
               </Text>
             </View>
           )}

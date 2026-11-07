@@ -1,14 +1,3 @@
-/**
- * Puzzle body components — one per puzzle kind.
- *
- * Every body is a controlled view: it receives the session, reports edits back
- * up, and never touches persistence itself. That keeps all game logic in
- * `libs/puzzles` (and unit-testable) while these files own only interaction and
- * presentation.
- *
- * Shared feedback language ("WOW!", "AWESOME!", the streak pop) lives in
- * `game.json -> feedback`, so the tone of the whole game is data, not code.
- */
 
 import React from "react";
 import { Pressable, Text, View } from "react-native";
@@ -18,21 +7,26 @@ import { Lightbulb } from "lucide-react-native";
 
 export const CARD = (isDark: boolean) => (isDark ? "#1c1a1a" : "#fbf6ee");
 
-/** The mission line shown above every puzzle. */
-export function MissionLine({ text, accent }: { text: string; accent: string }) {
+/** Compact mission heading shown above every puzzle. */
+export function MissionLine({
+  text,
+  accent,
+}: {
+  text: string;
+  accent: string;
+}) {
   return (
-    <View
-      className="rounded-2xl px-3.5 py-3 mb-4 border-l-[3px]"
-      style={{ backgroundColor: accent + "12", borderLeftColor: accent }}
-    >
-      <Text className="text-primary text-[13px] font-sora-medium leading-5">
+    <View style={{ backgroundColor: accent + "50" }} className="mb-5 p-3 rounded-xl">
+      
+
+      <Text className="text-primary text-[15px] font-sora-semibold leading-6">
         {text}
       </Text>
     </View>
   );
 }
 
-/** Progress + hint affordance shared by every body. */
+/** Subtle progress indicator and hint action shared by every puzzle. */
 export function PuzzleFooter({
   label,
   progress,
@@ -48,11 +42,15 @@ export function PuzzleFooter({
   onHint: () => void;
   accent: string;
 }) {
-  const pct = Math.round(Math.min(progress, 1) * 100);
+  const pct = Math.round(Math.min(Math.max(progress, 0), 1) * 100);
+
   return (
-    <View className="mt-4">
+    <View className="mt-5">
       <View className="flex-row items-center justify-between mb-2">
-        <Text className="text-tertiary text-[11px] font-sora-medium">{label}</Text>
+        <Text className="text-muted text-[11px] font-sora-medium">
+          {label}
+        </Text>
+
         <Text
           className="text-[11px] font-sora-bold tabular-nums"
           style={{ color: accent }}
@@ -61,17 +59,25 @@ export function PuzzleFooter({
         </Text>
       </View>
 
-      <View className="h-2 bg-overlay rounded-full overflow-hidden">
+      <View className="h-1 bg-overlay rounded-full overflow-hidden">
         <View
           className="h-full rounded-full"
-          style={{ width: `${pct}%`, backgroundColor: accent }}
+          style={{
+            width: `${pct}%`,
+            backgroundColor: accent,
+          }}
         />
       </View>
 
       {hintText ? (
-        <View className="flex-row items-start mt-3 rounded-2xl px-3 py-2.5 bg-overlay">
-          <Lightbulb size={12} color="#fbbf24" style={{ marginTop: 2 }} />
-          <Text className="text-secondary text-[11px] font-sora flex-1 ml-2 leading-4">
+        <View className="flex-row items-start mt-4">
+          <Lightbulb
+            size={14}
+            color={accent}
+            style={{ marginTop: 2 }}
+          />
+
+          <Text className="text-secondary text-[12px] font-sora ml-2 flex-1 leading-5">
             {hintText}
           </Text>
         </View>
@@ -79,12 +85,22 @@ export function PuzzleFooter({
         <Pressable
           onPress={onHint}
           disabled={hintsLeft <= 0}
-          className="flex-row items-center justify-center mt-3 py-2.5 rounded-xl bg-overlay"
+          accessibilityRole="button"
+          accessibilityLabel={
+            hintsLeft > 0
+              ? `Use a hint. ${hintsLeft} remaining`
+              : "No hints remaining"
+          }
+          className="flex-row items-center self-start mt-3 py-1"
           style={{ opacity: hintsLeft <= 0 ? 0.4 : 1 }}
         >
-          <Lightbulb size={12} color="#fbbf24" />
-          <Text className="text-secondary text-[11px] font-sora-semibold ml-1.5">
-            {hintsLeft > 0 ? `Hint (${hintsLeft} left)` : "No hints left"}
+          <Lightbulb size={13} color={accent} />
+
+          <Text
+            className="text-[11px] font-sora-semibold ml-1.5"
+            style={{ color: accent }}
+          >
+            {hintsLeft > 0 ? `Get a hint · ${hintsLeft} left` : "No hints left"}
           </Text>
         </Pressable>
       )}
@@ -92,7 +108,7 @@ export function PuzzleFooter({
   );
 }
 
-/** A tap target that scales down while pressed — the core game feel. */
+/** Tactile answer chip used throughout the puzzle bodies. */
 export function GameChip({
   label,
   onPress,
@@ -114,19 +130,41 @@ export function GameChip({
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      className="rounded-xl items-center justify-center"
-      style={{
-        paddingHorizontal: small ? 10 : 16,
-        paddingVertical: small ? 7 : 12,
-        backgroundColor: active ? accent : CARD(isDark),
-        borderWidth: active ? 0 : 1.5,
-        borderColor: active ? accent : "rgba(150,150,150,0.28)",
-        opacity: disabled ? 0.4 : 1,
-      }}
+      accessibilityRole="button"
+      accessibilityState={{ selected: !!active, disabled: !!disabled }}
+      style={({ pressed }) => ({
+        minHeight: small ? 34 : 46,
+        paddingHorizontal: small ? 11 : 16,
+        paddingVertical: small ? 7 : 11,
+        borderRadius: 12,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: active
+          ? accent
+          : isDark
+            ? "#1c1a1a"
+            : "#fbf6ee",
+        borderWidth: active ? 1 : 1,
+        borderColor: active
+          ? accent
+          : isDark
+            ? "rgba(255,255,255,0.10)"
+            : "rgba(55,65,52,0.12)",
+        opacity: disabled ? 0.38 : pressed ? 0.76 : 1,
+        transform: [{ scale: pressed && !disabled ? 0.97 : 1 }],
+      })}
     >
       <Text
-        className={`font-sora-semibold ${small ? "text-[12px]" : "text-[14px]"}`}
-        style={{ color: active ? "#fff" : undefined }}
+        className={`font-sora-semibold ${
+          small ? "text-[12px]" : "text-[14px]"
+        }`}
+        style={{
+          color: active
+            ? "#ffffff"
+            : isDark
+              ? "#f5f5f5"
+              : "#292d28",
+        }}
       >
         {label}
       </Text>
