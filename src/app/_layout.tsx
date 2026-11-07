@@ -44,11 +44,10 @@ export default function TabLayout() {
     "Poppins-SemiBold": require("@/assets/font/Poppins/Poppins-SemiBold.ttf"),
     "Poppins-Bold": require("@/assets/font/Poppins/Poppins-Bold.ttf"),
 
-    // serif — Academy Engraved LET ships a single "Plain" face on Apple
-    // platforms, so the italic slot resolves to the same file to keep
-    // font-serif-italic usages working.
-    "Serif-Regular": require("@/assets/font/Academy/AcademyEngravedLetPlain.ttf"),
-    "Serif-Italic": require("@/assets/font/Academy/AcademyEngravedLetPlain.ttf"),
+    // serif — Cardo (replaces Academy Engraved LET)
+    "Cardo_400Regular": require("@/assets/font/Cardo/Cardo_400Regular.ttf"),
+    "Cardo_400Regular_Italic": require("@/assets/font/Cardo/Cardo_400Regular_Italic.ttf"),
+    "Cardo_700Bold": require("@/assets/font/Cardo/Cardo_700Bold.ttf"),
   });
 
   useEffect(() => {

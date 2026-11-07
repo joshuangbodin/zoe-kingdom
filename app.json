@@ -61,7 +61,9 @@
             "./assets/font/Poppins/Poppins-Medium.ttf",
             "./assets/font/Poppins/Poppins-SemiBold.ttf",
             "./assets/font/Poppins/Poppins-Bold.ttf",
-            "./assets/font/Academy/AcademyEngravedLetPlain.ttf"
+            "./assets/font/Cardo/Cardo_400Regular.ttf",
+            "./assets/font/Cardo/Cardo_400Regular_Italic.ttf",
+            "./assets/font/Cardo/Cardo_700Bold.ttf"
           ]
         }
       ],

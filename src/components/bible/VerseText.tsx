@@ -43,9 +43,9 @@ export default memo(
     const body: React.ReactNode[] = [];
     const notes: string[] = [];
 
-    const bodyClass = bodyClassName ?? `text-base leading-8 font-serif ${colorClass}`;
+    const bodyClass = bodyClassName ?? `text-lg text-justify leading-7 font-serif ${colorClass}`;
     const noteClass =
-      noteClassName ?? "text-tertiary/60 text-[11px] leading-4 font-serif-italic mt-1.5";
+      noteClassName ?? "text-primary/80 text-[11px] leading-4 font-serif-italic mt-1.5";
 
     for (const part of parts) {
       if (part.type === "text") {
