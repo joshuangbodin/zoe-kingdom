@@ -93,13 +93,14 @@ export default function PostCard({
       {!!item.verseReference && (
         <Pressable
           onPress={() => onOpenVerse(item.verseReference!)}
-          className="bg-black/80 rounded-3xl overflow-hidden active:opacity-80 mb-3"
+          className="bg-black/80 rounded-3xl overflow-hidden  active:opacity-80 mb-3"
         >
           <Image
             source={src[val]}
             className="absolute inset-0 opacity-40  w-full h-full"
             style={{ borderRadius: 24 }}
             resizeMode="cover"
+            blurRadius={7}
           />
           <View className="p-4">
             <Text className="text-white text-xs font-sora mb-1.5">
@@ -107,7 +108,7 @@ export default function PostCard({
             </Text>
             <VerseText
               text={item.verseText}
-              bodyClassName="text-white text-xs leading-5 font-serif"
+              bodyClassName="text-white text-sm leading-7 font-serif"
               noteClassName="text-white/55 text-[10px] leading-4 font-serif-italic mt-1"
             />
           </View>

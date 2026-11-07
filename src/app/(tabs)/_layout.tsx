@@ -48,7 +48,11 @@ function SyncBanner() {
         className="absolute"
         pointerEvents="none"
       >
-        <WifiOff size={14} color={isDark ? "#8a8a8a" : "#b0a393"} strokeWidth={2} />
+        <WifiOff
+          size={14}
+          color={isDark ? "#8a8a8a" : "#b0a393"}
+          strokeWidth={2}
+        />
       </View>
     );
   }
@@ -77,10 +81,8 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
 
-          
-
           tabBarStyle: {
-            backgroundColor: isDark ? "#181818" : "#fbf6ee",
+            backgroundColor: isDark ? "#181817" : "#FAFAF7",
             borderTopWidth: 0,
             borderTopColor: isDark ? "#000" : "#eadfcb",
             height: insets.bottom + 80,
@@ -88,11 +90,11 @@ export default function TabLayout() {
             paddingBottom: insets.bottom + 10,
           },
 
-          tabBarInactiveTintColor: isDark ? "#fff9" : "#8b7f6e",
+          tabBarInactiveTintColor: isDark ? "#999A9A" : "#8b7f6e",
           tabBarActiveTintColor: isDark ? "#fff" : "#3f372d",
 
           tabBarLabelStyle: {
-            fontSize: 10,
+            fontSize: 11,
             marginTop: 1,
             fontFamily: "Poppins-Regular",
           },
@@ -102,7 +104,9 @@ export default function TabLayout() {
           name="home"
           options={{
             title: "Home",
-            tabBarIcon: ({ size, color }) => <Home size={17} color={color} />,
+            tabBarIcon: ({ size, color }) => (
+              <Home size={22} strokeWidth={1.2} color={color} />
+            ),
           }}
         />
 
@@ -111,7 +115,7 @@ export default function TabLayout() {
           options={{
             title: "Habits",
             tabBarIcon: ({ size, color }) => (
-              <CheckSquare size={17} color={color} />
+              <CheckSquare size={22} strokeWidth={1.2} color={color} />
             ),
           }}
         />
@@ -121,7 +125,7 @@ export default function TabLayout() {
           options={{
             title: "Feed",
             tabBarIcon: ({ size, color }) => (
-              <Newspaper size={17} color={color} />
+              <Newspaper size={22} strokeWidth={1.2} color={color} />
             ),
           }}
         />
@@ -131,7 +135,7 @@ export default function TabLayout() {
           options={{
             title: "Bible",
             tabBarIcon: ({ size, color }) => (
-              <BookPlus size={17} color={color} />
+              <BookPlus size={22} strokeWidth={1.2} color={color} />
             ),
           }}
         />
@@ -140,7 +144,7 @@ export default function TabLayout() {
           options={{
             title: "Arena",
             tabBarIcon: ({ size, color }) => (
-              <Gamepad2 size={17} color={color} />
+              <Gamepad2 size={22} strokeWidth={1.2} color={color} />
             ),
           }}
         />
@@ -148,7 +152,9 @@ export default function TabLayout() {
           name="profile"
           options={{
             title: "Profile",
-            tabBarIcon: ({ size, color }) => <User size={17} color={color} />,
+            tabBarIcon: ({ size, color }) => (
+              <User size={22} strokeWidth={1.2} color={color} />
+            ),
           }}
         />
       </Tabs>

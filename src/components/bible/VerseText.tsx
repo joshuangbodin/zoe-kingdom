@@ -54,7 +54,7 @@ export default memo(
         body.push(
           <Text
             key={body.length}
-            className="text-secondary/80 font-serif-italic"
+            className="text-secondary/90 font-serif-italic"
             style={{ fontStyle: "italic" }}
           >
             {part.text}
