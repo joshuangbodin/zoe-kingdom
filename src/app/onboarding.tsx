@@ -36,7 +36,7 @@ export default function Onboarding() {
       {/* CONTENT SHEET (BOTTOM) */}
       <Animated.View 
         entering={FadeInDown.duration(600)}
-        className="bg-bg rounded-t-[32px] px-6 pt-8 pb-6 justify-between"
+        className="bg-bg rounded-t-4xl px-6 pt-8 pb-6 justify-between"
       >
         {/* BRAND TITLE & TAGLINES */}
         <View className="mb-8">

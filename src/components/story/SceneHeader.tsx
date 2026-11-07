@@ -138,13 +138,14 @@ export function SpeechBubble({
         <Pressable
           onPress={onPrimaryPress}
           accessibilityRole="button"
+          disabled={!doneTyping}
           accessibilityLabel={
             doneTyping ? "Continue dialogue" : "Reveal complete line"
           }
           className="flex-row items-center justify-center rounded-full px-5 py-3"
           style={{
             backgroundColor: speaker.tint,
-            
+            opacity: doneTyping ? 1 : 0.5,
             minWidth: 130,
           }}
         >
@@ -152,7 +153,7 @@ export function SpeechBubble({
             className="text-[11px] font-sora-semibold"
             style={{ color: "#fff" }}
           >
-            {doneTyping ? "Continue" : "Tap to skip"}
+            {doneTyping ? "Continue" : "..."}
           </Text>
         </Pressable>
 

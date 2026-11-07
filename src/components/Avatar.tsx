@@ -18,7 +18,7 @@ const Avatar = ({
   if (!index)
     return (
       <View className="">
-        <UserCircle size={diameter * 0.8} color={isDark ? "#fff" : "#151515"} />
+        <UserCircle size={diameter * 0.8} color={isDark ? "gray" : "gray"} />
       </View>
     );
   return (

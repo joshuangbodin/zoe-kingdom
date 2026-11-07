@@ -200,8 +200,8 @@ export default function Profile() {
           className="flex-1 px-7"
         >
           <View className="items-center">
-            <Avatar index={0} diameter={72} />
-            <Text className="text-primary text-xl font-sora-bold mt-5">
+            <Avatar  index={0} diameter={72} />
+            <Text className="text-primary text-xl font-sora-medium mt-5">
               Browsing as a guest
             </Text>
             <Text className="text-tertiary text-sm font-sora text-center mt-2 leading-6">
@@ -210,9 +210,9 @@ export default function Profile() {
             </Text>
             <Pressable
               onPress={() => router.push("/(auth)/signin")}
-              className="mt-8 bg-white rounded-xl h-14 w-full items-center justify-center"
+              className="mt-8 bg-white rounded-2xl h-13 w-full items-center justify-center"
             >
-              <Text className="text-black text-sm font-sora-bold">
+              <Text className="text-black text-sm font-sora-medium">
                 Sign in with Google
               </Text>
             </Pressable>

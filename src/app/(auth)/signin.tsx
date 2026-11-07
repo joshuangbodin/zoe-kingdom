@@ -76,14 +76,14 @@ export default function SignIn() {
       <Pressable
         onPress={handleGoogle}
         disabled={loading}
-        className="bg-primary rounded-xl h-14 items-center justify-center flex-row"
+        className="bg-primary rounded-2xl h-13 items-center justify-center flex-row"
       >
         {loading ? (
           <ActivityIndicator color={isDark?"black":"#fff"} />
         ) : (
           <>
             <GoogleMark />
-            <Text className="text-bg font-sora-bold text-sm ml-3">
+            <Text className="text-bg font-sora-medium text-sm ml-3">
               Continue with Google
             </Text>
           </>
