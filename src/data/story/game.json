@@ -20,7 +20,7 @@
     "maxEnergy": 30,
     "perHabit": 10,
     "dailyRefill": 6,
-    "costPerLevel": 2,
+    "costPerLevel": 15,
     "hintCost": 1,
     "warnBelow": 4
   },
