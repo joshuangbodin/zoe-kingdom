@@ -18,10 +18,11 @@ import {
 } from "react-native";
 
 import Avatar from "@/components/Avatar";
-import BibleModal, { BibleSelection } from "@/components/BibleModal";
 import VerseText from "@/components/bible/VerseText";
+import BibleModal, { BibleSelection } from "@/components/BibleModal";
 import { useToast } from "@/components/Toast";
 import { useApp } from "@/context/app-context";
+import { useTheme } from "@/context/theme-context";
 import { createPostSmart } from "@/libs/firebase/posts";
 import { getAllUsersSortedByLastUpload } from "@/libs/firebase/users";
 import {
@@ -49,6 +50,7 @@ const TOPIC_SUGGESTIONS = [
 ];
 
 export default function ShareThought() {
+  const { isDark } = useTheme();
   const { verses, mention, mentionUid, mentionUsername } =
     useLocalSearchParams<{
       verses?: string;
@@ -200,9 +202,7 @@ export default function ShareThought() {
       const key = username.toLowerCase();
       if (seen.has(key)) continue;
       seen.add(key);
-      const known = mentionUsers.find(
-        (u) => u.username?.toLowerCase() === key,
-      );
+      const known = mentionUsers.find((u) => u.username?.toLowerCase() === key);
       out.push({ uid: known?.uid || "", username });
     }
     return out;
@@ -287,7 +287,7 @@ export default function ShareThought() {
             onPress={() => router.back()}
             className="w-9 h-9 rounded-xl bg-card-2 items-center justify-center"
           >
-            <ChevronLeft color="white" size={17} />
+            <ChevronLeft color={isDark ? "white" : "black"} size={17} />
           </Pressable>
           <Text className="text-primary text-base font-sora-semibold">
             New Post
@@ -309,8 +309,6 @@ export default function ShareThought() {
               >
                 Share
               </Text>
-
-              
             )}
           </Pressable>
         </View>
