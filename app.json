@@ -4,6 +4,7 @@
     "slug": "zoe-kingdom",
     "version": "1.0.0",
     "orientation": "portrait",
+    "jsEngine": "hermes",
     "icon": "./assets/images/icon.png",
     "scheme": "zoekingdom",
     "userInterfaceStyle": "automatic",
@@ -50,6 +51,16 @@
           "android": {
             "image": "./assets/images/icon.png",
             "imageWidth": 200
+          }
+        }
+      ],
+
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
           }
         }
       ],
