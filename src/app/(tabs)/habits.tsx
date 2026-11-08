@@ -136,16 +136,17 @@ export default function Habits() {
                     className="absolute inset-0   w-full h-full"
                     style={{ borderRadius: 24 }}
                     resizeMode="cover"
+                    blurRadius={10}
                   />
 
                   {/* Pattern overlaid with the card surface color so text stays readable */}
                   <View className="bg-black/40 p-5 pb-12">
-                    <Text className="text-white/80 text-[10px] font-sora ">
+                    <Text className="text-white/80 text-xs font-sora ">
                       {dailyVerse.ref}
                     </Text>
                     <Text
                       numberOfLines={3}
-                      className="text-white text-xs font-serif leading-5 mt-2"
+                      className="text-white text-sm font-serif leading-7 mt-2"
                     >
                       {dailyVerse.text}
                     </Text>

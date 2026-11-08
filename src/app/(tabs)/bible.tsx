@@ -624,7 +624,7 @@ export default function Bible() {
     return (
       <View className="flex-1 bg-bg items-center justify-center">
         <ActivityIndicator color={isDark ? "#fff" : "#0c0c0c"} />
-        <Text className="text-primary mt-4">Loading Bible...</Text>
+        <Text className="text-primary font-sora mt-4">Downloading Bible...</Text>
       </View>
     );
   }

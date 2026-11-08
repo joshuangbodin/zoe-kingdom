@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, MoreVertical } from "lucide-react-native";
+import { ArrowRight, Heart, MessageCircle, MoreVertical } from "lucide-react-native";
 import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
 
@@ -109,13 +109,15 @@ export default function PostCard({
             <VerseText
               text={item.verseText}
               bodyClassName="text-white text-sm leading-7 font-serif"
-              noteClassName="text-white/55 text-[10px] leading-4 font-serif-italic mt-1"
+              noteClassName="text-white text-[10px] leading-4 font-serif-italic mt-1"
             />
           </View>
-          <View className="border-t border-white/50 px-4 py-2">
+          <View className="border-t flex-row items-center border-white/50 px-4 py-2">
             <Text className="text-white text-[10px] font-sora">
-              Read full chapter →
+              Read full chapter 
+
             </Text>
+            <ArrowRight size={12} color="#fff" className="" />
           </View>
         </Pressable>
       )}

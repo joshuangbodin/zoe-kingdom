@@ -710,80 +710,110 @@ const renderBook = useCallback(
                 />
               </Animated.View>
 
-              {/* BOTTOM ACTIONS */}
-              <View
-                className="absolute bottom-0 left-0 right-0 px-5"
-                style={{ paddingBottom: bottom + 32 }}
-              >
-                <View className="flex-row gap-3">
-                  {selectionMode && (
-                    <>
-                      <PressableScale
-                        activeScale={0.95}
-                        onPress={() => {
-                          setSelectedVerses({});
-                          onClose();
-                        }}
-                        className="flex-1 bg-card-1 rounded-xl py-3.5 items-center"
-                      >
-                        <Text className="text-primary/70 text-sm font-sora-semibold">
-                          Cancel
-                        </Text>
-                      </PressableScale>
-                      <PressableScale
-                        activeScale={0.95}
-                        onPress={handleConfirm}
-                        disabled={Object.keys(selectedVerses).length === 0}
-                        className={`flex-1 rounded-xl py-3.5 items-center ${
-                          Object.keys(selectedVerses).length > 0
-                            ? "bg-white"
-                            : "bg-card-1"
-                        }`}
-                      >
-                        <Text
-                          className={`text-sm font-sora-semibold ${
-                            Object.keys(selectedVerses).length > 0
-                              ? "text-black"
-                              : "text-tertiary"
-                          }`}
-                        >
-                          Add ({Object.keys(selectedVerses).length})
-                        </Text>
-                      </PressableScale>
-                    </>
-                  )}
-                  {!selectionMode && (
-                    <View className="flex-row gap-3 flex-1">
-                      <PressableScale
-                        activeScale={0.95}
-                        onPress={goPrev}
-                        className="flex-1 bg-card-1 rounded-xl py-3.5 items-center flex-row justify-center"
-                      >
-                        <ChevronLeft
-                          color={isDark ? "#fff" : "#0c0c0c"}
-                          size={16}
-                        />
-                        <Text className="text-primary text-sm font-sora-semibold ml-1">
-                          Prev
-                        </Text>
-                      </PressableScale>
-                      <PressableScale
-                        activeScale={0.95}
-                        onPress={goNext}
-                        className="flex-1 bg-card-1 rounded-xl py-3.5 items-center flex-row justify-center"
-                      >
-                        <Text className="text-primary text-sm font-sora-semibold mr-1">
-                          Next
-                        </Text>
-                        <ChevronRight
-                          color={isDark ? "#fff" : "#0c0c0c"}
-                          size={16}
-                        />
-                      </PressableScale>
-                    </View>
-                  )}
-                </View>
-              </View>
+    {/* BOTTOM ACTIONS */}
+<View
+  className="absolute bottom-0 left-0 right-0 px-5"
+  style={{ paddingBottom: bottom + 24 }}
+>
+  {selectionMode ? (
+    <View className="bg-card-2 border border-line rounded-2xl p-3">
+      <View className="flex-row items-center justify-between mb-3 px-1">
+        <View>
+          <Text className="text-primary text-sm font-sora-semibold">
+            Select Bible verses
+          </Text>
+          <Text className="text-tertiary text-[11px] font-sora mt-1">
+            Tap verses above to add them to your selection
+          </Text>
+        </View>
+
+        <View className="bg-amber-500/15 px-3 py-1.5 rounded-full">
+          <Text className="text-amber-500 text-xs font-sora-semibold">
+            {Object.keys(selectedVerses).length} selected
+          </Text>
+        </View>
+      </View>
+
+      <View className="flex-row gap-3">
+        <PressableScale
+          activeScale={0.96}
+          onPress={() => {
+            setSelectedVerses({});
+            onClose();
+          }}
+          className="flex-1 bg-card-1 border border-line rounded-xl py-3.5 items-center justify-center"
+        >
+          <Text className="text-primary/70 text-sm font-sora-semibold">
+            Cancel
+          </Text>
+        </PressableScale>
+
+        <PressableScale
+          activeScale={0.96}
+          onPress={handleConfirm}
+          disabled={Object.keys(selectedVerses).length === 0}
+          className={`flex-[1.5] px-3 rounded-xl py-3.5 items-center justify-center ${
+            Object.keys(selectedVerses).length > 0
+              ? "bg-amber-500"
+              : "bg-card-1"
+          }`}
+        >
+          <Text
+            className={`text-sm font-sora-semibold ${
+              Object.keys(selectedVerses).length > 0
+                ? "text-primary"
+                : "text-tertiary"
+            }`}
+          >
+            Add selected verses
+          </Text>
+        </PressableScale>
+      </View>
+    </View>
+  ) : (
+    <View className="bg-card-2 border border-line rounded-2xl p-2">
+      <View className="flex-row items-center justify-between px-2 pt-1 pb-3">
+        <Text className="text-tertiary text-[11px] font-sora-medium">
+          CHAPTER NAVIGATION
+        </Text>
+
+        <Text className="text-primary text-xs font-sora-semibold">
+          {selectedChapter}
+        </Text>
+      </View>
+
+      <View className="flex-row gap-2">
+        <PressableScale
+          activeScale={0.96}
+          onPress={goPrev}
+          className="flex-1 bg-card-1 border border-line rounded-xl py-3.5 items-center justify-center flex-row"
+        >
+          <ChevronLeft
+            color={isDark ? "#fff" : "#0c0c0c"}
+            size={18}
+          />
+          <Text className="text-primary text-sm font-sora-semibold ml-1">
+            Previous
+          </Text>
+        </PressableScale>
+
+        <PressableScale
+          activeScale={0.96}
+          onPress={goNext}
+          className="flex-1 bg-card-1 border border-line rounded-xl py-3.5 items-center justify-center flex-row"
+        >
+          <Text className="text-primary text-sm font-sora-semibold mr-1">
+            Next chapter
+          </Text>
+          <ChevronRight
+            color={isDark ? "#fff" : "#0c0c0c"}
+            size={18}
+          />
+        </PressableScale>
+      </View>
+    </View>
+  )}
+</View>
             </>
           )}
 
@@ -796,12 +826,10 @@ const renderBook = useCallback(
               <Pressable
                 onPress={() => {}}
                 className="bg-card-1 rounded-t-4xl"
-                style={{ maxHeight: "80%" }}
+                style={{ maxHeight: "90%", minHeight: "75%" }}
               >
                 {/* Handle */}
-                <View className="items-center pt-3 pb-1">
-                  <View className="w-10 h-1.5 rounded-full bg-line" />
-                </View>
+               
                 <View className="flex-row items-center justify-between px-5 pt-2 pb-3 border-b border-line">
                   <Text className="text-primary text-sm font-sora-semibold">
                     Books of the Bible
